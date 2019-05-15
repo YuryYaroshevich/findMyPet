@@ -1,9 +1,14 @@
 package com.yy.petfinder.model;
 
 import java.util.Objects;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
 
+@Document
 public class User {
+  @Indexed(unique = true, background = true)
   private String email;
+
   private String phone;
 
   public User(String email, String phone) {

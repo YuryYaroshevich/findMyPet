@@ -58,4 +58,13 @@ public class UserControllerTest {
     assertEquals(Long.valueOf(1), userRepository.count().block());
     assertEquals(user, userRepository.findByEmail(email).block());
   }
+
+  @Test
+  public void testCreateUserReturnsErrorIfEmailExists() {
+    final String email = "abc@email.com";
+    final User user = new User(email, "+375296666666");
+    userRepository.save(user).block();
+
+    webTestClient.post().uri("/users").syncBody(user).exchange().expectStatus().is5xxServerError();
+  }
 }
