@@ -1,28 +1,51 @@
 plugins {
-	id 'org.springframework.boot' version '2.1.4.RELEASE'
-	id 'java'
+  id 'org.springframework.boot' version '2.1.4.RELEASE'
+  id 'java'
+  id 'com.diffplug.gradle.spotless' version '3.17.0'
+  id 'io.spring.dependency-management' version '1.0.6.RELEASE'
 }
-
-apply plugin: 'io.spring.dependency-management'
 
 group = 'com.yy'
 version = '0.0.1-SNAPSHOT'
 
-targetCompatibility = 11
+targetCompatibility = '11'
 sourceCompatibility = '11'
 
 wrapper {
-	distributionType = Wrapper.DistributionType.ALL
-	gradleVersion = '5.4.1'
+  distributionType = Wrapper.DistributionType.ALL
+  gradleVersion = '5.4.1'
 }
 
-repositories {
-	mavenCentral()
-}
+repositories { mavenCentral() }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-data-mongodb-reactive'
-	implementation 'org.springframework.boot:spring-boot-starter-webflux'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testImplementation 'io.projectreactor:reactor-test'
+  implementation 'org.springframework.boot:spring-boot-starter-data-mongodb-reactive'
+  implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
+  testImplementation 'org.springframework.boot:spring-boot-starter-test'
+  testImplementation 'io.projectreactor:reactor-test'
+  testImplementation group: "de.flapdoodle.embed", name: "de.flapdoodle.embed.mongo", version: "2.2.0"
+
+  testImplementation "org.junit.jupiter:junit-jupiter-api"
+  testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
+}
+
+spotless {
+  encoding = java.nio.charset.StandardCharsets.UTF_8
+  lineEndings = com.diffplug.spotless.LineEnding.UNIX
+  groovyGradle {
+    greclipse()
+    trimTrailingWhitespace()
+    endWithNewline()
+    indentWithSpaces(2)
+    paddedCell()
+  }
+  java {
+    target fileTree(rootDir) {
+      include '**/*.java'
+      exclude "build/**"
+    }
+    googleJavaFormat('1.7')
+    paddedCell()
+  }
 }

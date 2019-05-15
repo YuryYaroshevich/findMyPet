@@ -8,18 +8,18 @@ import reactor.core.publisher.Mono;
 
 @Service
 public class UserService {
-    private UserRepository userRepository;
+  private UserRepository userRepository;
 
-    @Autowired
-    public UserService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
+  @Autowired
+  public UserService(UserRepository userRepository) {
+    this.userRepository = userRepository;
+  }
 
-    public Mono<User> getUser(final String email) {
-        return userRepository.findByEmail(email);
-    }
+  public Mono<User> getUser(final String email) {
+    return userRepository.findByEmail(email);
+  }
 
-    public Mono<User> createUser(User user) {
-        return userRepository.save(user);
-    }
+  public Mono<User> createUser(User user) {
+    return userRepository.save(user);
+  }
 }
