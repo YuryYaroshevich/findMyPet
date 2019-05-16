@@ -7,11 +7,16 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document
 public class User {
   @Indexed(unique = true, background = true)
+  private String uuid;
+
+  @Indexed(unique = true, background = true)
   private String email;
 
+  private String password;
   private String phone;
 
-  public User(String email, String phone) {
+  public User(String uuid, String email, String phone) {
+    this.uuid = uuid;
     this.email = email;
     this.phone = phone;
   }
@@ -32,16 +37,35 @@ public class User {
     this.email = email;
   }
 
+  public String getPassword() {
+    return password;
+  }
+
+  public void setPassword(String password) {
+    this.password = password;
+  }
+
+  public String getUuid() {
+    return uuid;
+  }
+
+  public void setUuid(String uuid) {
+    this.uuid = uuid;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     User user = (User) o;
-    return Objects.equals(email, user.email) && Objects.equals(phone, user.phone);
+    return uuid.equals(user.uuid)
+        && email.equals(user.email)
+        && Objects.equals(password, user.password)
+        && Objects.equals(phone, user.phone);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(email, phone);
+    return Objects.hash(uuid, email, password, phone);
   }
 }

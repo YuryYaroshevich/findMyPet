@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.yy.petfinder.model.User;
 import com.yy.petfinder.persistence.UserRepository;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,6 +20,8 @@ public class UserControllerTest {
 
   @Autowired private UserRepository userRepository;
 
+  private static final String USER_ID = UUID.randomUUID().toString();
+
   @BeforeEach
   public void setup() {
     userRepository.deleteAll().block();
@@ -27,7 +30,7 @@ public class UserControllerTest {
   @Test
   public void testGetUserReturnCorrectUser() {
     final String email = "abc@email.com";
-    final User user = new User(email, "+375296666666");
+    final User user = new User(USER_ID, email, "+375296666666");
     userRepository.save(user).block();
 
     webTestClient
@@ -43,26 +46,19 @@ public class UserControllerTest {
   @Test
   public void testCreateUserSavesUserInDb() {
     final String email = "abc@email.com";
-    final User user = new User(email, "+375296666666");
+    final User expectedUser = new User(USER_ID, email, "+375296666666");
 
-    webTestClient
-        .post()
-        .uri("/users")
-        .syncBody(user)
-        .exchange()
-        .expectStatus()
-        .isCreated()
-        .expectBody(User.class)
-        .isEqualTo(user);
+    webTestClient.post().uri("/users").syncBody(expectedUser).exchange().expectStatus().isCreated();
 
     assertEquals(Long.valueOf(1), userRepository.count().block());
-    assertEquals(user, userRepository.findByEmail(email).block());
+    final User user = userRepository.findByEmail(email).block();
+    assertEquals(expectedUser.getEmail(), user.getEmail());
   }
 
   @Test
   public void testCreateUserReturnsErrorIfEmailExists() {
     final String email = "abc@email.com";
-    final User user = new User(email, "+375296666666");
+    final User user = new User(USER_ID, email, "+375296666666");
     userRepository.save(user).block();
 
     webTestClient.post().uri("/users").syncBody(user).exchange().expectStatus().is5xxServerError();

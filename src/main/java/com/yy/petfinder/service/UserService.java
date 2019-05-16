@@ -2,17 +2,21 @@ package com.yy.petfinder.service;
 
 import com.yy.petfinder.model.User;
 import com.yy.petfinder.persistence.UserRepository;
+import com.yy.petfinder.util.UUIDService;
+import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 @Service
 public class UserService {
-  private UserRepository userRepository;
+  private final UserRepository userRepository;
+  private final UUIDService uuidService;
 
   @Autowired
-  public UserService(UserRepository userRepository) {
+  public UserService(UserRepository userRepository, UUIDService uuidService) {
     this.userRepository = userRepository;
+    this.uuidService = uuidService;
   }
 
   public Mono<User> getUser(final String email) {
@@ -20,6 +24,8 @@ public class UserService {
   }
 
   public Mono<User> createUser(User user) {
+    final UUID uuid = uuidService.generateUUIDFromBytes(user.getEmail().getBytes());
+    user.setUuid(uuid.toString());
     return userRepository.save(user);
   }
 }
