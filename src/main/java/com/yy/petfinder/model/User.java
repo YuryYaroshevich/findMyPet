@@ -68,4 +68,14 @@ public class User {
   public int hashCode() {
     return Objects.hash(uuid, email, password, phone);
   }
+
+  @Override
+  public String toString() {
+    return "User{" +
+            "uuid='" + uuid + '\'' +
+            ", email='" + email + '\'' +
+            ", password='" + password + '\'' +
+            ", phone='" + phone + '\'' +
+            '}';
+  }
 }
