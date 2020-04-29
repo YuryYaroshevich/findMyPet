@@ -2,10 +2,10 @@ package com.yy.petfinder.service;
 
 import com.yy.petfinder.model.User;
 import com.yy.petfinder.persistence.UserRepository;
-import com.yy.petfinder.util.UUIDService;
-
-import java.time.LocalDateTime;
+import com.yy.petfinder.rest.model.CreateUser;
+import com.yy.petfinder.rest.model.UserView;
 import java.util.UUID;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -13,23 +13,32 @@ import reactor.core.publisher.Mono;
 @Service
 public class UserService {
   private final UserRepository userRepository;
-  private final UUIDService uuidService;
 
   @Autowired
-  public UserService(UserRepository userRepository, UUIDService uuidService) {
+  public UserService(UserRepository userRepository) {
     this.userRepository = userRepository;
-    this.uuidService = uuidService;
   }
 
-  public Mono<User> getUser(final String email) {
-    return userRepository.findByEmail(email);
+  public Mono<UserView> getUser(final String uuid) {
+    final Mono<User> user = userRepository.findByUuid(uuid);
+    final Mono<UserView> userView = user.map(this::userToView);
+    return userView;
   }
 
-  public Mono<User> createUser(User user) {
-    final UUID uuid = uuidService.generateUUIDFromBytes(user.getEmail().getBytes());
-    user.setUuid(uuid.toString());
-    return userRepository.save(user)
-            .doOnEach(u ->
-                    System.out.println("Created user: " + u + " " + LocalDateTime.now()));
+  public Mono<UserView> createUser(CreateUser createUser) {
+    final ObjectId objectId = new ObjectId();
+    final String uuid = UUID.randomUUID().toString();
+    final User newUser =
+        new User(
+            objectId, uuid, createUser.getEmail(), createUser.getPassword(), createUser.getPhone());
+
+    final Mono<User> createdUser = userRepository.save(newUser);
+
+    final Mono<UserView> userView = createdUser.map(this::userToView);
+    return userView;
+  }
+
+  private UserView userToView(final User user) {
+    return new UserView(user.getUuid(), user.getEmail(), user.getPhone());
   }
 }

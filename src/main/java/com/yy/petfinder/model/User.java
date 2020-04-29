@@ -1,56 +1,49 @@
 package com.yy.petfinder.model;
 
 import java.util.Objects;
+import org.bson.types.ObjectId;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document
 public class User {
-  @Indexed(unique = true, background = true)
-  private String uuid;
+  @Id private final ObjectId id;
 
   @Indexed(unique = true, background = true)
-  private String email;
+  private final String uuid;
 
-  private String password;
-  private String phone;
+  private final String email;
 
-  public User(String uuid, String email, String phone) {
+  private final String password;
+  private final String phone;
+
+  public User(ObjectId id, String uuid, String email, String password, String phone) {
+    this.id = id;
     this.uuid = uuid;
     this.email = email;
-    this.phone = phone;
-  }
-
-  public String getPhone() {
-    return phone;
-  }
-
-  public void setPhone(String phone) {
-    this.phone = phone;
-  }
-
-  public String getEmail() {
-    return email;
-  }
-
-  public void setEmail(String email) {
-    this.email = email;
-  }
-
-  public String getPassword() {
-    return password;
-  }
-
-  public void setPassword(String password) {
     this.password = password;
+    this.phone = phone;
+  }
+
+  public ObjectId getId() {
+    return id;
   }
 
   public String getUuid() {
     return uuid;
   }
 
-  public void setUuid(String uuid) {
-    this.uuid = uuid;
+  public String getEmail() {
+    return email;
+  }
+
+  public String getPassword() {
+    return password;
+  }
+
+  public String getPhone() {
+    return phone;
   }
 
   @Override
@@ -58,24 +51,15 @@ public class User {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     User user = (User) o;
-    return uuid.equals(user.uuid)
+    return id.equals(user.id)
+        && uuid.equals(user.uuid)
         && email.equals(user.email)
-        && Objects.equals(password, user.password)
-        && Objects.equals(phone, user.phone);
+        && password.equals(user.password)
+        && phone.equals(user.phone);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(uuid, email, password, phone);
-  }
-
-  @Override
-  public String toString() {
-    return "User{" +
-            "uuid='" + uuid + '\'' +
-            ", email='" + email + '\'' +
-            ", password='" + password + '\'' +
-            ", phone='" + phone + '\'' +
-            '}';
+    return Objects.hash(id, uuid, email, password, phone);
   }
 }
