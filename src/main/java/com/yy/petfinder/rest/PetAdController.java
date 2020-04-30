@@ -1,0 +1,27 @@
+package com.yy.petfinder.rest;
+
+import com.yy.petfinder.rest.model.PetAdView;
+import com.yy.petfinder.service.PetAdService;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Mono;
+
+@RestController
+@RequestMapping("/pets/ad")
+public class PetAdController {
+  private final PetAdService petAdService;
+
+  public PetAdController(PetAdService petAdService) {
+    this.petAdService = petAdService;
+  }
+
+  @PostMapping
+  @ResponseStatus(HttpStatus.CREATED)
+  public Mono<PetAdView> createUser(@RequestBody PetAdView petAd) {
+    return petAdService.createAd(petAd);
+  }
+}
