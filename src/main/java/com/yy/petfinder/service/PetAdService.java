@@ -1,5 +1,6 @@
 package com.yy.petfinder.service;
 
+import com.yy.petfinder.model.PetAd;
 import com.yy.petfinder.persistence.PetAdRepository;
 import com.yy.petfinder.rest.model.PetAdView;
 import org.bson.types.ObjectId;
@@ -16,11 +17,14 @@ public class PetAdService {
     this.petAdRepository = petAdRepository;
   }
 
-  public Mono<PetAdView> createAd(PetAdView petAd) {
+  public Mono<PetAdView> createAd(PetAdView petAdView) {
     final ObjectId objectId = new ObjectId();
     final String uuid = UUID.randomUUID().toString();
 
-    final Mono<PetAdView> createdAd = petAdRepository.save(petAd);
-    return createdAd;
+    final PetAd newPetAd = new PetAd(objectId, uuid, petAdView);
+
+    final Mono<PetAdView> createdAd = petAdRepository.save(petAdView);
+    return createdAd.map(ad -> petAdView);
   }
+
 }

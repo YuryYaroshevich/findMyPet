@@ -21,7 +21,7 @@ public class PetAdController {
 
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
-  public Mono<PetAdView> createUser(@RequestBody PetAdView petAd) {
+  public Mono<PetAdView> createPetAd(@RequestBody PetAdView petAd) {
     return petAdService.createAd(petAd);
   }
 }
