@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping(value = "/users")
 public class UserController {
   private final UserService userService;
 
@@ -24,9 +24,9 @@ public class UserController {
     this.userService = userService;
   }
 
-  @GetMapping("/{email}")
-  public Mono<UserView> getUser(@PathVariable("email") final String email) {
-    return userService.getUser(email);
+  @GetMapping("/{uuid}")
+  public Mono<UserView> getUser(@PathVariable("uuid") final String uuid) {
+    return userService.getUser(uuid);
   }
 
   @PostMapping

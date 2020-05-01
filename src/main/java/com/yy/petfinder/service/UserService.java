@@ -29,11 +29,15 @@ public class UserService {
     final ObjectId objectId = new ObjectId();
     final String uuid = UUID.randomUUID().toString();
     final User newUser =
-        new User(
-            objectId, uuid, createUser.getEmail(), createUser.getPassword(), createUser.getPhone());
+        User.builder()
+            .id(objectId)
+            .uuid(uuid)
+            .email(createUser.getEmail())
+            .phone(createUser.getPhone())
+            .password(createUser.getPassword())
+            .build();
 
     final Mono<User> createdUser = userRepository.save(newUser);
-
     final Mono<UserView> userView = createdUser.map(this::userToView);
     return userView;
   }
