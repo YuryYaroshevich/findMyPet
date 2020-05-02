@@ -8,7 +8,7 @@ import lombok.Value;
 @Value
 @Builder
 public class PetAdView {
-  @NonNull private String uuid;
+  private String uuid;
   @NonNull private PetType petType;
   private String color;
   @NonNull private String name;

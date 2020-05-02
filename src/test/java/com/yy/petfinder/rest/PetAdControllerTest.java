@@ -1,5 +1,6 @@
 package com.yy.petfinder.rest;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.yy.petfinder.model.PetAd;
@@ -87,10 +88,41 @@ public class PetAdControllerTest {
   }
 
   @Test
-  public void fuck() {
-    List<List<Double>> list = List.of(List.of(1.0, 2.0));
-    List<List<Double>> list2 = List.of(List.of(1.0, 2.0));
+  public void testCreatePetAdSavesAdInDb() {
+    final List<List<Double>> coordinates =
+        List.of(
+            List.of(53.911665, 27.469369),
+            List.of(53.911867, 27.491685),
+            List.of(53.899226, 27.491856),
+            List.of(53.897405, 27.461129));
+    final PetType petType = PetType.DOG;
+    final String name = "Fido";
+    final String ownerId = UUID.randomUUID().toString();
+    final byte[] imageBlob = {1, 2, 3};
+    final String color = "black";
+    final PetAdView petAdView =
+        PetAdView.builder()
+            .searchArea(new SearchAreaView(coordinates))
+            .petType(petType)
+            .name(name)
+            .ownerId(ownerId)
+            .imageBlob(imageBlob)
+            .color(color)
+            .build();
 
-    assertEquals(list, list2);
+    webTestClient.post().uri("/pets/ad").bodyValue(petAdView).exchange().expectStatus().isCreated();
+
+    assertEquals(Long.valueOf(1), petAdRepository.count().block());
+    final List<PetAd> petAds = petAdRepository.findAll().collectList().block();
+    assertEquals(1, petAds.size());
+
+    final PetAd petAd = petAds.get(0);
+    assertEquals(
+        petAdView.getSearchArea().getCoordinates(), petAd.getSearchArea().getCoordinates());
+    assertEquals(petAdView.getPetType(), petAd.getPetType());
+    assertEquals(petAdView.getName(), petAd.getName());
+    assertEquals(petAdView.getOwnerId(), petAd.getOwnerId());
+    assertArrayEquals(petAdView.getImageBlob(), petAd.getImageBlob());
+    assertEquals(petAdView.getColor(), petAd.getColor());
   }
 }
