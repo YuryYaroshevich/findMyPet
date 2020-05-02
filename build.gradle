@@ -1,8 +1,9 @@
 plugins {
-  id 'org.springframework.boot' version '2.1.4.RELEASE'
+  id 'org.springframework.boot' version '2.2.6.RELEASE'
   id 'java'
   id 'com.diffplug.gradle.spotless' version '3.17.0'
-  id 'io.spring.dependency-management' version '1.0.6.RELEASE'
+  id 'io.spring.dependency-management' version '1.0.9.RELEASE'
+  //id 'io.freefair.lombok' version '5.0.1'
 }
 
 group = 'com.yy'
@@ -21,6 +22,8 @@ repositories { mavenCentral() }
 dependencies {
   implementation 'org.springframework.boot:spring-boot-starter-data-mongodb-reactive'
   implementation 'org.springframework.boot:spring-boot-starter-webflux'
+  compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.12'
+  annotationProcessor group: 'org.projectlombok', name: 'lombok', version: '1.18.12'
 
   testImplementation 'org.springframework.boot:spring-boot-starter-test'
   testImplementation 'io.projectreactor:reactor-test'

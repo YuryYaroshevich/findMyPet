@@ -15,18 +15,18 @@ import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping(value = "/users")
 public class UserController {
-  private UserService userService;
+  private final UserService userService;
 
   @Autowired
   public UserController(UserService userService) {
     this.userService = userService;
   }
 
-  @GetMapping("/{email}")
-  public Mono<UserView> getUser(@PathVariable("email") final String email) {
-    return userService.getUser(email);
+  @GetMapping("/{uuid}")
+  public Mono<UserView> getUser(@PathVariable("uuid") final String uuid) {
+    return userService.getUser(uuid);
   }
 
   @PostMapping

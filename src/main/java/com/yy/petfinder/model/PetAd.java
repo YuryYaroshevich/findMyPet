@@ -6,19 +6,20 @@ import lombok.Value;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.data.mongodb.core.mapping.Document;
 
-@Document
 @Value
-@Builder(toBuilder = true)
-public class User {
+@Builder
+public class PetAd {
   @Id @NonNull private ObjectId id;
 
   @Indexed(unique = true, background = true)
   @NonNull
   private String uuid;
 
-  @NonNull private String email;
-  @NonNull private String password;
-  @NonNull private String phone;
+  @NonNull private PetType petType;
+  private String color;
+  @NonNull private String name;
+  @NonNull private byte[] imageBlob;
+  @NonNull private SearchArea searchArea;
+  @NonNull private String ownerId;
 }

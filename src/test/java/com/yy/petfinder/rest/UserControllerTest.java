@@ -36,7 +36,8 @@ public class UserControllerTest {
     final String phone = "+375296666666";
     final ObjectId objectId = new ObjectId();
     final String uuid = UUID.randomUUID().toString();
-    final User user = new User(objectId, uuid, email, password, phone);
+    final User user =
+        User.builder().id(objectId).uuid(uuid).email(email).phone(phone).password(password).build();
     final UserView expectedUser = new UserView(uuid, email, phone);
     userRepository.save(user).block();
 
@@ -61,7 +62,7 @@ public class UserControllerTest {
     final String phone = "+375296666666";
     final CreateUser newUser = new CreateUser(email, phone, password);
 
-    webTestClient.post().uri("/users").syncBody(newUser).exchange().expectStatus().isCreated();
+    webTestClient.post().uri("/users").bodyValue(newUser).exchange().expectStatus().isCreated();
 
     assertEquals(Long.valueOf(1), userRepository.count().block());
     final List<User> users = userRepository.findAll().collectList().block();
