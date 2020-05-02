@@ -5,6 +5,7 @@ import com.yy.petfinder.model.SearchArea;
 import com.yy.petfinder.persistence.PetAdRepository;
 import com.yy.petfinder.rest.model.PetAdView;
 import com.yy.petfinder.rest.model.SearchAreaView;
+import java.util.List;
 import java.util.UUID;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
@@ -54,5 +55,9 @@ public class PetAdService {
         .petType(petAd.getPetType())
         .searchArea(new SearchAreaView(petAd.getSearchArea().getCoordinates()))
         .build();
+  }
+
+  public Mono<List<PetAdView>> searchPets() {
+    return null;
   }
 }

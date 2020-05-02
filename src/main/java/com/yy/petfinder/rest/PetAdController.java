@@ -2,6 +2,7 @@ package com.yy.petfinder.rest;
 
 import com.yy.petfinder.rest.model.PetAdView;
 import com.yy.petfinder.service.PetAdService;
+import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,7 +29,12 @@ public class PetAdController {
   }
 
   @GetMapping("/{uuid}")
-  public Mono<PetAdView> getUser(@PathVariable("uuid") final String uuid) {
+  public Mono<PetAdView> getPetAd(@PathVariable("uuid") final String uuid) {
     return petAdService.getAd(uuid);
+  }
+
+  @GetMapping()
+  public Mono<List<PetAdView>> searchPet() {
+    return petAdService.searchPets();
   }
 }
