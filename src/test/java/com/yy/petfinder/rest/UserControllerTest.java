@@ -62,7 +62,7 @@ public class UserControllerTest {
     final String phone = "+375296666666";
     final CreateUser newUser = new CreateUser(email, phone, password);
 
-    webTestClient.post().uri("/users").syncBody(newUser).exchange().expectStatus().isCreated();
+    webTestClient.post().uri("/users").bodyValue(newUser).exchange().expectStatus().isCreated();
 
     assertEquals(Long.valueOf(1), userRepository.count().block());
     final List<User> users = userRepository.findAll().collectList().block();

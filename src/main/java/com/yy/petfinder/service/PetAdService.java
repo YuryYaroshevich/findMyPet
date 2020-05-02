@@ -52,9 +52,7 @@ public class PetAdService {
         .ownerId(petAd.getOwnerId())
         .name(petAd.getName())
         .petType(petAd.getPetType())
-        .searchArea(SearchAreaView.builder()
-          .coordinates(petAd.getSearchArea().getCoordinates())
-          .build())
+        .searchArea(new SearchAreaView(petAd.getSearchArea().getCoordinates()))
         .build();
   }
 }
