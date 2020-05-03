@@ -4,6 +4,7 @@ import com.yy.petfinder.model.PetAd;
 import com.yy.petfinder.model.SearchArea;
 import com.yy.petfinder.persistence.PetAdRepository;
 import com.yy.petfinder.rest.model.PetAdView;
+import com.yy.petfinder.rest.model.PetSearchRequest;
 import com.yy.petfinder.rest.model.SearchAreaView;
 import java.util.List;
 import java.util.UUID;
@@ -42,10 +43,14 @@ public class PetAdService {
 
   public Mono<PetAdView> getAd(String uuid) {
     final Mono<PetAd> petAd = petAdRepository.findByUuid(uuid);
-    return petAd.map(this::toView);
+    return petAd.map(this::toPetAdView);
   }
 
-  private PetAdView toView(PetAd petAd) {
+  public Mono<List<PetAdView>> searchPets(PetSearchRequest petSearchReq) {
+    return petAdRepository.findPetAds(petSearchReq).map(this::toPetAdView).collectList();
+  }
+
+  private PetAdView toPetAdView(PetAd petAd) {
     return PetAdView.builder()
         .uuid(petAd.getUuid())
         .color(petAd.getColor())
@@ -53,11 +58,7 @@ public class PetAdService {
         .ownerId(petAd.getOwnerId())
         .name(petAd.getName())
         .petType(petAd.getPetType())
-        .searchArea(new SearchAreaView(petAd.getSearchArea().getCoordinates()))
+        .searchArea(new SearchAreaView(petAd.getSearchArea().getCoordinatesList()))
         .build();
-  }
-
-  public Mono<List<PetAdView>> searchPets() {
-    return null;
   }
 }
