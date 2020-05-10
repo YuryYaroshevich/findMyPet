@@ -68,7 +68,8 @@ public class PetAdControllerTest {
             List.of(53.911665, 27.469369),
             List.of(53.911867, 27.491685),
             List.of(53.899226, 27.491856),
-            List.of(53.897405, 27.461129));
+            List.of(53.897405, 27.461129),
+            List.of(53.911665, 27.469369));
     final PetType petType = PetType.DOG;
     final String name = "Fido";
     final String ownerId = UUID.randomUUID().toString();
@@ -92,7 +93,7 @@ public class PetAdControllerTest {
 
     final PetAd petAd = petAds.get(0);
     assertEquals(
-        petAdView.getSearchArea().getCoordinates(), petAd.getSearchArea().getCoordinates());
+        petAdView.getSearchArea().getCoordinates(), petAd.getSearchArea().getCoordinatesList());
     assertEquals(petAdView.getPetType(), petAd.getPetType());
     assertEquals(petAdView.getName(), petAd.getName());
     assertEquals(petAdView.getOwnerId(), petAd.getOwnerId());
