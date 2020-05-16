@@ -2,8 +2,8 @@ package com.yy.petfinder.persistence;
 
 import com.yy.petfinder.model.PetAd;
 import com.yy.petfinder.rest.model.PetSearchRequest;
-import org.springframework.data.geo.Point;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
+import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import reactor.core.publisher.Flux;
@@ -20,7 +20,8 @@ public class PetAdRepositoryImpl implements PetAdRepositoryCustom {
   // TODO: paging needed
   @Override
   public Flux<PetAd> findPetAds(final PetSearchRequest petSearchRequest) {
-    final Point point = new Point(petSearchRequest.getLongitude(), petSearchRequest.getLatitude());
+    final GeoJsonPoint point =
+        new GeoJsonPoint(petSearchRequest.getLongitude(), petSearchRequest.getLatitude());
     return mongoTemplate.find(
         new Query(
             Criteria.where(SEARCH_AREA_FIELD)

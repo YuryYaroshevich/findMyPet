@@ -38,65 +38,47 @@ public class PetAdSearchControllerTest {
     final SearchArea searchArea1 =
         SearchArea.of(
             List.of(
-              List.of(27.417712211608883,
-                53.88572576837868),
-              List.of(27.41878509521484,
-                53.88322156733548),
-              List.of(27.422647476196286,
-                53.88395513671138),
-              List.of(27.421059608459473,
-                53.88668693702034),
-              List.of(27.417712211608883,
-                53.88572576837868)
-                /*List.of(27.416621, 53.885875),
-                List.of(27.429238, 53.887292),
-                List.of(27.419711, 53.881069),
-                List.of(27.431384, 53.882435),
-                List.of(27.416621, 53.885875)*/));
+                List.of(27.417712211608883, 53.88572576837868),
+                List.of(27.41878509521484, 53.88322156733548),
+                List.of(27.422647476196286, 53.88395513671138),
+                List.of(27.421059608459473, 53.88668693702034),
+                List.of(27.417712211608883, 53.88572576837868)));
     final PetAd petAd1 = petAdBuilderWithDefaults().searchArea(searchArea1).build();
 
     final SearchArea searchArea2 =
         SearchArea.of(
             List.of(
-              List.of(27.45431900024414,
-                53.906006796920764),
-              List.of(27.45431900024414,
-                53.90438872212207),
-              List.of(27.462987899780273,
-                53.9038830608939),
-              List.of(27.462387084960938,
-                53.90691693645191),
-              List.of(27.45431900024414,
-                53.906006796920764)
-                /*List.of(27.436632, 53.906200),
-                List.of(27.451759, 53.905381),
-                List.of(27.451105, 53.900034),
-                List.of(27.437941, 53.900757),
-                List.of(27.436632, 53.906200)*/));
+                List.of(27.45431900024414, 53.906006796920764),
+                List.of(27.45431900024414, 53.90438872212207),
+                List.of(27.462987899780273, 53.9038830608939),
+                List.of(27.462387084960938, 53.90691693645191),
+                List.of(27.45431900024414, 53.906006796920764)));
     final PetAd petAd2 = petAdBuilderWithDefaults().searchArea(searchArea2).build();
 
     petAdRepository.save(petAd1).block();
     petAdRepository.save(petAd2).block();
 
-    final String uri =
-        UriComponentsBuilder.fromUriString("/pets/ad")
-            .queryParam("longitude", 27.42050170898437)
-            .queryParam("latitude", 53.888558623056724)
-            .queryParam("radius", 0.00001)
-            .build()
-            .toUriString();
     final List<PetAdView> petAds =
         webTestClient
             .get()
-            .uri(uri)
+            .uri(searchUri(27.42050170898437, 53.888558623056724, 400))
             .exchange()
             .expectStatus()
             .isOk()
-            .expectBody(List.class)
+            .expectBodyList(PetAdView.class)
             .returnResult()
             .getResponseBody();
 
     assertEquals(1, petAds.size());
     assertEquals(petAd1.getUuid(), petAds.get(0).getUuid());
+  }
+
+  private String searchUri(final double longitude, final double latitude, final double radius) {
+    return UriComponentsBuilder.fromUriString("/pets/ad")
+        .queryParam("longitude", longitude)
+        .queryParam("latitude", latitude)
+        .queryParam("radius", radius)
+        .build()
+        .toUriString();
   }
 }
