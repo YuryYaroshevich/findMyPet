@@ -36,7 +36,7 @@ public class PetAdSearchControllerTest {
   }
 
   @ParameterizedTest
-  @MethodSource("provideStringsForIsBlank")
+  @MethodSource("petAdsAndExpectedSearchResultAndUserCoords")
   public void testSearchPetReturnsAllAdsNearProvidedCoords3(
       final List<PetAd> petAds,
       final Set<String> searchResultPetAdUuids,
@@ -75,7 +75,7 @@ public class PetAdSearchControllerTest {
         .toUriString();
   }
 
-  private static Stream<Arguments> provideStringsForIsBlank() {
+  private static Stream<Arguments> petAdsAndExpectedSearchResultAndUserCoords() {
     // scenario 1
     final SearchArea searchArea1 =
         SearchArea.of(
