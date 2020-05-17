@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Mono;
 
 @Repository
-public interface PetAdRepository extends ReactiveCrudRepository<PetAd, String> {
+public interface PetAdRepository
+    extends ReactiveCrudRepository<PetAd, String>, PetAdRepositoryCustom {
   Mono<PetAd> findByUuid(String uuid);
 }
