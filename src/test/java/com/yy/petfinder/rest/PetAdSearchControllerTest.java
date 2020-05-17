@@ -13,7 +13,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -25,16 +24,13 @@ public class PetAdSearchControllerTest {
 
   @Autowired private PetAdRepository petAdRepository;
 
-  @Autowired private ReactiveMongoTemplate mongoTemplate;
-
   @BeforeEach
   public void setup() {
     petAdRepository.deleteAll().block();
   }
 
   @Test
-  public void testSearchPetReturnsAllAdsNearProvidedCoords() {
-
+  public void testSearchPetReturnsAllAdsNearProvidedCoords1() {
     final SearchArea searchArea1 =
         SearchArea.of(
             List.of(
@@ -71,6 +67,61 @@ public class PetAdSearchControllerTest {
 
     assertEquals(1, petAds.size());
     assertEquals(petAd1.getUuid(), petAds.get(0).getUuid());
+  }
+
+  @Test
+  public void testSearchPetReturnsAllAdsNearProvidedCoords2() {
+    final SearchArea searchArea1 =
+        SearchArea.of(
+            List.of(
+                List.of(27.417068481445312, 53.885826945065915),
+                List.of(27.420544624328613, 53.881248454798666),
+                List.of(27.4273681640625, 53.884385154154224),
+                List.of(27.425780296325684, 53.88805277023041),
+                List.of(27.417068481445312, 53.885826945065915)));
+    final PetAd petAd1 = petAdBuilderWithDefaults().searchArea(searchArea1).build();
+
+    final SearchArea searchArea2 =
+        SearchArea.of(
+            List.of(
+                List.of(27.42831230163574, 53.89169477394105),
+                List.of(27.42865562438965, 53.88828040475983),
+                List.of(27.437238693237305, 53.886029297705726),
+                List.of(27.44187355041504, 53.88908976193568),
+                List.of(27.434964179992676, 53.89536174868413),
+                List.of(27.432947158813477, 53.89563991984441),
+                List.of(27.42831230163574, 53.89169477394105)));
+    final PetAd petAd2 = petAdBuilderWithDefaults().searchArea(searchArea2).build();
+
+    final SearchArea searchArea3 =
+        SearchArea.of(
+            List.of(
+                List.of(27.436981201171875, 53.94350833291436),
+                List.of(27.477407455444336, 53.93072520632151),
+                List.of(27.481012344360348, 53.943861960581565),
+                List.of(27.465391159057614, 53.94345781443147),
+                List.of(27.447538375854492, 53.94830730980928),
+                List.of(27.436981201171875, 53.94350833291436)));
+    final PetAd petAd3 = petAdBuilderWithDefaults().searchArea(searchArea3).build();
+
+    petAdRepository.save(petAd1).block();
+    petAdRepository.save(petAd2).block();
+    petAdRepository.save(petAd3).block();
+
+    final List<PetAdView> petAds =
+        webTestClient
+            .get()
+            .uri(searchUri(27.42513656616211, 53.88714221971583, 1000))
+            .exchange()
+            .expectStatus()
+            .isOk()
+            .expectBodyList(PetAdView.class)
+            .returnResult()
+            .getResponseBody();
+
+    assertEquals(2, petAds.size());
+    assertEquals(petAd1.getUuid(), petAds.get(0).getUuid());
+    assertEquals(petAd2.getUuid(), petAds.get(1).getUuid());
   }
 
   private String searchUri(final double longitude, final double latitude, final double radius) {
