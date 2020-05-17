@@ -1,16 +1,22 @@
 package com.yy.petfinder.rest;
 
 import static com.yy.petfinder.testfactory.PetAdFactory.petAdBuilderWithDefaults;
+import static java.util.stream.Collectors.toSet;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.yy.petfinder.model.PetAd;
 import com.yy.petfinder.model.SearchArea;
 import com.yy.petfinder.persistence.PetAdRepository;
 import com.yy.petfinder.rest.model.PetAdView;
+import com.yy.petfinder.rest.model.PetSearchRequest;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -29,8 +35,48 @@ public class PetAdSearchControllerTest {
     petAdRepository.deleteAll().block();
   }
 
-  @Test
-  public void testSearchPetReturnsAllAdsNearProvidedCoords1() {
+  @ParameterizedTest
+  @MethodSource("provideStringsForIsBlank")
+  public void testSearchPetReturnsAllAdsNearProvidedCoords3(
+      final List<PetAd> petAds,
+      final Set<String> searchResultPetAdUuids,
+      final PetSearchRequest petSearchRequest) {
+
+    // given
+    petAdRepository.saveAll(petAds).blockLast();
+
+    // when
+    final List<PetAdView> petAdViews =
+        webTestClient
+            .get()
+            .uri(
+                searchUri(
+                    petSearchRequest.getLongitude(),
+                    petSearchRequest.getLatitude(),
+                    petSearchRequest.getRadius()))
+            .exchange()
+            .expectStatus()
+            .isOk()
+            .expectBodyList(PetAdView.class)
+            .returnResult()
+            .getResponseBody();
+    final Set<String> petAdUuids = petAdViews.stream().map(PetAdView::getUuid).collect(toSet());
+
+    // then
+    assertEquals(searchResultPetAdUuids, petAdUuids);
+  }
+
+  private String searchUri(final double longitude, final double latitude, final double radius) {
+    return UriComponentsBuilder.fromUriString("/pets/ad")
+        .queryParam("longitude", longitude)
+        .queryParam("latitude", latitude)
+        .queryParam("radius", radius)
+        .build()
+        .toUriString();
+  }
+
+  private static Stream<Arguments> provideStringsForIsBlank() {
+    // scenario 1
     final SearchArea searchArea1 =
         SearchArea.of(
             List.of(
@@ -51,27 +97,18 @@ public class PetAdSearchControllerTest {
                 List.of(27.45431900024414, 53.906006796920764)));
     final PetAd petAd2 = petAdBuilderWithDefaults().searchArea(searchArea2).build();
 
-    petAdRepository.save(petAd1).block();
-    petAdRepository.save(petAd2).block();
+    final PetSearchRequest petSearchRequest1 =
+        PetSearchRequest.builder()
+            .longitude(27.42050170898437)
+            .latitude(53.888558623056724)
+            .radius(400)
+            .build();
 
-    final List<PetAdView> petAds =
-        webTestClient
-            .get()
-            .uri(searchUri(27.42050170898437, 53.888558623056724, 400))
-            .exchange()
-            .expectStatus()
-            .isOk()
-            .expectBodyList(PetAdView.class)
-            .returnResult()
-            .getResponseBody();
+    final Arguments scenario1 =
+        Arguments.of(List.of(petAd1, petAd2), Set.of(petAd1.getUuid()), petSearchRequest1);
 
-    assertEquals(1, petAds.size());
-    assertEquals(petAd1.getUuid(), petAds.get(0).getUuid());
-  }
-
-  @Test
-  public void testSearchPetReturnsAllAdsNearProvidedCoords2() {
-    final SearchArea searchArea1 =
+    // scenario 2
+    final SearchArea searchArea21 =
         SearchArea.of(
             List.of(
                 List.of(27.417068481445312, 53.885826945065915),
@@ -79,9 +116,9 @@ public class PetAdSearchControllerTest {
                 List.of(27.4273681640625, 53.884385154154224),
                 List.of(27.425780296325684, 53.88805277023041),
                 List.of(27.417068481445312, 53.885826945065915)));
-    final PetAd petAd1 = petAdBuilderWithDefaults().searchArea(searchArea1).build();
+    final PetAd petAd21 = petAdBuilderWithDefaults().searchArea(searchArea21).build();
 
-    final SearchArea searchArea2 =
+    final SearchArea searchArea22 =
         SearchArea.of(
             List.of(
                 List.of(27.42831230163574, 53.89169477394105),
@@ -91,9 +128,9 @@ public class PetAdSearchControllerTest {
                 List.of(27.434964179992676, 53.89536174868413),
                 List.of(27.432947158813477, 53.89563991984441),
                 List.of(27.42831230163574, 53.89169477394105)));
-    final PetAd petAd2 = petAdBuilderWithDefaults().searchArea(searchArea2).build();
+    final PetAd petAd22 = petAdBuilderWithDefaults().searchArea(searchArea22).build();
 
-    final SearchArea searchArea3 =
+    final SearchArea searchArea23 =
         SearchArea.of(
             List.of(
                 List.of(27.436981201171875, 53.94350833291436),
@@ -102,34 +139,21 @@ public class PetAdSearchControllerTest {
                 List.of(27.465391159057614, 53.94345781443147),
                 List.of(27.447538375854492, 53.94830730980928),
                 List.of(27.436981201171875, 53.94350833291436)));
-    final PetAd petAd3 = petAdBuilderWithDefaults().searchArea(searchArea3).build();
+    final PetAd petAd23 = petAdBuilderWithDefaults().searchArea(searchArea23).build();
 
-    petAdRepository.save(petAd1).block();
-    petAdRepository.save(petAd2).block();
-    petAdRepository.save(petAd3).block();
+    final PetSearchRequest petSearchRequest21 =
+        PetSearchRequest.builder()
+            .longitude(27.42513656616211)
+            .latitude(53.88714221971583)
+            .radius(1000)
+            .build();
 
-    final List<PetAdView> petAds =
-        webTestClient
-            .get()
-            .uri(searchUri(27.42513656616211, 53.88714221971583, 1000))
-            .exchange()
-            .expectStatus()
-            .isOk()
-            .expectBodyList(PetAdView.class)
-            .returnResult()
-            .getResponseBody();
+    final Arguments scenario2 =
+        Arguments.of(
+            List.of(petAd21, petAd22, petAd23),
+            Set.of(petAd21.getUuid(), petAd22.getUuid()),
+            petSearchRequest21);
 
-    assertEquals(2, petAds.size());
-    assertEquals(petAd1.getUuid(), petAds.get(0).getUuid());
-    assertEquals(petAd2.getUuid(), petAds.get(1).getUuid());
-  }
-
-  private String searchUri(final double longitude, final double latitude, final double radius) {
-    return UriComponentsBuilder.fromUriString("/pets/ad")
-        .queryParam("longitude", longitude)
-        .queryParam("latitude", latitude)
-        .queryParam("radius", radius)
-        .build()
-        .toUriString();
+    return Stream.of(scenario1, scenario2);
   }
 }
