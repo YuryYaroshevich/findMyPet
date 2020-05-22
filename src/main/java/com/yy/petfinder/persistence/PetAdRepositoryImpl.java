@@ -26,7 +26,7 @@ public class PetAdRepositoryImpl implements PetAdRepositoryCustom {
     final Criteria criteria =
         Criteria.where(SEARCH_AREA_FIELD).nearSphere(point).maxDistance(petSearchReq.getRadius());
     if (petSearchReq.getPetType() != null) {
-      criteria.where(PET_TYPE_FIELD).is(petSearchReq.getPetType());
+      criteria.and(PET_TYPE_FIELD).is(petSearchReq.getPetType());
     }
     return mongoTemplate.find(new Query(criteria), PetAd.class);
   }

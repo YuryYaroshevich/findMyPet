@@ -24,8 +24,8 @@ public enum PetType {
   @JsonCreator
   public static PetType of(final String petTypeValue) {
     return Arrays.asList(PetType.values()).stream()
-        .filter(petType -> petType.equals(petTypeValue))
+        .filter(petType -> petType.value().equals(petTypeValue))
         .findFirst()
-        .orElseThrow(() -> new IllegalArgumentException("Unknown pet type"));
+        .orElseThrow(() -> new IllegalArgumentException("Unknown pet type: " + petTypeValue));
   }
 }

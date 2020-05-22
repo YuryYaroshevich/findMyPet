@@ -41,13 +41,13 @@ public class PetAdController {
       @RequestParam final double longitude,
       @RequestParam final double latitude,
       @RequestParam final double radius,
-      @RequestParam final PetType petType) {
+      @RequestParam final String petType) {
     final PetSearchRequest petSearchReq =
         PetSearchRequest.builder()
             .longitude(longitude)
             .latitude(latitude)
             .radius(radius)
-            .petType(petType)
+            .petType(PetType.of(petType))
             .build();
     return petAdService.searchPets(petSearchReq);
   }
