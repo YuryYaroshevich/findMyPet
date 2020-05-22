@@ -1,5 +1,6 @@
 package com.yy.petfinder.rest;
 
+import com.yy.petfinder.model.PetType;
 import com.yy.petfinder.rest.model.PetAdView;
 import com.yy.petfinder.rest.model.PetSearchRequest;
 import com.yy.petfinder.service.PetAdService;
@@ -39,9 +40,15 @@ public class PetAdController {
   public Mono<List<PetAdView>> searchPet(
       @RequestParam final double longitude,
       @RequestParam final double latitude,
-      @RequestParam final double radius) {
+      @RequestParam final double radius,
+      @RequestParam final PetType petType) {
     final PetSearchRequest petSearchReq =
-        PetSearchRequest.builder().longitude(longitude).latitude(latitude).radius(radius).build();
+        PetSearchRequest.builder()
+            .longitude(longitude)
+            .latitude(latitude)
+            .radius(radius)
+            .petType(petType)
+            .build();
     return petAdService.searchPets(petSearchReq);
   }
 }
