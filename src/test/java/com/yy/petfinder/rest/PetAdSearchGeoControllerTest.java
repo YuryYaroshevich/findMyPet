@@ -1,6 +1,7 @@
 package com.yy.petfinder.rest;
 
 import static com.yy.petfinder.testfactory.PetAdFactory.petAdBuilderWithDefaults;
+import static com.yy.petfinder.util.SearchUriBuilder.searchUri;
 import static java.util.stream.Collectors.toSet;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -21,7 +22,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
-import org.springframework.web.util.UriComponentsBuilder;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -64,15 +64,6 @@ public class PetAdSearchGeoControllerTest {
 
     // then
     assertEquals(searchResultPetAdUuids, petAdUuids);
-  }
-
-  private String searchUri(final double longitude, final double latitude, final double radius) {
-    return UriComponentsBuilder.fromUriString("/pets/ad")
-        .queryParam("longitude", longitude)
-        .queryParam("latitude", latitude)
-        .queryParam("radius", radius)
-        .build()
-        .toUriString();
   }
 
   private static Stream<Arguments> petAdsAndExpectedSearchResultAndUserCoords() {
