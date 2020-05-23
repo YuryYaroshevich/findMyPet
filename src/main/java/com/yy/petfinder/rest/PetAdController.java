@@ -35,18 +35,7 @@ public class PetAdController {
   }
 
   @GetMapping
-  public Mono<List<PetAdView>> searchPet(final PetSearchRequest petSearchReq
-      /*@RequestParam final double longitude,
-      @RequestParam final double latitude,
-      @RequestParam final double radius,
-      @RequestParam final String petType*/ ) {
-    /*final PetSearchRequest petSearchReq =
-    PetSearchRequest.builder()
-        .longitude(longitude)
-        .latitude(latitude)
-        .radius(radius)
-        .petType(PetType.of(petType))
-        .build();*/
+  public Mono<List<PetAdView>> searchPet(final PetSearchRequest petSearchReq) {
     return petAdService.searchPets(petSearchReq);
   }
 }
