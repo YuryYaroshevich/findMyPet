@@ -15,4 +15,6 @@ public class PetSearchRequest {
   private double latitude;
   private double radius;
   private PetType petType;
+  private String color;
+  private String breed;
 }
