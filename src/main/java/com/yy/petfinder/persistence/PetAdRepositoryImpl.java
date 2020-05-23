@@ -10,6 +10,7 @@ import reactor.core.publisher.Flux;
 
 public class PetAdRepositoryImpl implements PetAdRepositoryCustom {
   private static final String SEARCH_AREA_FIELD = "searchArea";
+  private static final String PET_TYPE_FIELD = "petType";
 
   private final ReactiveMongoTemplate mongoTemplate;
 
@@ -19,14 +20,14 @@ public class PetAdRepositoryImpl implements PetAdRepositoryCustom {
 
   // TODO: paging needed
   @Override
-  public Flux<PetAd> findPetAds(final PetSearchRequest petSearchRequest) {
+  public Flux<PetAd> findPetAds(final PetSearchRequest petSearchReq) {
     final GeoJsonPoint point =
-        new GeoJsonPoint(petSearchRequest.getLongitude(), petSearchRequest.getLatitude());
-    return mongoTemplate.find(
-        new Query(
-            Criteria.where(SEARCH_AREA_FIELD)
-                .nearSphere(point)
-                .maxDistance(petSearchRequest.getRadius())),
-        PetAd.class);
+        new GeoJsonPoint(petSearchReq.getLongitude(), petSearchReq.getLatitude());
+    final Criteria criteria =
+        Criteria.where(SEARCH_AREA_FIELD).nearSphere(point).maxDistance(petSearchReq.getRadius());
+    if (petSearchReq.getPetType() != null) {
+      criteria.and(PET_TYPE_FIELD).is(petSearchReq.getPetType());
+    }
+    return mongoTemplate.find(new Query(criteria), PetAd.class);
   }
 }
