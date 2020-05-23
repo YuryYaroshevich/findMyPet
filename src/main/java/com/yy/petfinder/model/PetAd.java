@@ -22,6 +22,7 @@ public class PetAd {
 
   @NonNull private PetType petType;
   private String color;
+  private String breed;
   @NonNull private String name;
   @NonNull private byte[] imageBlob;
 
