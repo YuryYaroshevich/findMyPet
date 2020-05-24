@@ -49,11 +49,7 @@ public class PetAdSearchGeoControllerTest {
     final List<PetAdView> petAdViews =
         webTestClient
             .get()
-            .uri(
-                searchUri(
-                    petSearchRequest.getLongitude(),
-                    petSearchRequest.getLatitude(),
-                    petSearchRequest.getRadius()))
+            .uri(searchUri(petSearchRequest))
             .exchange()
             .expectStatus()
             .isOk()

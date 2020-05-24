@@ -1,24 +1,23 @@
 package com.yy.petfinder.util;
 
-import com.yy.petfinder.model.PetType;
+import com.yy.petfinder.rest.model.PetSearchRequest;
 import org.springframework.web.util.UriComponentsBuilder;
 
 public class SearchUriBuilder {
-  public static String searchUri(
-      final double longitude, final double latitude, final double radius, final PetType petType) {
 
-    final UriComponentsBuilder uriBuilder = searchUriBuilder(longitude, latitude, radius);
-    if (petType != null) {
-      uriBuilder.queryParam("petType", petType.value());
+  public static String searchUri(final PetSearchRequest petSearchReq) {
+    final UriComponentsBuilder uriBuilder =
+        searchUriBuilder(
+            petSearchReq.getLongitude(), petSearchReq.getLatitude(), petSearchReq.getRadius());
+    if (petSearchReq.getPetType() != null) {
+      uriBuilder.queryParam("petType", petSearchReq.getPetType().value());
     }
-    return uriBuilder.build().toUriString();
-  }
-
-  public static String searchUri(
-      final double longitude, final double latitude, final double radius) {
-
-    final UriComponentsBuilder uriBuilder = searchUriBuilder(longitude, latitude, radius);
-
+    if (petSearchReq.getColor() != null) {
+      uriBuilder.queryParam("color", petSearchReq.getColor());
+    }
+    if (petSearchReq.getBreed() != null) {
+      uriBuilder.queryParam("breed", petSearchReq.getBreed());
+    }
     return uriBuilder.build().toUriString();
   }
 
