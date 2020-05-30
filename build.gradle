@@ -30,6 +30,8 @@ dependencies {
 
   testImplementation "org.junit.jupiter:junit-jupiter-api"
   testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
+  testCompile 'org.mockito:mockito-core'
+  testCompile 'org.mockito:mockito-junit-jupiter'
 }
 
 spotless {

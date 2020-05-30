@@ -31,20 +31,6 @@ public class PetAdService {
     return createdAd.map(ad -> petAdView);
   }
 
-  private PetAd toPetAd(final ObjectId objectId, final String uuid, final PetAdView petAdView) {
-    final SearchArea searchArea = SearchArea.of(petAdView.getSearchArea().getCoordinates());
-    return PetAd.builder()
-        .id(objectId)
-        .uuid(uuid)
-        .colors(petAdView.getColors())
-        .imageBlob(petAdView.getImageBlob())
-        .ownerId(petAdView.getOwnerId())
-        .name(petAdView.getName())
-        .petType(petAdView.getPetType())
-        .searchArea(searchArea)
-        .build();
-  }
-
   public Mono<PetAdView> getAd(final String uuid) {
     final Mono<PetAd> petAd = petAdRepository.findByUuid(uuid);
     return petAd.map(this::toPetAdView);
@@ -71,6 +57,20 @@ public class PetAdService {
     if (!ownerIdFromAd.equals(ownerIdFromView)) {
       throw new OwnerIdUpdateException(ownerIdFromAd, ownerIdFromView, adUuid);
     }
+  }
+
+  private PetAd toPetAd(final ObjectId objectId, final String uuid, final PetAdView petAdView) {
+    final SearchArea searchArea = SearchArea.of(petAdView.getSearchArea().getCoordinates());
+    return PetAd.builder()
+        .id(objectId)
+        .uuid(uuid)
+        .colors(petAdView.getColors())
+        .imageBlob(petAdView.getImageBlob())
+        .ownerId(petAdView.getOwnerId())
+        .name(petAdView.getName())
+        .petType(petAdView.getPetType())
+        .searchArea(searchArea)
+        .build();
   }
 
   private PetAdView toPetAdView(final PetAd petAd) {

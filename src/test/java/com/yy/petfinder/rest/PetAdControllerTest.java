@@ -33,6 +33,7 @@ public class PetAdControllerTest {
 
   @Test
   public void testGetPetAdReturnsCorrectAd() {
+    // given
     final PetAd petAd = petAdBuilderWithDefaults().build();
     final PetAdView expectedPetAd =
         PetAdView.builder()
@@ -47,6 +48,7 @@ public class PetAdControllerTest {
 
     petAdRepository.save(petAd).block();
 
+    // when
     final PetAdView petAdView =
         webTestClient
             .get()
@@ -58,11 +60,13 @@ public class PetAdControllerTest {
             .returnResult()
             .getResponseBody();
 
+    // then
     assertEquals(expectedPetAd, petAdView);
   }
 
   @Test
   public void testCreatePetAdSavesAdInDb() {
+    // given
     final List<List<Double>> coordinates =
         List.of(
             List.of(53.911665, 27.469369),
@@ -85,8 +89,10 @@ public class PetAdControllerTest {
             .colors(colors)
             .build();
 
+    // when
     webTestClient.post().uri("/pets/ad").bodyValue(petAdView).exchange().expectStatus().isCreated();
 
+    // then
     assertEquals(Long.valueOf(1), petAdRepository.count().block());
     final List<PetAd> petAds = petAdRepository.findAll().collectList().block();
     assertEquals(1, petAds.size());
@@ -99,5 +105,54 @@ public class PetAdControllerTest {
     assertEquals(petAdView.getOwnerId(), petAd.getOwnerId());
     assertArrayEquals(petAdView.getImageBlob(), petAd.getImageBlob());
     assertEquals(petAdView.getColors(), petAd.getColors());
+  }
+
+  @Test
+  public void testUpdatePetAdUpdatesFields() {
+    // given
+    final PetAd petAd = petAdBuilderWithDefaults().build();
+    petAdRepository.save(petAd).block();
+
+    final List<List<Double>> newCoordinates =
+        List.of(
+            List.of(53.911665, 27.469369),
+            List.of(53.911867, 27.491685),
+            List.of(53.899226, 27.491856),
+            List.of(53.897405, 27.461129),
+            List.of(53.911665, 27.469369));
+    final PetType newPetType = PetType.DOG;
+    final String newName = "Fido";
+    final byte[] newImageBlob = {4, 5, 6};
+    final List<String> newColors = List.of("black", "brown", "white");
+    final PetAdView updatedPetAdView =
+        PetAdView.builder()
+            .searchArea(new SearchAreaView(newCoordinates))
+            .petType(newPetType)
+            .name(newName)
+            .ownerId(petAd.getOwnerId())
+            .imageBlob(newImageBlob)
+            .colors(newColors)
+            .uuid(petAd.getUuid())
+            .build();
+
+    // when
+    webTestClient
+        .put()
+        .uri("/pets/ad")
+        .bodyValue(updatedPetAdView)
+        .exchange()
+        .expectStatus()
+        .isOk();
+
+    // then
+    final PetAd updatedPetAd = petAdRepository.findByUuid(petAd.getUuid()).block();
+    assertEquals(
+        updatedPetAdView.getSearchArea().getCoordinates(),
+        updatedPetAd.getSearchArea().getCoordinatesList());
+    assertEquals(updatedPetAdView.getPetType(), updatedPetAd.getPetType());
+    assertEquals(updatedPetAdView.getName(), updatedPetAd.getName());
+    assertEquals(petAd.getOwnerId(), updatedPetAd.getOwnerId());
+    assertArrayEquals(updatedPetAdView.getImageBlob(), updatedPetAd.getImageBlob());
+    assertEquals(updatedPetAdView.getColors(), updatedPetAd.getColors());
   }
 }
