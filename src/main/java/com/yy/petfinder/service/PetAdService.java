@@ -16,11 +16,11 @@ import reactor.core.publisher.Mono;
 public class PetAdService {
   private final PetAdRepository petAdRepository;
 
-  public PetAdService(PetAdRepository petAdRepository) {
+  public PetAdService(final PetAdRepository petAdRepository) {
     this.petAdRepository = petAdRepository;
   }
 
-  public Mono<PetAdView> createAd(PetAdView petAdView) {
+  public Mono<PetAdView> createAd(final PetAdView petAdView) {
     final ObjectId objectId = new ObjectId();
     final String uuid = UUID.randomUUID().toString();
 
@@ -41,16 +41,21 @@ public class PetAdService {
     return createdAd.map(ad -> petAdView);
   }
 
-  public Mono<PetAdView> getAd(String uuid) {
+  public Mono<PetAdView> getAd(final String uuid) {
     final Mono<PetAd> petAd = petAdRepository.findByUuid(uuid);
     return petAd.map(this::toPetAdView);
   }
 
-  public Mono<List<PetAdView>> searchPets(PetSearchRequest petSearchReq) {
+  public Mono<List<PetAdView>> searchPets(final PetSearchRequest petSearchReq) {
     return petAdRepository.findPetAds(petSearchReq).map(this::toPetAdView).collectList();
   }
 
-  private PetAdView toPetAdView(PetAd petAd) {
+
+  public Mono<PetAdView> updateAd(final PetAdView petAdView) {
+    return null;
+  }
+
+  private PetAdView toPetAdView(final PetAd petAd) {
     return PetAdView.builder()
         .uuid(petAd.getUuid())
         .colors(petAd.getColors())
