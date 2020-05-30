@@ -23,7 +23,7 @@ public class PetAdFactory {
     final String name = "Fido";
     final String ownerId = UUID.randomUUID().toString();
     final byte[] imageBlob = {1, 2, 3};
-    final String color = "black";
+    final List<String> colors = List.of("black");
 
     return PetAd.builder()
         .id(objectId)
@@ -33,6 +33,6 @@ public class PetAdFactory {
         .name(name)
         .ownerId(ownerId)
         .imageBlob(imageBlob)
-        .color(color);
+        .colors(colors);
   }
 }

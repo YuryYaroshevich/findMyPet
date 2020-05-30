@@ -1,5 +1,6 @@
 package com.yy.petfinder.model;
 
+import java.util.List;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.Value;
@@ -21,7 +22,8 @@ public class PetAd {
   private String uuid;
 
   @NonNull private PetType petType;
-  private String color;
+  private List<String> colors;
+  private String breed;
   @NonNull private String name;
   @NonNull private byte[] imageBlob;
 

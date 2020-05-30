@@ -29,7 +29,7 @@ public class PetAdService {
         PetAd.builder()
             .id(objectId)
             .uuid(uuid)
-            .color(petAdView.getColor())
+            .colors(petAdView.getColors())
             .imageBlob(petAdView.getImageBlob())
             .ownerId(petAdView.getOwnerId())
             .name(petAdView.getName())
@@ -53,7 +53,7 @@ public class PetAdService {
   private PetAdView toPetAdView(PetAd petAd) {
     return PetAdView.builder()
         .uuid(petAd.getUuid())
-        .color(petAd.getColor())
+        .colors(petAd.getColors())
         .imageBlob(petAd.getImageBlob())
         .ownerId(petAd.getOwnerId())
         .name(petAd.getName())
