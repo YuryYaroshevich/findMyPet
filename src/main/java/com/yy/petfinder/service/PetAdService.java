@@ -24,21 +24,24 @@ public class PetAdService {
     final ObjectId objectId = new ObjectId();
     final String uuid = UUID.randomUUID().toString();
 
-    final SearchArea searchArea = SearchArea.of(petAdView.getSearchArea().getCoordinates());
-    final PetAd newPetAd =
-        PetAd.builder()
-            .id(objectId)
-            .uuid(uuid)
-            .colors(petAdView.getColors())
-            .imageBlob(petAdView.getImageBlob())
-            .ownerId(petAdView.getOwnerId())
-            .name(petAdView.getName())
-            .petType(petAdView.getPetType())
-            .searchArea(searchArea)
-            .build();
+    final PetAd newPetAd = toPetAd(objectId, uuid, petAdView);
 
     final Mono<PetAd> createdAd = petAdRepository.save(newPetAd);
     return createdAd.map(ad -> petAdView);
+  }
+
+  private PetAd toPetAd(final ObjectId objectId, final String uuid, final PetAdView petAdView) {
+    final SearchArea searchArea = SearchArea.of(petAdView.getSearchArea().getCoordinates());
+    return PetAd.builder()
+        .id(objectId)
+        .uuid(uuid)
+        .colors(petAdView.getColors())
+        .imageBlob(petAdView.getImageBlob())
+        .ownerId(petAdView.getOwnerId())
+        .name(petAdView.getName())
+        .petType(petAdView.getPetType())
+        .searchArea(searchArea)
+        .build();
   }
 
   public Mono<PetAdView> getAd(final String uuid) {
@@ -50,9 +53,14 @@ public class PetAdService {
     return petAdRepository.findPetAds(petSearchReq).map(this::toPetAdView).collectList();
   }
 
-
-  public Mono<PetAdView> updateAd(final PetAdView petAdView) {
-    return null;
+  public Mono<PetAdView> updateAd(final PetAdView updatedAdView) {
+    final String uuid = updatedAdView.getUuid();
+    final Mono<PetAd> petAd = petAdRepository.findByUuid(uuid);
+    return petAd
+        .map(PetAd::getId)
+        .map(id -> toPetAd(id, uuid, updatedAdView))
+        .flatMap(petAdRepository::save)
+        .map(ad -> updatedAdView);
   }
 
   private PetAdView toPetAdView(final PetAd petAd) {
