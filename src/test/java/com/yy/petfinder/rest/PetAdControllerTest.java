@@ -42,7 +42,7 @@ public class PetAdControllerTest {
             .name(petAd.getName())
             .ownerId(petAd.getOwnerId())
             .imageBlob(petAd.getImageBlob())
-            .color(petAd.getColor())
+            .colors(petAd.getColors())
             .build();
 
     petAdRepository.save(petAd).block();
@@ -74,7 +74,7 @@ public class PetAdControllerTest {
     final String name = "Fido";
     final String ownerId = UUID.randomUUID().toString();
     final byte[] imageBlob = {1, 2, 3};
-    final String color = "black";
+    final List<String> colors = List.of("black", "brown");
     final PetAdView petAdView =
         PetAdView.builder()
             .searchArea(new SearchAreaView(coordinates))
@@ -82,7 +82,7 @@ public class PetAdControllerTest {
             .name(name)
             .ownerId(ownerId)
             .imageBlob(imageBlob)
-            .color(color)
+            .colors(colors)
             .build();
 
     webTestClient.post().uri("/pets/ad").bodyValue(petAdView).exchange().expectStatus().isCreated();
@@ -98,6 +98,6 @@ public class PetAdControllerTest {
     assertEquals(petAdView.getName(), petAd.getName());
     assertEquals(petAdView.getOwnerId(), petAd.getOwnerId());
     assertArrayEquals(petAdView.getImageBlob(), petAd.getImageBlob());
-    assertEquals(petAdView.getColor(), petAd.getColor());
+    assertEquals(petAdView.getColors(), petAd.getColors());
   }
 }

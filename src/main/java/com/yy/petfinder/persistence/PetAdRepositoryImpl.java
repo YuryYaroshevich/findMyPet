@@ -12,7 +12,7 @@ public class PetAdRepositoryImpl implements PetAdRepositoryCustom {
   private static final String SEARCH_AREA_FIELD = "searchArea";
   private static final String PET_TYPE_FIELD = "petType";
   private static final String BREED_FIELD = "breed";
-  private static final String COLOR_FIELD = "color";
+  private static final String COLORS_FIELD = "colors";
 
   private final ReactiveMongoTemplate mongoTemplate;
 
@@ -33,8 +33,8 @@ public class PetAdRepositoryImpl implements PetAdRepositoryCustom {
     if (petSearchReq.getBreed() != null) {
       criteria.and(BREED_FIELD).is(petSearchReq.getBreed());
     }
-    if (petSearchReq.getColor() != null) {
-      criteria.and(COLOR_FIELD).is(petSearchReq.getColor());
+    if (petSearchReq.getColors() != null) {
+      criteria.and(COLORS_FIELD).in(petSearchReq.getColors());
     }
     return mongoTemplate.find(new Query(criteria), PetAd.class);
   }

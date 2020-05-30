@@ -79,16 +79,16 @@ public class PetAdSearchControllerTest {
         Arguments.of(List.of(dogAd, catAd), Set.of(dogAd.getUuid()), petSearchRequest1);
 
     // scenario 2
-    final String blackColor = "black";
-    final PetAd blackDogAd = petAdBuilderWithDefaults().color(blackColor).build();
-    final PetAd brownDogAd = petAdBuilderWithDefaults().color("brown").build();
+    final List<String> blackColor = List.of("black");
+    final PetAd blackDogAd = petAdBuilderWithDefaults().colors(blackColor).build();
+    final PetAd brownDogAd = petAdBuilderWithDefaults().colors(List.of("brown")).build();
 
     final PetSearchRequest petSearchRequest2 =
         PetSearchRequest.builder()
             .longitude(27.417068481445312)
             .latitude(53.885826945065915)
             .radius(400)
-            .color(blackColor)
+            .colors(blackColor)
             .build();
 
     final Arguments scenario2 =
@@ -113,13 +113,18 @@ public class PetAdSearchControllerTest {
             List.of(labradorAd, spanielAd), Set.of(labradorAd.getUuid()), petSearchRequest3);
 
     // scenario 4
-    final PetAd brownCatAd = petAdBuilderWithDefaults().color("brown").petType(PetType.CAT).build();
-    final PetAd blackSpanielAd =
-        petAdBuilderWithDefaults().petType(PetType.DOG).color("white").breed("spaniel").build();
-    final PetAd whiteLabradorAd =
+    final PetAd brownCatAd =
+        petAdBuilderWithDefaults().colors(List.of("brown")).petType(PetType.CAT).build();
+    final PetAd brownSpanielAd =
         petAdBuilderWithDefaults()
             .petType(PetType.DOG)
-            .color(blackColor)
+            .colors(List.of("brown"))
+            .breed("spaniel")
+            .build();
+    final PetAd blackAndWhiteLabradorAd =
+        petAdBuilderWithDefaults()
+            .petType(PetType.DOG)
+            .colors(List.of("black", "white"))
             .breed(labradorBreed)
             .build();
 
@@ -129,14 +134,14 @@ public class PetAdSearchControllerTest {
             .latitude(53.885826945065915)
             .radius(400)
             .breed(labradorBreed)
-            .color(blackColor)
+            .colors(List.of("black", "white"))
             .petType(PetType.DOG)
             .build();
 
     final Arguments scenario4 =
         Arguments.of(
-            List.of(brownCatAd, blackSpanielAd, whiteLabradorAd),
-            Set.of(whiteLabradorAd.getUuid()),
+            List.of(brownCatAd, brownSpanielAd, blackAndWhiteLabradorAd),
+            Set.of(blackAndWhiteLabradorAd.getUuid()),
             petSearchRequest4);
 
     return Stream.of(scenario1, scenario2, scenario3, scenario4);

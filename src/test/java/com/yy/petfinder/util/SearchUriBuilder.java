@@ -12,8 +12,8 @@ public class SearchUriBuilder {
     if (petSearchReq.getPetType() != null) {
       uriBuilder.queryParam("petType", petSearchReq.getPetType().value());
     }
-    if (petSearchReq.getColor() != null) {
-      uriBuilder.queryParam("color", petSearchReq.getColor());
+    if (petSearchReq.getColors() != null) {
+      uriBuilder.queryParam("colors", petSearchReq.getColors());
     }
     if (petSearchReq.getBreed() != null) {
       uriBuilder.queryParam("breed", petSearchReq.getBreed());
