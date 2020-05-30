@@ -9,7 +9,7 @@ import lombok.Value;
 @Value
 @Builder
 public class PetAdView {
-  private String uuid;
+  @NonNull private String uuid;
   @NonNull private PetType petType;
   private List<String> colors;
   private String breed;
