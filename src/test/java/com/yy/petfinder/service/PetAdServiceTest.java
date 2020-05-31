@@ -31,7 +31,7 @@ public class PetAdServiceTest {
 
     final PetAdView updatedPetAd =
         PetAdView.builder()
-            .uuid(petAd.getUuid())
+            .id(petAd.getUuid())
             .searchArea(new SearchAreaView(petAd.getSearchArea().getCoordinatesList()))
             .petType(petAd.getPetType())
             .name(petAd.getName())
@@ -41,6 +41,6 @@ public class PetAdServiceTest {
             .build();
 
     // when then
-    assertThrows(OwnerIdUpdateException.class, () -> petAdService.updateAd(updatedPetAd).block());
+    assertThrows(OwnerIdUpdateException.class, () -> petAdService.updateAd(id, updatedPetAd).block());
   }
 }

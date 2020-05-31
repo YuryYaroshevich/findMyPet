@@ -56,7 +56,7 @@ public class PetAdSearchGeoControllerTest {
             .expectBodyList(PetAdView.class)
             .returnResult()
             .getResponseBody();
-    final Set<String> petAdUuids = petAdViews.stream().map(PetAdView::getUuid).collect(toSet());
+    final Set<String> petAdUuids = petAdViews.stream().map(PetAdView::getId).collect(toSet());
 
     // then
     assertEquals(searchResultPetAdUuids, petAdUuids);

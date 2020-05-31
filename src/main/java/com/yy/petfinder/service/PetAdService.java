@@ -15,6 +15,8 @@ import reactor.core.publisher.Mono;
 
 @Service
 public class PetAdService {
+  private static final boolean IS_FOUND = false;
+
   private final PetAdRepository petAdRepository;
 
   public PetAdService(final PetAdRepository petAdRepository) {
@@ -25,7 +27,7 @@ public class PetAdService {
     final ObjectId objectId = new ObjectId();
     final String uuid = UUID.randomUUID().toString();
 
-    final PetAd newPetAd = toPetAd(objectId, uuid, petAdView);
+    final PetAd newPetAd = toPetAd(objectId, uuid, petAdView, IS_FOUND);
 
     final Mono<PetAd> createdAd = petAdRepository.save(newPetAd);
     return createdAd.map(ad -> petAdView);
@@ -40,16 +42,16 @@ public class PetAdService {
     return petAdRepository.findPetAds(petSearchReq).map(this::toPetAdView).collectList();
   }
 
-  public Mono<PetAdView> updateAd(final PetAdView updatedAdView) {
-    final String uuid = updatedAdView.getUuid();
+  public Mono<PetAdView> updateAd(String id, final PetAdView updatedAdView) {
+    final String uuid = updatedAdView.getId();
     final String ownerId = updatedAdView.getOwnerId();
-    final Mono<PetAd> petAd = petAdRepository.findByUuid(uuid);
+    final Mono<PetAd> petAd = petAdRepository.findByUuid(id);
     return petAd
         .doOnNext(ad -> ownerIdShouldBeSame(ad.getOwnerId(), ownerId, ad.getUuid()))
         .map(PetAd::getId)
-        .map(id -> toPetAd(id, uuid, updatedAdView))
-        .flatMap(petAdRepository::save)
-        .map(ad -> updatedAdView);
+        .map(objectId -> toPetAd(objectId, uuid, updatedAdView, updatedAdView.getFound()))
+        .flatMap(petAdRepository::findAndModify)
+        .map(this::toPetAdView);
   }
 
   private void ownerIdShouldBeSame(
@@ -59,7 +61,8 @@ public class PetAdService {
     }
   }
 
-  private PetAd toPetAd(final ObjectId objectId, final String uuid, final PetAdView petAdView) {
+  private PetAd toPetAd(final ObjectId objectId, final String uuid,
+                        final PetAdView petAdView, final boolean found) {
     final SearchArea searchArea = SearchArea.of(petAdView.getSearchArea().getCoordinates());
     return PetAd.builder()
         .id(objectId)
@@ -70,18 +73,20 @@ public class PetAdService {
         .name(petAdView.getName())
         .petType(petAdView.getPetType())
         .searchArea(searchArea)
+        .found(found)
         .build();
   }
 
   private PetAdView toPetAdView(final PetAd petAd) {
     return PetAdView.builder()
-        .uuid(petAd.getUuid())
+        .id(petAd.getUuid())
         .colors(petAd.getColors())
         .imageBlob(petAd.getImageBlob())
         .ownerId(petAd.getOwnerId())
         .name(petAd.getName())
         .petType(petAd.getPetType())
         .searchArea(new SearchAreaView(petAd.getSearchArea().getCoordinatesList()))
+        .found(petAd.isFound())
         .build();
   }
 }
