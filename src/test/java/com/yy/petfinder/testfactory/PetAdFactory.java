@@ -9,8 +9,7 @@ import org.bson.types.ObjectId;
 
 public class PetAdFactory {
   public static PetAd.PetAdBuilder petAdBuilderWithDefaults() {
-    final ObjectId objectId = new ObjectId();
-    final String uuid = UUID.randomUUID().toString();
+    final String id = new ObjectId().toHexString();
     final SearchArea searchArea =
         SearchArea.of(
             List.of(
@@ -26,8 +25,7 @@ public class PetAdFactory {
     final List<String> colors = List.of("black");
 
     return PetAd.builder()
-        .id(objectId)
-        .uuid(uuid)
+        .id(id)
         .searchArea(searchArea)
         .petType(petType)
         .name(name)

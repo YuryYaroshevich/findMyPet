@@ -5,7 +5,6 @@ import com.yy.petfinder.rest.model.PetSearchRequest;
 import com.yy.petfinder.service.PetAdService;
 import java.util.List;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -31,9 +30,9 @@ public class PetAdController {
     return petAdService.createAd(petAd);
   }
 
-  @GetMapping("/{uuid}")
-  public Mono<PetAdView> getPetAd(@PathVariable("uuid") final String uuid) {
-    return petAdService.getAd(uuid);
+  @GetMapping("/{id}")
+  public Mono<PetAdView> getPetAd(@PathVariable("id") final String id) {
+    return petAdService.getAd(id);
   }
 
   @GetMapping
@@ -42,8 +41,7 @@ public class PetAdController {
   }
 
   @PutMapping("/{id}")
-  public Mono<PetAdView> updatePetAd(@PathVariable String id,
-                                     @RequestBody PetAdView petAdView) {
+  public Mono<PetAdView> updatePetAd(@PathVariable String id, @RequestBody PetAdView petAdView) {
     return petAdService.updateAd(id, petAdView);
   }
 }

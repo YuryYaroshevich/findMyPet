@@ -4,11 +4,9 @@ import java.util.List;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.Value;
-import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.GeoSpatialIndexType;
 import org.springframework.data.mongodb.core.index.GeoSpatialIndexed;
-import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Value
@@ -22,9 +20,11 @@ public class PetAd {
   private String breed;
   @NonNull private String name;
   @NonNull private byte[] imageBlob;
+
   @GeoSpatialIndexed(type = GeoSpatialIndexType.GEO_2DSPHERE)
   @NonNull
   private SearchArea searchArea;
+
   @NonNull private boolean found;
 
   @NonNull private String ownerId;

@@ -76,7 +76,7 @@ public class PetAdSearchControllerTest {
             .build();
 
     final Arguments scenario1 =
-        Arguments.of(List.of(dogAd, catAd), Set.of(dogAd.getUuid()), petSearchRequest1);
+        Arguments.of(List.of(dogAd, catAd), Set.of(dogAd.getId()), petSearchRequest1);
 
     // scenario 2
     final List<String> blackColor = List.of("black");
@@ -93,7 +93,7 @@ public class PetAdSearchControllerTest {
 
     final Arguments scenario2 =
         Arguments.of(
-            List.of(blackDogAd, brownDogAd), Set.of(blackDogAd.getUuid()), petSearchRequest2);
+            List.of(blackDogAd, brownDogAd), Set.of(blackDogAd.getId()), petSearchRequest2);
 
     // scenario 3
     final String labradorBreed = "labrador";
@@ -109,8 +109,7 @@ public class PetAdSearchControllerTest {
             .build();
 
     final Arguments scenario3 =
-        Arguments.of(
-            List.of(labradorAd, spanielAd), Set.of(labradorAd.getUuid()), petSearchRequest3);
+        Arguments.of(List.of(labradorAd, spanielAd), Set.of(labradorAd.getId()), petSearchRequest3);
 
     // scenario 4
     final PetAd brownCatAd =
@@ -141,7 +140,7 @@ public class PetAdSearchControllerTest {
     final Arguments scenario4 =
         Arguments.of(
             List.of(brownCatAd, brownSpanielAd, blackAndWhiteLabradorAd),
-            Set.of(blackAndWhiteLabradorAd.getUuid()),
+            Set.of(blackAndWhiteLabradorAd.getId()),
             petSearchRequest4);
 
     return Stream.of(scenario1, scenario2, scenario3, scenario4);

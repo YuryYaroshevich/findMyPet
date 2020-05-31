@@ -37,7 +37,7 @@ public class PetAdControllerTest {
     final PetAd petAd = petAdBuilderWithDefaults().build();
     final PetAdView expectedPetAd =
         PetAdView.builder()
-            .id(petAd.getUuid())
+            .id(petAd.getId())
             .searchArea(new SearchAreaView(petAd.getSearchArea().getCoordinatesList()))
             .petType(petAd.getPetType())
             .name(petAd.getName())
@@ -52,7 +52,7 @@ public class PetAdControllerTest {
     final PetAdView petAdView =
         webTestClient
             .get()
-            .uri("/pets/ad/" + petAd.getUuid())
+            .uri("/pets/ad/" + petAd.getId())
             .exchange()
             .expectStatus()
             .isOk()
@@ -132,7 +132,7 @@ public class PetAdControllerTest {
             .ownerId(petAd.getOwnerId())
             .imageBlob(newImageBlob)
             .colors(newColors)
-            .id(petAd.getUuid())
+            .id(petAd.getId())
             .build();
 
     // when
@@ -145,7 +145,7 @@ public class PetAdControllerTest {
         .isOk();
 
     // then
-    final PetAd updatedPetAd = petAdRepository.findByUuid(petAd.getUuid()).block();
+    final PetAd updatedPetAd = petAdRepository.findById(petAd.getId()).block();
     assertEquals(
         updatedPetAdView.getSearchArea().getCoordinates(),
         updatedPetAd.getSearchArea().getCoordinatesList());
@@ -157,7 +157,5 @@ public class PetAdControllerTest {
   }
 
   @Test
-  public void testMarkAsFoundUpdatesPetAdAsResolved() {
-
-  }
+  public void testMarkAsFoundUpdatesPetAdAsResolved() {}
 }

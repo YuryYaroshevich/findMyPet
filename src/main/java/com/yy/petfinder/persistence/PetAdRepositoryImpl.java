@@ -51,8 +51,7 @@ public class PetAdRepositoryImpl implements PetAdRepositoryCustom {
 
   @Override
   public Mono<PetAd> findAndModify(PetAd updatedPetAd) {
-    final Criteria criteria = Criteria.where(ID_FIELD)
-      .is(updatedPetAd.getId());
+    final Criteria criteria = Criteria.where(ID_FIELD).is(updatedPetAd.getId());
 
     final Update update = new Update();
     update.set(PET_TYPE_FIELD, updatedPetAd.getPetType());
@@ -67,7 +66,7 @@ public class PetAdRepositoryImpl implements PetAdRepositoryCustom {
     update.set(SEARCH_AREA_FIELD, updatedPetAd.getSearchArea());
     update.set(FOUND_FIELD, updatedPetAd.isFound());
 
-    return mongoTemplate.findAndModify(new Query(criteria), update,
-      new FindAndModifyOptions().returnNew(true), PetAd.class);
+    return mongoTemplate.findAndModify(
+        new Query(criteria), update, new FindAndModifyOptions().returnNew(true), PetAd.class);
   }
 }
