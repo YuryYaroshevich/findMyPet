@@ -30,9 +30,9 @@ public class PetAdController {
     return petAdService.createAd(petAd);
   }
 
-  @GetMapping("/{uuid}")
-  public Mono<PetAdView> getPetAd(@PathVariable("uuid") final String uuid) {
-    return petAdService.getAd(uuid);
+  @GetMapping("/{id}")
+  public Mono<PetAdView> getPetAd(@PathVariable("id") final String id) {
+    return petAdService.getAd(id);
   }
 
   @GetMapping
@@ -40,8 +40,8 @@ public class PetAdController {
     return petAdService.searchPets(petSearchReq);
   }
 
-  @PutMapping
-  public Mono<PetAdView> updatePetAd(@RequestBody PetAdView petAdView) {
-    return petAdService.updateAd(petAdView);
+  @PutMapping("/{id}")
+  public Mono<PetAdView> updatePetAd(@PathVariable String id, @RequestBody PetAdView petAdView) {
+    return petAdService.updateAd(id, petAdView);
   }
 }

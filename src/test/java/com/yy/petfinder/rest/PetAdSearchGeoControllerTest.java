@@ -39,7 +39,7 @@ public class PetAdSearchGeoControllerTest {
   @MethodSource("petAdsAndExpectedSearchResultAndUserCoords")
   public void testSearchPetReturnsAllAdsNearProvidedCoords3(
       final List<PetAd> petAds,
-      final Set<String> searchResultPetAdUuids,
+      final Set<String> searchResultPetAdIds,
       final PetSearchRequest petSearchRequest) {
 
     // given
@@ -56,10 +56,10 @@ public class PetAdSearchGeoControllerTest {
             .expectBodyList(PetAdView.class)
             .returnResult()
             .getResponseBody();
-    final Set<String> petAdUuids = petAdViews.stream().map(PetAdView::getUuid).collect(toSet());
+    final Set<String> petAdIds = petAdViews.stream().map(PetAdView::getId).collect(toSet());
 
     // then
-    assertEquals(searchResultPetAdUuids, petAdUuids);
+    assertEquals(searchResultPetAdIds, petAdIds);
   }
 
   private static Stream<Arguments> petAdsAndExpectedSearchResultAndUserCoords() {
@@ -92,7 +92,7 @@ public class PetAdSearchGeoControllerTest {
             .build();
 
     final Arguments scenario1 =
-        Arguments.of(List.of(petAd1, petAd2), Set.of(petAd1.getUuid()), petSearchRequest1);
+        Arguments.of(List.of(petAd1, petAd2), Set.of(petAd1.getId()), petSearchRequest1);
 
     // scenario 2
     final SearchArea searchArea21 =
@@ -138,7 +138,7 @@ public class PetAdSearchGeoControllerTest {
     final Arguments scenario2 =
         Arguments.of(
             List.of(petAd21, petAd22, petAd23),
-            Set.of(petAd21.getUuid(), petAd22.getUuid()),
+            Set.of(petAd21.getId(), petAd22.getId()),
             petSearchRequest21);
 
     return Stream.of(scenario1, scenario2);
