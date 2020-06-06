@@ -138,7 +138,7 @@ public class PetAdControllerTest {
     // when
     webTestClient
         .put()
-        .uri("/pets/ad")
+        .uri("/pets/ad/" + petAd.getId())
         .bodyValue(updatedPetAdView)
         .exchange()
         .expectStatus()
@@ -154,6 +154,7 @@ public class PetAdControllerTest {
     assertEquals(petAd.getOwnerId(), updatedPetAd.getOwnerId());
     assertArrayEquals(updatedPetAdView.getImageBlob(), updatedPetAd.getImageBlob());
     assertEquals(updatedPetAdView.getColors(), updatedPetAd.getColors());
+    assertEquals(updatedPetAdView.isFound(), updatedPetAd.isFound());
   }
 
   @Test

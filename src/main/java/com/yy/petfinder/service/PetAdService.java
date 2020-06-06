@@ -24,7 +24,7 @@ public class PetAdService {
   public Mono<PetAdView> createAd(final PetAdView petAdView) {
     final String id = new ObjectId().toHexString();
 
-    final PetAd newPetAd = toPetAd(id, petAdView, IS_FOUND);
+    final PetAd newPetAd = toPetAd(id, petAdView);
 
     final Mono<PetAd> createdAd = petAdRepository.save(newPetAd);
     return createdAd.map(ad -> petAdView);
@@ -40,11 +40,11 @@ public class PetAdService {
   }
 
   public Mono<PetAdView> updateAd(String id, final PetAdView updatedAdView) {
-    final PetAd updatedPetAd = toPetAd(id, updatedAdView, updatedAdView.getFound());
+    final PetAd updatedPetAd = toPetAd(id, updatedAdView);
     return petAdRepository.findAndModify(updatedPetAd).map(this::toPetAdView);
   }
 
-  private PetAd toPetAd(final String id, final PetAdView petAdView, final boolean found) {
+  private PetAd toPetAd(final String id, final PetAdView petAdView) {
     final SearchArea searchArea = SearchArea.of(petAdView.getSearchArea().getCoordinates());
     return PetAd.builder()
         .id(id)
@@ -54,7 +54,7 @@ public class PetAdService {
         .name(petAdView.getName())
         .petType(petAdView.getPetType())
         .searchArea(searchArea)
-        .found(found)
+        .found(petAdView.isFound())
         .build();
   }
 

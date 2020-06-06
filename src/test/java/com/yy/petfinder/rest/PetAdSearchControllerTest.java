@@ -143,6 +143,37 @@ public class PetAdSearchControllerTest {
             Set.of(blackAndWhiteLabradorAd.getId()),
             petSearchRequest4);
 
-    return Stream.of(scenario1, scenario2, scenario3, scenario4);
+    // scenario 5 - two animals fit to search request but one is already found
+    final PetAd blackAndWhiteLabradorNotFoundAd =
+        petAdBuilderWithDefaults()
+            .petType(PetType.DOG)
+            .colors(List.of("black", "white"))
+            .breed(labradorBreed)
+            .build();
+    final PetAd blackAndWhiteLabradorFoundAd =
+        petAdBuilderWithDefaults()
+            .petType(PetType.DOG)
+            .colors(List.of("black", "white"))
+            .breed(labradorBreed)
+            .found(true)
+            .build();
+
+    final PetSearchRequest petSearchRequest5 =
+        PetSearchRequest.builder()
+            .longitude(27.417068481445312)
+            .latitude(53.885826945065915)
+            .radius(400)
+            .breed(labradorBreed)
+            .colors(List.of("black", "white"))
+            .petType(PetType.DOG)
+            .build();
+
+    final Arguments scenario5 =
+        Arguments.of(
+            List.of(blackAndWhiteLabradorNotFoundAd, blackAndWhiteLabradorFoundAd),
+            Set.of(blackAndWhiteLabradorNotFoundAd.getId()),
+            petSearchRequest5);
+
+    return Stream.of(scenario1, scenario2, scenario3, scenario4, scenario5);
   }
 }
