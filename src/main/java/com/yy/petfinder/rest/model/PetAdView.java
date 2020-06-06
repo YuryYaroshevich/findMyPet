@@ -14,7 +14,7 @@ public class PetAdView {
   private List<String> colors;
   private String breed;
   @NonNull private String name;
-  @NonNull private byte[] imageBlob;
+  @NonNull private List<String> photoUrls;
   @NonNull private SearchAreaView searchArea;
   @NonNull private String ownerId;
   private boolean found;

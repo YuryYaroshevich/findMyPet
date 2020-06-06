@@ -21,7 +21,11 @@ public class PetAdFactory {
     final PetType petType = PetType.DOG;
     final String name = "Fido";
     final String ownerId = UUID.randomUUID().toString();
-    final byte[] imageBlob = {1, 2, 3};
+    final List<String> photoUrls =
+        List.of(
+            "https://res.cloudinary.com/demo/image1",
+            "https://res.cloudinary.com/demo/image2",
+            "https://res.cloudinary.com/demo/image3");
     final List<String> colors = List.of("black");
 
     return PetAd.builder()
@@ -30,7 +34,7 @@ public class PetAdFactory {
         .petType(petType)
         .name(name)
         .ownerId(ownerId)
-        .imageBlob(imageBlob)
+        .photoUrls(photoUrls)
         .colors(colors);
   }
 }
