@@ -19,7 +19,7 @@ public class PetAd {
   private List<String> colors;
   private String breed;
   @NonNull private String name;
-  @NonNull private byte[] imageBlob;
+  @NonNull private List<String> photoUrls;
 
   @GeoSpatialIndexed(type = GeoSpatialIndexType.GEO_2DSPHERE)
   @NonNull

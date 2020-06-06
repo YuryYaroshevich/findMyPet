@@ -1,7 +1,6 @@
 package com.yy.petfinder.rest;
 
 import static com.yy.petfinder.testfactory.PetAdFactory.petAdBuilderWithDefaults;
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.yy.petfinder.model.PetAd;
@@ -42,7 +41,7 @@ public class PetAdControllerTest {
             .petType(petAd.getPetType())
             .name(petAd.getName())
             .ownerId(petAd.getOwnerId())
-            .imageBlob(petAd.getImageBlob())
+            .photoUrls(petAd.getPhotoUrls())
             .colors(petAd.getColors())
             .build();
 
@@ -77,7 +76,8 @@ public class PetAdControllerTest {
     final PetType petType = PetType.DOG;
     final String name = "Fido";
     final String ownerId = UUID.randomUUID().toString();
-    final byte[] imageBlob = {1, 2, 3};
+    final List<String> photoUrls =
+        List.of("https://host.com/image1", "https://host.com/image2", "https://host.com/image3");
     final List<String> colors = List.of("black", "brown");
     final PetAdView petAdView =
         PetAdView.builder()
@@ -85,7 +85,7 @@ public class PetAdControllerTest {
             .petType(petType)
             .name(name)
             .ownerId(ownerId)
-            .imageBlob(imageBlob)
+            .photoUrls(photoUrls)
             .colors(colors)
             .build();
 
@@ -103,7 +103,7 @@ public class PetAdControllerTest {
     assertEquals(petAdView.getPetType(), petAd.getPetType());
     assertEquals(petAdView.getName(), petAd.getName());
     assertEquals(petAdView.getOwnerId(), petAd.getOwnerId());
-    assertArrayEquals(petAdView.getImageBlob(), petAd.getImageBlob());
+    assertEquals(petAdView.getPhotoUrls(), petAd.getPhotoUrls());
     assertEquals(petAdView.getColors(), petAd.getColors());
   }
 
@@ -122,7 +122,11 @@ public class PetAdControllerTest {
             List.of(53.911665, 27.469369));
     final PetType newPetType = PetType.DOG;
     final String newName = "Fido";
-    final byte[] newImageBlob = {4, 5, 6};
+    final List<String> photoUrls =
+        List.of(
+            "https://res.cloudinary.com/demo/image1",
+            "https://res.cloudinary.com/demo/image2",
+            "https://res.cloudinary.com/demo/image3");
     final List<String> newColors = List.of("black", "brown", "white");
     final PetAdView updatedPetAdView =
         PetAdView.builder()
@@ -130,7 +134,7 @@ public class PetAdControllerTest {
             .petType(newPetType)
             .name(newName)
             .ownerId(petAd.getOwnerId())
-            .imageBlob(newImageBlob)
+            .photoUrls(photoUrls)
             .colors(newColors)
             .id(petAd.getId())
             .build();
@@ -152,7 +156,7 @@ public class PetAdControllerTest {
     assertEquals(updatedPetAdView.getPetType(), updatedPetAd.getPetType());
     assertEquals(updatedPetAdView.getName(), updatedPetAd.getName());
     assertEquals(petAd.getOwnerId(), updatedPetAd.getOwnerId());
-    assertArrayEquals(updatedPetAdView.getImageBlob(), updatedPetAd.getImageBlob());
+    assertEquals(updatedPetAdView.getPhotoUrls(), updatedPetAd.getPhotoUrls());
     assertEquals(updatedPetAdView.getColors(), updatedPetAd.getColors());
     assertEquals(updatedPetAdView.isFound(), updatedPetAd.isFound());
   }

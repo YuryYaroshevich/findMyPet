@@ -62,7 +62,7 @@ public class PetAdRepositoryImpl implements PetAdRepositoryCustom {
       update.set(COLORS_FIELD, updatedPetAd.getBreed());
     }
     update.set(NAME_FILED, updatedPetAd.getName());
-    update.set(IMAGE_FILED, updatedPetAd.getImageBlob());
+    update.set(IMAGE_FILED, updatedPetAd.getPhotoUrls());
     update.set(SEARCH_AREA_FIELD, updatedPetAd.getSearchArea());
     update.set(FOUND_FIELD, updatedPetAd.isFound());
 

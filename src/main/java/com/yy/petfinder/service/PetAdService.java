@@ -13,8 +13,6 @@ import reactor.core.publisher.Mono;
 
 @Service
 public class PetAdService {
-  private static final boolean IS_FOUND = false;
-
   private final PetAdRepository petAdRepository;
 
   public PetAdService(final PetAdRepository petAdRepository) {
@@ -49,7 +47,7 @@ public class PetAdService {
     return PetAd.builder()
         .id(id)
         .colors(petAdView.getColors())
-        .imageBlob(petAdView.getImageBlob())
+        .photoUrls(petAdView.getPhotoUrls())
         .ownerId(petAdView.getOwnerId())
         .name(petAdView.getName())
         .petType(petAdView.getPetType())
@@ -62,7 +60,7 @@ public class PetAdService {
     return PetAdView.builder()
         .id(petAd.getId())
         .colors(petAd.getColors())
-        .imageBlob(petAd.getImageBlob())
+        .photoUrls(petAd.getPhotoUrls())
         .ownerId(petAd.getOwnerId())
         .name(petAd.getName())
         .petType(petAd.getPetType())
