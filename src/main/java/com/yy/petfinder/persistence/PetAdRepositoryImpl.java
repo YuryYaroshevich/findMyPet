@@ -1,7 +1,11 @@
 package com.yy.petfinder.persistence;
 
 import com.yy.petfinder.model.PetAd;
+import com.yy.petfinder.rest.model.Paging;
 import com.yy.petfinder.rest.model.PetSearchRequest;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.geo.GeoJsonPoint;
@@ -17,7 +21,6 @@ public class PetAdRepositoryImpl implements PetAdRepositoryCustom {
   private static final String BREED_FIELD = "breed";
   private static final String COLORS_FIELD = "colors";
   private static final String ID_FIELD = "_id";
-  private static final String UUID_FIELD = "uuid";
   private static final String FOUND_FIELD = "found";
   private static final String NAME_FILED = "name";
   private static final String IMAGE_FILED = "imageBlob";
@@ -28,9 +31,8 @@ public class PetAdRepositoryImpl implements PetAdRepositoryCustom {
     this.mongoTemplate = mongoTemplate;
   }
 
-  // TODO: paging needed
   @Override
-  public Flux<PetAd> findPetAds(final PetSearchRequest petSearchReq) {
+  public Flux<PetAd> findPetAds(final PetSearchRequest petSearchReq, final Paging paging) {
     final GeoJsonPoint point =
         new GeoJsonPoint(petSearchReq.getLongitude(), petSearchReq.getLatitude());
     final Criteria criteria =
@@ -46,11 +48,18 @@ public class PetAdRepositoryImpl implements PetAdRepositoryCustom {
     }
     criteria.and(FOUND_FIELD).is(false);
 
-    return mongoTemplate.find(new Query(criteria), PetAd.class);
+    if (paging.getNextPageToken() != null) {
+      criteria.and(ID_FIELD).lt(paging.getNextPageToken());
+    }
+
+    final Pageable pageable =
+        PageRequest.of(0, paging.getPageSize(), Sort.by(Sort.Direction.DESC, ID_FIELD));
+
+    return mongoTemplate.find(new Query(criteria).with(pageable), PetAd.class);
   }
 
   @Override
-  public Mono<PetAd> findAndModify(PetAd updatedPetAd) {
+  public Mono<PetAd> findAndModify(final PetAd updatedPetAd) {
     final Criteria criteria = Criteria.where(ID_FIELD).is(updatedPetAd.getId());
 
     final Update update = new Update();

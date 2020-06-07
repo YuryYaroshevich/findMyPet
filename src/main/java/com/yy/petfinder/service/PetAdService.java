@@ -3,6 +3,7 @@ package com.yy.petfinder.service;
 import com.yy.petfinder.model.PetAd;
 import com.yy.petfinder.model.SearchArea;
 import com.yy.petfinder.persistence.PetAdRepository;
+import com.yy.petfinder.rest.model.Paging;
 import com.yy.petfinder.rest.model.PetAdView;
 import com.yy.petfinder.rest.model.PetSearchRequest;
 import com.yy.petfinder.rest.model.SearchAreaView;
@@ -33,8 +34,8 @@ public class PetAdService {
     return petAd.map(this::toPetAdView);
   }
 
-  public Mono<List<PetAdView>> searchPets(final PetSearchRequest petSearchReq) {
-    return petAdRepository.findPetAds(petSearchReq).map(this::toPetAdView).collectList();
+  public Mono<List<PetAdView>> searchPets(final PetSearchRequest petSearchReq, Paging paging) {
+    return petAdRepository.findPetAds(petSearchReq, paging).map(this::toPetAdView).collectList();
   }
 
   public Mono<PetAdView> updateAd(String id, final PetAdView updatedAdView) {
