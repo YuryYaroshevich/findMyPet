@@ -100,7 +100,6 @@ public class PetAdSearchPagingControllerTest {
   public void testDefaultPageSizeWorks() {
     final List<PetAd> petAds =
         IntStream.range(0, 30).mapToObj(i -> petAdBuilderWithDefaults().build()).collect(toList());
-
     petAdRepository.saveAll(petAds).blockLast();
 
     final PetSearchRequest petSearchReq =
