@@ -3,6 +3,7 @@ package com.yy.petfinder.persistence;
 import com.yy.petfinder.model.PetAd;
 import com.yy.petfinder.rest.model.Paging;
 import com.yy.petfinder.rest.model.PetSearchRequest;
+import org.bson.types.ObjectId;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -49,7 +50,7 @@ public class PetAdRepositoryImpl implements PetAdRepositoryCustom {
     criteria.and(FOUND_FIELD).is(false);
 
     if (paging.getNextPageToken() != null) {
-      criteria.and(ID_FIELD).lt(paging.getNextPageToken());
+      criteria.and(ID_FIELD).lt(new ObjectId(paging.getNextPageToken()));
     }
 
     final Pageable pageable =

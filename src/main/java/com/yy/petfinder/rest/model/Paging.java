@@ -1,11 +1,13 @@
 package com.yy.petfinder.rest.model;
 
-import lombok.Builder;
-import lombok.Value;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-@Value
-@Builder
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Paging {
-  private String nextPageToken;
-  @Builder.Default private int pageSize = 20;
+  private String nextPageToken = null;
+  private int pageSize = 20;
 }

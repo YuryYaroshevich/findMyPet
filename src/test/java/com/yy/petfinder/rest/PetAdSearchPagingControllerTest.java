@@ -25,6 +25,8 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class PetAdSearchPagingControllerTest {
+  private static final int PAGE_SIZE = 2;
+
   @Autowired private WebTestClient webTestClient;
 
   @Autowired private PetAdRepository petAdRepository;
@@ -55,35 +57,41 @@ public class PetAdSearchPagingControllerTest {
             .petType(PetType.DOG)
             .build();
 
-    final Paging paging = Paging.builder().pageSize(2).build();
+    final Paging paging = new Paging(null, PAGE_SIZE); // Paging.builder().pageSize(2).build();
 
     final EntityExchangeResult<List<PetAdView>> response =
         searchPetAdsResponse(petSearchReq, paging);
     final List<PetAdView> petAdViews = response.getResponseBody();
     assertEquals(2, petAdViews.size());
-    assertEquals(petAd5.getId(), petAdViews.get(0));
-    assertEquals(petAd4.getId(), petAdViews.get(1));
+    assertEquals(petAd5.getId(), petAdViews.get(0).getId());
+    assertEquals(petAd4.getId(), petAdViews.get(1).getId());
     final String nextPageToken = response.getResponseHeaders().get(NEXT_PAGE_TOKEN).get(0);
     assertEquals(petAd4.getId(), nextPageToken);
 
-    final Paging paging2 = Paging.builder().nextPageToken(nextPageToken).pageSize(2).build();
+    final Paging paging2 =
+        new Paging(
+            nextPageToken,
+            PAGE_SIZE); // Paging.builder().nextPageToken(nextPageToken).pageSize(2).build();
 
     final EntityExchangeResult<List<PetAdView>> response2 =
         searchPetAdsResponse(petSearchReq, paging2);
     final List<PetAdView> petAdViews2 = response2.getResponseBody();
-    assertEquals(2, petAdViews.size());
-    assertEquals(petAd3.getId(), petAdViews2.get(0));
-    assertEquals(petAd2.getId(), petAdViews2.get(1));
+    assertEquals(2, petAdViews2.size());
+    assertEquals(petAd3.getId(), petAdViews2.get(0).getId());
+    assertEquals(petAd2.getId(), petAdViews2.get(1).getId());
     final String nextPageToken2 = response2.getResponseHeaders().get(NEXT_PAGE_TOKEN).get(0);
     assertEquals(petAd2.getId(), nextPageToken2);
 
-    final Paging paging3 = Paging.builder().nextPageToken(nextPageToken2).pageSize(2).build();
+    final Paging paging3 =
+        new Paging(
+            nextPageToken2,
+            PAGE_SIZE); // Paging.builder().nextPageToken(nextPageToken2).pageSize(2).build();
 
     final EntityExchangeResult<List<PetAdView>> response3 =
         searchPetAdsResponse(petSearchReq, paging3);
     final List<PetAdView> petAdViews3 = response3.getResponseBody();
-    assertEquals(1, petAdViews.size());
-    assertEquals(petAd1.getId(), petAdViews3.get(0));
+    assertEquals(1, petAdViews3.size());
+    assertEquals(petAd1.getId(), petAdViews3.get(0).getId());
 
     assertFalse(response3.getResponseHeaders().containsKey(NEXT_PAGE_TOKEN));
   }
