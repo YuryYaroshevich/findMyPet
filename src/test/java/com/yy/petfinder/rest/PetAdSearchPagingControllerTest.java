@@ -3,6 +3,8 @@ package com.yy.petfinder.rest;
 import static com.yy.petfinder.rest.PetAdController.NEXT_PAGE_TOKEN;
 import static com.yy.petfinder.testfactory.PetAdFactory.petAdBuilderWithDefaults;
 import static com.yy.petfinder.util.SearchUriBuilder.searchUri;
+import static com.yy.petfinder.util.WebTestClientWrapper.getExchange;
+import static com.yy.petfinder.util.WebTestClientWrapper.getList;
 import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -14,9 +16,7 @@ import com.yy.petfinder.rest.model.Paging;
 import com.yy.petfinder.rest.model.PetAdView;
 import com.yy.petfinder.rest.model.PetSearchRequest;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -64,7 +64,7 @@ public class PetAdSearchPagingControllerTest {
     final Paging paging = new Paging(null, PAGE_SIZE);
 
     final EntityExchangeResult<List<PetAdView>> response =
-        searchPetAdsResponse(petSearchReq, paging);
+        getExchange(webTestClient, searchUri(petSearchReq, paging), PetAdView.class);
     final List<PetAdView> petAdViews = response.getResponseBody();
     assertEquals(2, petAdViews.size());
     assertEquals(petAd5.getId(), petAdViews.get(0).getId());
@@ -72,13 +72,11 @@ public class PetAdSearchPagingControllerTest {
     final String nextPageToken = response.getResponseHeaders().get(NEXT_PAGE_TOKEN).get(0);
     assertEquals(petAd4.getId(), nextPageToken);
 
-    final Paging paging2 =
-        new Paging(
-            nextPageToken,
-            PAGE_SIZE);
+    final Paging paging2 = new Paging(nextPageToken, PAGE_SIZE);
 
     final EntityExchangeResult<List<PetAdView>> response2 =
-        searchPetAdsResponse(petSearchReq, paging2);
+        getExchange(webTestClient, searchUri(petSearchReq, paging2), PetAdView.class);
+    ;
     final List<PetAdView> petAdViews2 = response2.getResponseBody();
     assertEquals(2, petAdViews2.size());
     assertEquals(petAd3.getId(), petAdViews2.get(0).getId());
@@ -86,13 +84,11 @@ public class PetAdSearchPagingControllerTest {
     final String nextPageToken2 = response2.getResponseHeaders().get(NEXT_PAGE_TOKEN).get(0);
     assertEquals(petAd2.getId(), nextPageToken2);
 
-    final Paging paging3 =
-        new Paging(
-            nextPageToken2,
-            PAGE_SIZE);
+    final Paging paging3 = new Paging(nextPageToken2, PAGE_SIZE);
 
     final EntityExchangeResult<List<PetAdView>> response3 =
-        searchPetAdsResponse(petSearchReq, paging3);
+        getExchange(webTestClient, searchUri(petSearchReq, paging3), PetAdView.class);
+    ;
     final List<PetAdView> petAdViews3 = response3.getResponseBody();
     assertEquals(1, petAdViews3.size());
     assertEquals(petAd1.getId(), petAdViews3.get(0).getId());
@@ -102,42 +98,22 @@ public class PetAdSearchPagingControllerTest {
 
   @Test
   public void testDefaultPageSizeWorks() {
-    final List<PetAd> petAds = IntStream.range(0, 30)
-      .mapToObj(i -> petAdBuilderWithDefaults().build())
-      .collect(toList());
+    final List<PetAd> petAds =
+        IntStream.range(0, 30).mapToObj(i -> petAdBuilderWithDefaults().build()).collect(toList());
 
     petAdRepository.saveAll(petAds).blockLast();
 
     final PetSearchRequest petSearchReq =
-      PetSearchRequest.builder()
-        .longitude(27.417068481445312)
-        .latitude(53.885826945065915)
-        .radius(400)
-        .petType(PetType.DOG)
-        .build();
+        PetSearchRequest.builder()
+            .longitude(27.417068481445312)
+            .latitude(53.885826945065915)
+            .radius(400)
+            .petType(PetType.DOG)
+            .build();
 
-    final List<PetAdView> petAdViews = webTestClient
-      .get()
-      .uri(searchUri(petSearchReq))
-      .exchange()
-      .expectStatus()
-      .isOk()
-      .expectBodyList(PetAdView.class)
-      .returnResult()
-      .getResponseBody();
+    final List<PetAdView> petAdViews =
+        getList(webTestClient, searchUri(petSearchReq), PetAdView.class);
 
     assertEquals(20, petAdViews.size());
-  }
-
-  private EntityExchangeResult<List<PetAdView>> searchPetAdsResponse(
-      final PetSearchRequest petSearchReq, final Paging paging) {
-    return webTestClient
-        .get()
-        .uri(searchUri(petSearchReq, paging))
-        .exchange()
-        .expectStatus()
-        .isOk()
-        .expectBodyList(PetAdView.class)
-        .returnResult();
   }
 }

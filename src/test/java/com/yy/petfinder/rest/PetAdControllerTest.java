@@ -8,6 +8,7 @@ import com.yy.petfinder.model.PetType;
 import com.yy.petfinder.persistence.PetAdRepository;
 import com.yy.petfinder.rest.model.PetAdView;
 import com.yy.petfinder.rest.model.SearchAreaView;
+import com.yy.petfinder.util.WebTestClientWrapper;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -49,15 +50,7 @@ public class PetAdControllerTest {
 
     // when
     final PetAdView petAdView =
-        webTestClient
-            .get()
-            .uri("/pets/ad/" + petAd.getId())
-            .exchange()
-            .expectStatus()
-            .isOk()
-            .expectBody(PetAdView.class)
-            .returnResult()
-            .getResponseBody();
+        WebTestClientWrapper.get(webTestClient, "/pets/ad/" + petAd.getId(), PetAdView.class);
 
     // then
     assertEquals(expectedPetAd, petAdView);
