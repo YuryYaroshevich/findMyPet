@@ -3,6 +3,7 @@ package com.yy.petfinder.rest;
 import static com.yy.petfinder.rest.PetAdController.NEXT_PAGE_TOKEN;
 import static com.yy.petfinder.testfactory.PetAdFactory.petAdBuilderWithDefaults;
 import static com.yy.petfinder.util.SearchUriBuilder.searchUri;
+import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
@@ -13,6 +14,9 @@ import com.yy.petfinder.rest.model.Paging;
 import com.yy.petfinder.rest.model.PetAdView;
 import com.yy.petfinder.rest.model.PetSearchRequest;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -57,7 +61,7 @@ public class PetAdSearchPagingControllerTest {
             .petType(PetType.DOG)
             .build();
 
-    final Paging paging = new Paging(null, PAGE_SIZE); // Paging.builder().pageSize(2).build();
+    final Paging paging = new Paging(null, PAGE_SIZE);
 
     final EntityExchangeResult<List<PetAdView>> response =
         searchPetAdsResponse(petSearchReq, paging);
@@ -71,7 +75,7 @@ public class PetAdSearchPagingControllerTest {
     final Paging paging2 =
         new Paging(
             nextPageToken,
-            PAGE_SIZE); // Paging.builder().nextPageToken(nextPageToken).pageSize(2).build();
+            PAGE_SIZE);
 
     final EntityExchangeResult<List<PetAdView>> response2 =
         searchPetAdsResponse(petSearchReq, paging2);
@@ -85,7 +89,7 @@ public class PetAdSearchPagingControllerTest {
     final Paging paging3 =
         new Paging(
             nextPageToken2,
-            PAGE_SIZE); // Paging.builder().nextPageToken(nextPageToken2).pageSize(2).build();
+            PAGE_SIZE);
 
     final EntityExchangeResult<List<PetAdView>> response3 =
         searchPetAdsResponse(petSearchReq, paging3);
@@ -94,6 +98,35 @@ public class PetAdSearchPagingControllerTest {
     assertEquals(petAd1.getId(), petAdViews3.get(0).getId());
 
     assertFalse(response3.getResponseHeaders().containsKey(NEXT_PAGE_TOKEN));
+  }
+
+  @Test
+  public void testDefaultPageSizeWorks() {
+    final List<PetAd> petAds = IntStream.range(0, 30)
+      .mapToObj(i -> petAdBuilderWithDefaults().build())
+      .collect(toList());
+
+    petAdRepository.saveAll(petAds).blockLast();
+
+    final PetSearchRequest petSearchReq =
+      PetSearchRequest.builder()
+        .longitude(27.417068481445312)
+        .latitude(53.885826945065915)
+        .radius(400)
+        .petType(PetType.DOG)
+        .build();
+
+    final List<PetAdView> petAdViews = webTestClient
+      .get()
+      .uri(searchUri(petSearchReq))
+      .exchange()
+      .expectStatus()
+      .isOk()
+      .expectBodyList(PetAdView.class)
+      .returnResult()
+      .getResponseBody();
+
+    assertEquals(20, petAdViews.size());
   }
 
   private EntityExchangeResult<List<PetAdView>> searchPetAdsResponse(
