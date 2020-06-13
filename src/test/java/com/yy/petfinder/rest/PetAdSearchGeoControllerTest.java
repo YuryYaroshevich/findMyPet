@@ -2,6 +2,7 @@ package com.yy.petfinder.rest;
 
 import static com.yy.petfinder.testfactory.PetAdFactory.petAdBuilderWithDefaults;
 import static com.yy.petfinder.util.SearchUriBuilder.searchUri;
+import static com.yy.petfinder.util.WebTestClientWrapper.getList;
 import static java.util.stream.Collectors.toSet;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -47,15 +48,7 @@ public class PetAdSearchGeoControllerTest {
 
     // when
     final List<PetAdView> petAdViews =
-        webTestClient
-            .get()
-            .uri(searchUri(petSearchRequest))
-            .exchange()
-            .expectStatus()
-            .isOk()
-            .expectBodyList(PetAdView.class)
-            .returnResult()
-            .getResponseBody();
+        getList(webTestClient, searchUri(petSearchRequest), PetAdView.class);
     final Set<String> petAdIds = petAdViews.stream().map(PetAdView::getId).collect(toSet());
 
     // then
