@@ -21,6 +21,7 @@ repositories { mavenCentral() }
 dependencies {
   implementation 'org.springframework.boot:spring-boot-starter-data-mongodb-reactive'
   implementation 'org.springframework.boot:spring-boot-starter-webflux'
+  implementation 'org.springframework.boot:spring-boot-starter-security'
   compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.12'
   annotationProcessor group: 'org.projectlombok', name: 'lombok', version: '1.18.12'
 

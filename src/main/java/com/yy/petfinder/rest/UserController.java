@@ -24,9 +24,9 @@ public class UserController {
     this.userService = userService;
   }
 
-  @GetMapping("/{uuid}")
-  public Mono<UserView> getUser(@PathVariable("uuid") final String uuid) {
-    return userService.getUser(uuid);
+  @GetMapping("/{id}")
+  public Mono<UserView> getUser(@PathVariable("id") final String id) {
+    return userService.getUser(id);
   }
 
   @PostMapping

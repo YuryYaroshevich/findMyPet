@@ -5,7 +5,7 @@ import lombok.Value;
 
 @Value
 public class UserView {
-  @NonNull private String uuid;
+  @NonNull private String id;
   @NonNull private String email;
   @NonNull private String phone;
 }

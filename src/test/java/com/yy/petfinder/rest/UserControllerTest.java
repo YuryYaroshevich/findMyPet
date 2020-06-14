@@ -7,7 +7,6 @@ import com.yy.petfinder.persistence.UserRepository;
 import com.yy.petfinder.rest.model.CreateUser;
 import com.yy.petfinder.rest.model.UserView;
 import java.util.List;
-import java.util.UUID;
 import org.bson.types.ObjectId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,17 +33,15 @@ public class UserControllerTest {
     final String email = "abc@email.com";
     final String password = "1234";
     final String phone = "+375296666666";
-    final ObjectId objectId = new ObjectId();
-    final String uuid = UUID.randomUUID().toString();
-    final User user =
-        User.builder().id(objectId).uuid(uuid).email(email).phone(phone).password(password).build();
-    final UserView expectedUser = new UserView(uuid, email, phone);
+    final String id = new ObjectId().toHexString();
+    final User user = User.builder().id(id).email(email).phone(phone).password(password).build();
+    final UserView expectedUser = new UserView(id, email, phone);
     userRepository.save(user).block();
 
     final UserView createdUser =
         webTestClient
             .get()
-            .uri("/users/" + uuid)
+            .uri("/users/" + id)
             .exchange()
             .expectStatus()
             .isOk()
