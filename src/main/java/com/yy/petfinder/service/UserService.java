@@ -24,10 +24,6 @@ public class UserService {
     return userView;
   }
 
-  public Mono<User> findByEmail(final String email) {
-    return userRepository.findByEmail(email);
-  }
-
   public Mono<UserView> createUser(CreateUser createUser) {
     final String id = new ObjectId().toHexString();
     final User newUser =

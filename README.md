@@ -7,4 +7,5 @@ REST backend for lost pets announcements application.
 2. authentication:
     a) https://medium.com/@ard333/authentication-and-authorization-using-jwt-on-spring-webflux-29b81f813e78
     b) https://habr.com/ru/post/485498/
+    Need to decide who does what: JWTReactiveAuthenticationManager, TokenAuthenticationConverter
 

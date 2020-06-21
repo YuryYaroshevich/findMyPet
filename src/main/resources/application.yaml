@@ -7,3 +7,5 @@ spring:
   data:
     mongodb:
       uri: 'mongodb://127.0.0.1:27017/pets'
+
+salt: JpxM4e858rc673syopdZnMFb*ExeqJtUc0HJ_iOxu~jiSYu+yPdPw93OBBjF

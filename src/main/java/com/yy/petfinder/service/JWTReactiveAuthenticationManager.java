@@ -1,21 +1,15 @@
 package com.yy.petfinder.service;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 public class JWTReactiveAuthenticationManager implements ReactiveAuthenticationManager {
-  private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
   private final ReactiveUserDetailsService userDetailsService;
   private final PasswordEncoder passwordEncoder;
 
@@ -30,12 +24,13 @@ public class JWTReactiveAuthenticationManager implements ReactiveAuthenticationM
     if (authentication.isAuthenticated()) {
       return Mono.just(authentication);
     }
+
+    final String token = authentication.getCredentials().toString();
+    // TODO: check that token has not expired
+    final String username = authentication.getName();
     return Mono.just(authentication)
-        .switchIfEmpty(Mono.defer(this::raiseBadCredentials))
         .cast(UsernamePasswordAuthenticationToken.class)
         .flatMap(this::authenticateToken)
-        .publishOn(Schedulers.parallel())
-        .onErrorResume(e -> raiseBadCredentials())
         .filter(
             u -> passwordEncoder.matches((String) authentication.getCredentials(), u.getPassword()))
         .switchIfEmpty(Mono.defer(this::raiseBadCredentials))
@@ -52,16 +47,10 @@ public class JWTReactiveAuthenticationManager implements ReactiveAuthenticationM
   }
 
   private Mono<UserDetails> authenticateToken(
-      final UsernamePasswordAuthenticationToken authenticationToken) {
-    String username = authenticationToken.getName();
-
-    logger.info("checking authentication for user " + username);
-
-    if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-      logger.info("authenticated user " + username + ", setting security context");
-      return this.userDetailsService.findByUsername(username);
-    }
-
-    return null;
+      final UsernamePasswordAuthenticationToken authentication) {
+    final String username = authentication.getName();
+    return userDetailsService
+        .findByUsername(username)
+        .switchIfEmpty(Mono.error(new BadCredentialsException("Invalid Credentials")));
   }
 }
