@@ -55,12 +55,12 @@ public class SecurityConfiguration {
   @Bean
   public JWTReactiveAuthenticationManager repositoryReactiveAuthenticationManager() {
     JWTReactiveAuthenticationManager repositoryReactiveAuthenticationManager =
-        new JWTReactiveAuthenticationManager(reactiveUserDetailsService, passwordEncoder());
+        new JWTReactiveAuthenticationManager(reactiveUserDetailsService, tokenService);
     return repositoryReactiveAuthenticationManager;
   }
 
   @Bean
-  public static Pbkdf2PasswordEncoder passwordEncoder() {
+  public Pbkdf2PasswordEncoder passwordEncoder() {
     return new Pbkdf2PasswordEncoder();
   }
 }

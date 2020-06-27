@@ -16,7 +16,7 @@ public class TokenAuthenticationConverter implements ServerAuthenticationConvert
   private static final String BEARER = "Bearer ";
   private static final String NO_PASSWORD = "";
 
-  private TokenService tokenService;
+  private final TokenService tokenService;
 
   public TokenAuthenticationConverter(final TokenService tokenService) {
     this.tokenService = tokenService;

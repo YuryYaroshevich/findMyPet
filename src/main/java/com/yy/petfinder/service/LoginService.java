@@ -9,9 +9,18 @@ import reactor.core.publisher.Mono;
 
 @Service
 public class LoginService {
-  private PasswordEncoder passwordEncoder;
-  private UserDetailsService userDetailsService;
-  private TokenService tokenService;
+  private final PasswordEncoder passwordEncoder;
+  private final UserDetailsService userDetailsService;
+  private final TokenService tokenService;
+
+  public LoginService(
+      final PasswordEncoder passwordEncoder,
+      final UserDetailsService userDetailsService,
+      final TokenService tokenService) {
+    this.passwordEncoder = passwordEncoder;
+    this.userDetailsService = userDetailsService;
+    this.tokenService = tokenService;
+  }
 
   public Mono<JWTToken> authenticate(final Login login) {
     final Mono<UserDetails> authenticatedUser =

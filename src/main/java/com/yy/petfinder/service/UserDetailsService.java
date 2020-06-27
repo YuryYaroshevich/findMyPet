@@ -10,7 +10,11 @@ import reactor.core.publisher.Mono;
 
 @Service
 public class UserDetailsService implements ReactiveUserDetailsService {
-  private UserRepository userRepository;
+  private final UserRepository userRepository;
+
+  public UserDetailsService(final UserRepository userRepository) {
+    this.userRepository = userRepository;
+  }
 
   @Override
   public Mono<UserDetails> findByUsername(String email) {

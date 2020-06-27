@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 public class TokenService {
   private static final long tokenValidityInMilliseconds = 1000 * 86400;
 
-  private String secretKey;
+  private final String secretKey;
 
   public TokenService(@Value("${salt}") final String salt) {
     this.secretKey = Base64.getEncoder().encodeToString(salt.getBytes(StandardCharsets.UTF_8));

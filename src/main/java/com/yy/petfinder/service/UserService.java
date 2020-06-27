@@ -6,16 +6,19 @@ import com.yy.petfinder.rest.model.CreateUser;
 import com.yy.petfinder.rest.model.UserView;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 @Service
 public class UserService {
   private final UserRepository userRepository;
+  private final PasswordEncoder passwordEncoder;
 
   @Autowired
-  public UserService(UserRepository userRepository) {
+  public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
     this.userRepository = userRepository;
+    this.passwordEncoder = passwordEncoder;
   }
 
   public Mono<UserView> getUser(final String id) {
@@ -26,12 +29,13 @@ public class UserService {
 
   public Mono<UserView> createUser(CreateUser createUser) {
     final String id = new ObjectId().toHexString();
+    final String encodedPassword = passwordEncoder.encode(createUser.getPassword());
     final User newUser =
         User.builder()
             .id(id)
             .email(createUser.getEmail())
             .phone(createUser.getPhone())
-            .password(createUser.getPassword())
+            .password(encodedPassword)
             .build();
 
     final Mono<User> createdUser = userRepository.save(newUser);

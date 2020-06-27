@@ -17,6 +17,11 @@ public class AuthController {
   private UserService userService;
   private LoginService loginService;
 
+  public AuthController(UserService userService, LoginService loginService) {
+    this.userService = userService;
+    this.loginService = loginService;
+  }
+
   @PostMapping(value = "/login")
   @ResponseStatus(HttpStatus.CREATED)
   public Mono<JWTToken> login(@RequestBody Login login) {
