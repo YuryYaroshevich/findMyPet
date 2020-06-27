@@ -2,9 +2,9 @@ package com.yy.petfinder;
 
 import com.yy.petfinder.service.JWTHeadersExchangeMatcher;
 import com.yy.petfinder.service.JWTReactiveAuthenticationManager;
-import com.yy.petfinder.service.ReactiveUserDetailsServiceImpl;
 import com.yy.petfinder.service.TokenAuthenticationConverter;
 import com.yy.petfinder.service.TokenService;
+import com.yy.petfinder.service.UserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
@@ -19,11 +19,11 @@ import org.springframework.security.web.server.authentication.AuthenticationWebF
 @EnableReactiveMethodSecurity
 @EnableWebFluxSecurity
 public class SecurityConfiguration {
-  private final ReactiveUserDetailsServiceImpl reactiveUserDetailsService;
+  private final UserDetailsService reactiveUserDetailsService;
   private final TokenService tokenService;
 
   public SecurityConfiguration(
-      ReactiveUserDetailsServiceImpl reactiveUserDetailsService, TokenService tokenProvider) {
+      UserDetailsService reactiveUserDetailsService, TokenService tokenProvider) {
     this.reactiveUserDetailsService = reactiveUserDetailsService;
     this.tokenService = tokenProvider;
   }
@@ -34,7 +34,7 @@ public class SecurityConfiguration {
     http.httpBasic().disable().formLogin().disable().csrf().disable().logout().disable();
 
     http.authorizeExchange()
-        .pathMatchers("/login", "/signup")
+        .pathMatchers("/login", "/signUp")
         .permitAll()
         .and()
         .addFilterAt(webFilter(), SecurityWebFiltersOrder.AUTHORIZATION);

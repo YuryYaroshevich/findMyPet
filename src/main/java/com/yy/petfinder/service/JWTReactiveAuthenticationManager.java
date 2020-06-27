@@ -6,34 +6,25 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import reactor.core.publisher.Mono;
 
 public class JWTReactiveAuthenticationManager implements ReactiveAuthenticationManager {
   private final ReactiveUserDetailsService userDetailsService;
-  private final PasswordEncoder passwordEncoder;
+  private final TokenService tokenService;
 
   public JWTReactiveAuthenticationManager(
-      ReactiveUserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
+      ReactiveUserDetailsService userDetailsService, TokenService tokenService) {
     this.userDetailsService = userDetailsService;
-    this.passwordEncoder = passwordEncoder;
+    this.tokenService = tokenService;
   }
 
   @Override
   public Mono<Authentication> authenticate(final Authentication authentication) {
-    if (authentication.isAuthenticated()) {
-      return Mono.just(authentication);
-    }
-
-    final String token = authentication.getCredentials().toString();
-    // TODO: check that token has not expired
-    final String username = authentication.getName();
     return Mono.just(authentication)
         .cast(UsernamePasswordAuthenticationToken.class)
-        .flatMap(this::authenticateToken)
-        .filter(
-            u -> passwordEncoder.matches((String) authentication.getCredentials(), u.getPassword()))
-        .switchIfEmpty(Mono.defer(this::raiseBadCredentials))
+        .filter(auth -> tokenService.isExpired((String) auth.getCredentials()))
+        .flatMap(this::getUserDetails)
+        .switchIfEmpty(Mono.error(new BadCredentialsException("Invalid Credentials")))
         .map(
             u ->
                 new UsernamePasswordAuthenticationToken(
@@ -42,11 +33,7 @@ public class JWTReactiveAuthenticationManager implements ReactiveAuthenticationM
                     u.getAuthorities()));
   }
 
-  private <T> Mono<T> raiseBadCredentials() {
-    return Mono.error(new BadCredentialsException("Invalid Credentials"));
-  }
-
-  private Mono<UserDetails> authenticateToken(
+  private Mono<UserDetails> getUserDetails(
       final UsernamePasswordAuthenticationToken authentication) {
     final String username = authentication.getName();
     return userDetailsService

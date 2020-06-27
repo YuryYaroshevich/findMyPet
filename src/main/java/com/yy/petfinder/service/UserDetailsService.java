@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 @Service
-public class ReactiveUserDetailsServiceImpl implements ReactiveUserDetailsService {
+public class UserDetailsService implements ReactiveUserDetailsService {
   private UserRepository userRepository;
 
   @Override

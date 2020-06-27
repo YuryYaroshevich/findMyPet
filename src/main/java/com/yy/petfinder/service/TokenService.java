@@ -7,7 +7,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Date;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -20,18 +19,28 @@ public class TokenService {
     this.secretKey = Base64.getEncoder().encodeToString(salt.getBytes(StandardCharsets.UTF_8));
   }
 
-  public String createToken(Authentication authentication) {
+  public String createToken(final String username) {
     long now = (new Date()).getTime();
-    Date validity = new Date(now + this.tokenValidityInMilliseconds);
+    final Date validity = new Date(now + this.tokenValidityInMilliseconds);
     return Jwts.builder()
-        .setSubject(authentication.getName())
+        .setSubject(username)
         .signWith(SignatureAlgorithm.HS512, secretKey)
         .setExpiration(validity)
         .compact();
   }
 
   public String getUserFromToken(final String token) {
-    final Claims claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody();
+    final Claims claims = parseToken(token);
     return claims.getSubject();
+  }
+
+  public boolean isExpired(String token) {
+    final Claims tokenClaims = parseToken(token);
+    final Date expiration = tokenClaims.getExpiration();
+    return !expiration.before(new Date());
+  }
+
+  private Claims parseToken(String token) {
+    return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody();
   }
 }
