@@ -2,6 +2,8 @@ package com.yy.petfinder.service;
 
 import com.yy.petfinder.rest.model.Login;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -30,6 +32,13 @@ public class LoginService {
             .switchIfEmpty(
                 Mono.error(new BadCredentialsException("email or password is incorrect")));
     return authenticatedUser
+        .doOnNext(
+            userDetails ->
+                ReactiveSecurityContextHolder.withAuthentication(
+                    new UsernamePasswordAuthenticationToken(
+                        userDetails.getUsername(),
+                        userDetails.getPassword(),
+                        userDetails.getAuthorities())))
         .map(UserDetails::getUsername)
         .map(tokenService::createToken)
         .map(JWTToken::new);

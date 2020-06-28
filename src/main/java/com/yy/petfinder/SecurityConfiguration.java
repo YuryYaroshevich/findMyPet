@@ -37,7 +37,8 @@ public class SecurityConfiguration {
         .pathMatchers("/login", "/signUp")
         .permitAll()
         .and()
-        .addFilterAt(webFilter(), SecurityWebFiltersOrder.AUTHORIZATION);
+        .addFilterAt(webFilter(), SecurityWebFiltersOrder.AUTHORIZATION)
+        .authorizeExchange();
 
     return http.build();
   }

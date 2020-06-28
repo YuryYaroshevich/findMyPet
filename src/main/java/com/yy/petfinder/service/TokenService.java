@@ -37,7 +37,8 @@ public class TokenService {
   public boolean isExpired(String token) {
     final Claims tokenClaims = parseToken(token);
     final Date expiration = tokenClaims.getExpiration();
-    return !expiration.before(new Date());
+    final Date now = new Date();
+    return now.after(expiration);
   }
 
   private Claims parseToken(String token) {
