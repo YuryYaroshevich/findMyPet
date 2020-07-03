@@ -1,4 +1,4 @@
-package com.yy.petfinder.service;
+package com.yy.petfinder.security.service;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

@@ -1,10 +1,10 @@
-package com.yy.petfinder;
+package com.yy.petfinder.security;
 
-import com.yy.petfinder.service.JWTHeadersExchangeMatcher;
-import com.yy.petfinder.service.JWTReactiveAuthenticationManager;
-import com.yy.petfinder.service.TokenAuthenticationConverter;
-import com.yy.petfinder.service.TokenService;
-import com.yy.petfinder.service.UserDetailsService;
+import com.yy.petfinder.security.service.JWTHeadersExchangeMatcher;
+import com.yy.petfinder.security.service.JWTReactiveAuthenticationManager;
+import com.yy.petfinder.security.service.TokenAuthenticationConverter;
+import com.yy.petfinder.security.service.TokenService;
+import com.yy.petfinder.security.service.UserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
@@ -38,7 +38,9 @@ public class SecurityConfiguration {
         .permitAll()
         .and()
         .addFilterAt(webFilter(), SecurityWebFiltersOrder.AUTHORIZATION)
-        .authorizeExchange();
+        .authorizeExchange()
+        .anyExchange()
+        .authenticated();
 
     return http.build();
   }

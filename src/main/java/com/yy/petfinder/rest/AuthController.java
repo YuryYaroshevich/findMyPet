@@ -2,8 +2,8 @@ package com.yy.petfinder.rest;
 
 import com.yy.petfinder.rest.model.CreateUser;
 import com.yy.petfinder.rest.model.Login;
-import com.yy.petfinder.service.JWTToken;
-import com.yy.petfinder.service.LoginService;
+import com.yy.petfinder.security.model.JWTToken;
+import com.yy.petfinder.security.service.LoginService;
 import com.yy.petfinder.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;

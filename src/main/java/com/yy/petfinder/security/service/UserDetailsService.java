@@ -1,4 +1,4 @@
-package com.yy.petfinder.service;
+package com.yy.petfinder.security.service;
 
 import com.yy.petfinder.persistence.UserRepository;
 import java.util.List;

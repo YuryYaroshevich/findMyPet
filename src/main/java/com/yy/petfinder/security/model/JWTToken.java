@@ -1,4 +1,4 @@
-package com.yy.petfinder.service;
+package com.yy.petfinder.security.model;
 
 import lombok.Value;
 

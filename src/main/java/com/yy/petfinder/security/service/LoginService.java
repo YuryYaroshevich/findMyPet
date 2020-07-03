@@ -1,6 +1,7 @@
-package com.yy.petfinder.service;
+package com.yy.petfinder.security.service;
 
 import com.yy.petfinder.rest.model.Login;
+import com.yy.petfinder.security.model.JWTToken;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;

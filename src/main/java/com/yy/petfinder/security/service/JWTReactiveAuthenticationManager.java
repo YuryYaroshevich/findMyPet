@@ -1,4 +1,4 @@
-package com.yy.petfinder.service;
+package com.yy.petfinder.security.service;
 
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
