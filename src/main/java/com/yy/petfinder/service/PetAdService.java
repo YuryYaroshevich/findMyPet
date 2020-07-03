@@ -26,7 +26,7 @@ public class PetAdService {
     final PetAd newPetAd = toPetAd(id, petAdView);
 
     final Mono<PetAd> createdAd = petAdRepository.save(newPetAd);
-    return createdAd.map(ad -> petAdView);
+    return createdAd.map(this::toPetAdView);
   }
 
   public Mono<PetAdView> getAd(final String id) {
