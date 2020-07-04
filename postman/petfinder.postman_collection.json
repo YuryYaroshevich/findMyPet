@@ -1,0 +1,197 @@
+{
+	"info": {
+		"_postman_id": "1444c667-d2de-487f-b593-adcb5eeef940",
+		"name": "petfinder",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "signUp",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\": \"okokok3@mail.ru\",\n    \"phone\": \"565767567\",\n    \"password\": \"1234\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/signUp",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"signUp"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "login",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\": \"okokok3@mail.ru\",\n    \"password\": \"1234\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/login",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "createPetAd",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJva29rb2szQG1haWwucnUiLCJleHAiOjE1OTM4NTY5ODN9.m12-iq5nf0C2_uiMDodiAMnLXvCYvYoEniVoyopV0S2PfWmaHxOOpKtnOK-O701-FIoAm1dOIOerC_m2mKxk3A",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"petType\": \"dog\",\n    \"colors\": [\n        \"brown\", \"black\"\n    ],\n    \"breed\": \"labrador\",\n    \"name\": \"Fido\",\n    \"photoUrls\": [\n        \"https://photo1.com\",\n        \"https://photo2.com\"\n    ],\n    \"searchArea\": {\n        \"coordinates\":  [\n            [27.417712211608883, 53.88572576837868],\n            [27.41878509521484, 53.88322156733548],\n            [27.422647476196286, 53.88395513671138],\n            [27.421059608459473, 53.88668693702034],\n            [27.417712211608883, 53.88572576837868]\n        ]\n    },\n    \"ownerId\": \"5ef7237b3bf0c6304876174d\",\n    \"found\": false\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/pets/ad",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"pets",
+						"ad"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getPetAd",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJva29rb2szQG1haWwucnUiLCJleHAiOjE1OTM4NTY5ODN9.m12-iq5nf0C2_uiMDodiAMnLXvCYvYoEniVoyopV0S2PfWmaHxOOpKtnOK-O701-FIoAm1dOIOerC_m2mKxk3A",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "localhost:8080/pets/ad/5eff0e54def2eb0a176f3344",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"pets",
+						"ad",
+						"5eff0e54def2eb0a176f3344"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "updatePetAd",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJva29rb2szQG1haWwucnUiLCJleHAiOjE1OTM4NTY5ODN9.m12-iq5nf0C2_uiMDodiAMnLXvCYvYoEniVoyopV0S2PfWmaHxOOpKtnOK-O701-FIoAm1dOIOerC_m2mKxk3A",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"petType\": \"dog\",\n    \"colors\": [\n        \"brown\", \"black\"\n    ],\n    \"breed\": \"labrador\",\n    \"name\": \"Fido\",\n    \"photoUrls\": [\n        \"https://photo1.com\",\n        \"https://photo2.com\",\n        \"https://photo3.com\",\n        \"https://photo4.com\"\n    ],\n    \"searchArea\": {\n        \"coordinates\":  [\n            [27.417712211608883, 53.88572576837868],\n            [27.41878509521484, 53.88322156733548],\n            [27.422647476196286, 53.88395513671138],\n            [27.421059608459473, 53.88668693702034],\n            [27.417712211608883, 53.88572576837868]\n        ]\n    },\n    \"ownerId\": \"5ef7237b3bf0c6304876174d\",\n    \"found\": false\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/pets/ad/5eff0e54def2eb0a176f3344",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"pets",
+						"ad",
+						"5eff0e54def2eb0a176f3344"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "searchPet",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/pets/ad/?longitude=27.42050170898437&latitude=53.888558623056724&radius=400&petType=dog",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"pets",
+						"ad",
+						""
+					],
+					"query": [
+						{
+							"key": "longitude",
+							"value": "27.42050170898437"
+						},
+						{
+							"key": "latitude",
+							"value": "53.888558623056724"
+						},
+						{
+							"key": "radius",
+							"value": "400"
+						},
+						{
+							"key": "petType",
+							"value": "dog"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}

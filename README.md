@@ -10,4 +10,3 @@ REST backend for lost pets announcements application.
     Need to decide who does what: JWTReactiveAuthenticationManager, TokenAuthenticationConverter
 3. com.mongodb.MongoWriteException: E11000 duplicate key error collection: pets.user index: uuid dup key: { : null } - should be bad request
 4. update doesn't work properly
-5. searcg pet access to all

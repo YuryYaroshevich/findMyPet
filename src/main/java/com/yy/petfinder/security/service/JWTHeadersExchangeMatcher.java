@@ -9,13 +9,8 @@ import reactor.core.publisher.Mono;
 public class JWTHeadersExchangeMatcher implements ServerWebExchangeMatcher {
   @Override
   public Mono<MatchResult> matches(final ServerWebExchange exchange) {
-    Mono<ServerHttpRequest> request = Mono.just(exchange).map(ServerWebExchange::getRequest);
-
-    /* Check for header "Authorization" */
-    return request
-        .map(ServerHttpRequest::getHeaders)
-        .filter(h -> h.containsKey(HttpHeaders.AUTHORIZATION))
-        .flatMap($ -> MatchResult.match())
-        .switchIfEmpty(MatchResult.notMatch());
+    final ServerHttpRequest req = exchange.getRequest();
+    final boolean containsAuthorization = req.getHeaders().containsKey(HttpHeaders.AUTHORIZATION);
+    return containsAuthorization ? MatchResult.match() : MatchResult.notMatch();
   }
 }

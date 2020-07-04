@@ -2,6 +2,7 @@ package com.yy.petfinder.security;
 
 import com.yy.petfinder.security.service.JWTHeadersExchangeMatcher;
 import com.yy.petfinder.security.service.JWTReactiveAuthenticationManager;
+import com.yy.petfinder.security.service.PetSearchRequestMatcher;
 import com.yy.petfinder.security.service.TokenAuthenticationConverter;
 import com.yy.petfinder.security.service.TokenService;
 import com.yy.petfinder.security.service.UserDetailsService;
@@ -35,6 +36,8 @@ public class SecurityConfiguration {
 
     http.authorizeExchange()
         .pathMatchers("/login", "/signUp")
+        .permitAll()
+        .matchers(new PetSearchRequestMatcher())
         .permitAll()
         .and()
         .addFilterAt(webFilter(), SecurityWebFiltersOrder.AUTHORIZATION)
