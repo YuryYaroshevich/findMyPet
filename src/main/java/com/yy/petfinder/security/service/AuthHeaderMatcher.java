@@ -6,7 +6,7 @@ import org.springframework.security.web.server.util.matcher.ServerWebExchangeMat
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-public class JWTHeadersExchangeMatcher implements ServerWebExchangeMatcher {
+public class AuthHeaderMatcher implements ServerWebExchangeMatcher {
   @Override
   public Mono<MatchResult> matches(final ServerWebExchange exchange) {
     final ServerHttpRequest req = exchange.getRequest();

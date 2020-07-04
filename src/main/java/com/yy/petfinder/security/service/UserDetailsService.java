@@ -22,4 +22,10 @@ public class UserDetailsService implements ReactiveUserDetailsService {
         .findById(userId)
         .map(user -> new User(user.getId(), user.getPassword(), List.of()));
   }
+
+  public Mono<UserDetails> findByEmail(String email) {
+    return userRepository
+        .findByEmail(email)
+        .map(user -> new User(user.getId(), user.getPassword(), List.of()));
+  }
 }

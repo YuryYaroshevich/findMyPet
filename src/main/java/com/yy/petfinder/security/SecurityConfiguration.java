@@ -1,6 +1,6 @@
 package com.yy.petfinder.security;
 
-import com.yy.petfinder.security.service.JWTHeadersExchangeMatcher;
+import com.yy.petfinder.security.service.AuthHeaderMatcher;
 import com.yy.petfinder.security.service.JWTReactiveAuthenticationManager;
 import com.yy.petfinder.security.service.PetSearchRequestMatcher;
 import com.yy.petfinder.security.service.TokenAuthenticationConverter;
@@ -54,7 +54,7 @@ public class SecurityConfiguration {
         new AuthenticationWebFilter(repositoryReactiveAuthenticationManager());
     authenticationWebFilter.setServerAuthenticationConverter(
         new TokenAuthenticationConverter(tokenService));
-    authenticationWebFilter.setRequiresAuthenticationMatcher(new JWTHeadersExchangeMatcher());
+    authenticationWebFilter.setRequiresAuthenticationMatcher(new AuthHeaderMatcher());
     return authenticationWebFilter;
   }
 

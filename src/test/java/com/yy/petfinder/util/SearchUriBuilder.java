@@ -42,7 +42,7 @@ public class SearchUriBuilder {
       final double longitude, final double latitude, final double radius) {
 
     final UriComponentsBuilder uriBuilder =
-        UriComponentsBuilder.fromUriString("/pets/ad")
+        UriComponentsBuilder.fromUriString("/pets/ad/")
             .queryParam("longitude", longitude)
             .queryParam("latitude", latitude)
             .queryParam("radius", radius);

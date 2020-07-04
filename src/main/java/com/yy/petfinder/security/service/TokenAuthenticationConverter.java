@@ -41,7 +41,7 @@ public class TokenAuthenticationConverter implements ServerAuthenticationConvert
   }
 
   private Authentication getAuthentication(String token) {
-    final String userName = tokenService.getUserFromToken(token);
+    final String userName = tokenService.getUserIdFromToken(token);
     final User user = new User(userName, NO_PASSWORD, List.of());
     return new UsernamePasswordAuthenticationToken(user, token);
   }

@@ -1,13 +1,11 @@
 package com.yy.petfinder.rest;
 
+import static com.yy.petfinder.testfactory.UserFactory.userBuilderWithDefaults;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.yy.petfinder.model.User;
 import com.yy.petfinder.persistence.UserRepository;
-import com.yy.petfinder.rest.model.CreateUser;
 import com.yy.petfinder.rest.model.UserView;
-import java.util.List;
-import org.bson.types.ObjectId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,18 +28,14 @@ public class UserControllerTest {
 
   @Test
   public void testGetUserReturnCorrectUser() {
-    final String email = "abc@email.com";
-    final String password = "1234";
-    final String phone = "+375296666666";
-    final String id = new ObjectId().toHexString();
-    final User user = User.builder().id(id).email(email).phone(phone).password(password).build();
-    final UserView expectedUser = new UserView(id, email, phone);
+    final User user = userBuilderWithDefaults().build();
+    final UserView expectedUser = new UserView(user.getId(), user.getEmail(), user.getPhone());
     userRepository.save(user).block();
 
     final UserView createdUser =
         webTestClient
             .get()
-            .uri("/users/" + id)
+            .uri("/users/" + user.getId())
             .exchange()
             .expectStatus()
             .isOk()
@@ -50,24 +44,5 @@ public class UserControllerTest {
             .getResponseBody();
 
     assertEquals(expectedUser, createdUser);
-  }
-
-  @Test
-  public void testCreateUserSavesUserInDb() {
-    final String email = "abc@email.com";
-    final String password = "xyz";
-    final String phone = "+375296666666";
-    final CreateUser newUser = new CreateUser(email, phone, password);
-
-    webTestClient.post().uri("/users").bodyValue(newUser).exchange().expectStatus().isCreated();
-
-    assertEquals(Long.valueOf(1), userRepository.count().block());
-    final List<User> users = userRepository.findAll().collectList().block();
-    assertEquals(1, users.size());
-
-    final User createdUser = users.get(0);
-    assertEquals(email, createdUser.getEmail());
-    assertEquals(password, createdUser.getPassword());
-    assertEquals(phone, createdUser.getPhone());
   }
 }

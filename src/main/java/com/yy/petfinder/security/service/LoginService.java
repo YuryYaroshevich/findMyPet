@@ -28,7 +28,7 @@ public class LoginService {
   public Mono<JWTToken> authenticate(final Login login) {
     final Mono<UserDetails> authenticatedUser =
         userDetailsService
-            .findByUsername(login.getEmail())
+            .findByEmail(login.getEmail())
             .filter(user -> passwordEncoder.matches(login.getPassword(), user.getPassword()))
             .switchIfEmpty(
                 Mono.error(new BadCredentialsException("email or password is incorrect")));

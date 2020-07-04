@@ -25,7 +25,7 @@ public class PetAdRepositoryImpl implements PetAdRepositoryCustom {
   private static final String OWNER_ID_FIELD = "ownerId";
   private static final String FOUND_FIELD = "found";
   private static final String NAME_FILED = "name";
-  private static final String IMAGE_FILED = "imageBlob";
+  private static final String PHOTO_URLS_FILED = "photoUrls";
 
   private final ReactiveMongoTemplate mongoTemplate;
 
@@ -74,7 +74,7 @@ public class PetAdRepositoryImpl implements PetAdRepositoryCustom {
       update.set(COLORS_FIELD, updatedPetAd.getBreed());
     }
     update.set(NAME_FILED, updatedPetAd.getName());
-    update.set(IMAGE_FILED, updatedPetAd.getPhotoUrls());
+    update.set(PHOTO_URLS_FILED, updatedPetAd.getPhotoUrls());
     update.set(SEARCH_AREA_FIELD, updatedPetAd.getSearchArea());
     update.set(FOUND_FIELD, updatedPetAd.isFound());
 

@@ -19,17 +19,17 @@ public class TokenService {
     this.secretKey = Base64.getEncoder().encodeToString(salt.getBytes(StandardCharsets.UTF_8));
   }
 
-  public String createToken(final String username) {
+  public String createToken(final String userId) {
     long now = (new Date()).getTime();
     final Date validity = new Date(now + this.tokenValidityInMilliseconds);
     return Jwts.builder()
-        .setSubject(username)
+        .setSubject(userId)
         .signWith(SignatureAlgorithm.HS512, secretKey)
         .setExpiration(validity)
         .compact();
   }
 
-  public String getUserFromToken(final String token) {
+  public String getUserIdFromToken(final String token) {
     final Claims claims = parseToken(token);
     return claims.getSubject();
   }

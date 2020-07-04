@@ -1,13 +1,18 @@
 package com.yy.petfinder.rest;
 
 import static com.yy.petfinder.testfactory.PetAdFactory.petAdBuilderWithDefaults;
+import static com.yy.petfinder.testfactory.UserFactory.userBuilderWithDefaults;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 import com.yy.petfinder.model.PetAd;
 import com.yy.petfinder.model.PetType;
+import com.yy.petfinder.model.User;
 import com.yy.petfinder.persistence.PetAdRepository;
+import com.yy.petfinder.persistence.UserRepository;
 import com.yy.petfinder.rest.model.PetAdView;
 import com.yy.petfinder.rest.model.SearchAreaView;
+import com.yy.petfinder.security.service.TokenService;
 import com.yy.petfinder.util.WebTestClientWrapper;
 import java.util.List;
 import java.util.UUID;
@@ -25,10 +30,20 @@ public class PetAdControllerTest {
   @Autowired private WebTestClient webTestClient;
 
   @Autowired private PetAdRepository petAdRepository;
+  @Autowired private UserRepository userRepository;
+  @Autowired private TokenService tokenService;
+
+  private String authHeaderValue;
+  private String userId;
 
   @BeforeEach
   public void setup() {
     petAdRepository.deleteAll().block();
+    userRepository.deleteAll().block();
+    final User user = userBuilderWithDefaults().build();
+    userRepository.save(user).block();
+    authHeaderValue = "Bearer " + tokenService.createToken(user.getId());
+    userId = user.getId();
   }
 
   @Test
@@ -41,7 +56,6 @@ public class PetAdControllerTest {
             .searchArea(new SearchAreaView(petAd.getSearchArea().getCoordinatesList()))
             .petType(petAd.getPetType())
             .name(petAd.getName())
-            .ownerId(petAd.getOwnerId())
             .photoUrls(petAd.getPhotoUrls())
             .colors(petAd.getColors())
             .build();
@@ -77,13 +91,19 @@ public class PetAdControllerTest {
             .searchArea(new SearchAreaView(coordinates))
             .petType(petType)
             .name(name)
-            .ownerId(ownerId)
             .photoUrls(photoUrls)
             .colors(colors)
             .build();
 
     // when
-    webTestClient.post().uri("/pets/ad").bodyValue(petAdView).exchange().expectStatus().isCreated();
+    webTestClient
+        .post()
+        .uri("/pets/ad")
+        .header(AUTHORIZATION, authHeaderValue)
+        .bodyValue(petAdView)
+        .exchange()
+        .expectStatus()
+        .isCreated();
 
     // then
     assertEquals(Long.valueOf(1), petAdRepository.count().block());
@@ -95,7 +115,6 @@ public class PetAdControllerTest {
         petAdView.getSearchArea().getCoordinates(), petAd.getSearchArea().getCoordinatesList());
     assertEquals(petAdView.getPetType(), petAd.getPetType());
     assertEquals(petAdView.getName(), petAd.getName());
-    assertEquals(petAdView.getOwnerId(), petAd.getOwnerId());
     assertEquals(petAdView.getPhotoUrls(), petAd.getPhotoUrls());
     assertEquals(petAdView.getColors(), petAd.getColors());
   }
@@ -103,7 +122,7 @@ public class PetAdControllerTest {
   @Test
   public void testUpdatePetAdUpdatesFields() {
     // given
-    final PetAd petAd = petAdBuilderWithDefaults().build();
+    final PetAd petAd = petAdBuilderWithDefaults().ownerId(userId).build();
     petAdRepository.save(petAd).block();
 
     final List<List<Double>> newCoordinates =
@@ -119,14 +138,14 @@ public class PetAdControllerTest {
         List.of(
             "https://res.cloudinary.com/demo/image1",
             "https://res.cloudinary.com/demo/image2",
-            "https://res.cloudinary.com/demo/image3");
+            "https://res.cloudinary.com/demo/image3",
+            "https://res.cloudinary.com/demo/image4");
     final List<String> newColors = List.of("black", "brown", "white");
     final PetAdView updatedPetAdView =
         PetAdView.builder()
             .searchArea(new SearchAreaView(newCoordinates))
             .petType(newPetType)
             .name(newName)
-            .ownerId(petAd.getOwnerId())
             .photoUrls(photoUrls)
             .colors(newColors)
             .id(petAd.getId())
@@ -136,6 +155,7 @@ public class PetAdControllerTest {
     webTestClient
         .put()
         .uri("/pets/ad/" + petAd.getId())
+        .header(AUTHORIZATION, authHeaderValue)
         .bodyValue(updatedPetAdView)
         .exchange()
         .expectStatus()
@@ -153,7 +173,4 @@ public class PetAdControllerTest {
     assertEquals(updatedPetAdView.getColors(), updatedPetAd.getColors());
     assertEquals(updatedPetAdView.isFound(), updatedPetAd.isFound());
   }
-
-  @Test
-  public void testMarkAsFoundUpdatesPetAdAsResolved() {}
 }

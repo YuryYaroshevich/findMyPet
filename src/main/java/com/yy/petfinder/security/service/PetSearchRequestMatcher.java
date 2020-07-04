@@ -10,7 +10,7 @@ public class PetSearchRequestMatcher implements ServerWebExchangeMatcher {
   @Override
   public Mono<MatchResult> matches(ServerWebExchange exchange) {
     final ServerHttpRequest req = exchange.getRequest();
-    final boolean petAdsEndpoint = req.getPath().toString().contains("/pets/ad/");
+    final boolean petAdsEndpoint = req.getPath().toString().contains("/pets/ad");
     if (HttpMethod.GET.equals(req.getMethod()) && petAdsEndpoint) {
       return MatchResult.match();
     } else {
