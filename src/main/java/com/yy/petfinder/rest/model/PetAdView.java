@@ -16,6 +16,5 @@ public class PetAdView {
   @NonNull private String name;
   @NonNull private List<String> photoUrls;
   @NonNull private SearchAreaView searchArea;
-  @NonNull private String ownerId;
   private boolean found;
 }

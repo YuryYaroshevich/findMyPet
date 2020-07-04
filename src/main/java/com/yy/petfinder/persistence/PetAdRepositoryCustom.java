@@ -9,5 +9,5 @@ import reactor.core.publisher.Mono;
 public interface PetAdRepositoryCustom {
   Flux<PetAd> findPetAds(PetSearchRequest petSearchRequest, Paging paging);
 
-  Mono<PetAd> findAndModify(PetAd updatedAd);
+  Mono<PetAd> findAndModify(PetAd updatedAd, String userId);
 }

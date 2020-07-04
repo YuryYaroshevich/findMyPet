@@ -22,6 +22,7 @@ public class PetAdRepositoryImpl implements PetAdRepositoryCustom {
   private static final String BREED_FIELD = "breed";
   private static final String COLORS_FIELD = "colors";
   private static final String ID_FIELD = "_id";
+  private static final String OWNER_ID_FIELD = "ownerId";
   private static final String FOUND_FIELD = "found";
   private static final String NAME_FILED = "name";
   private static final String IMAGE_FILED = "imageBlob";
@@ -60,8 +61,9 @@ public class PetAdRepositoryImpl implements PetAdRepositoryCustom {
   }
 
   @Override
-  public Mono<PetAd> findAndModify(final PetAd updatedPetAd) {
-    final Criteria criteria = Criteria.where(ID_FIELD).is(updatedPetAd.getId());
+  public Mono<PetAd> findAndModify(final PetAd updatedPetAd, String userId) {
+    final Criteria criteria =
+        Criteria.where(ID_FIELD).is(updatedPetAd.getId()).and(OWNER_ID_FIELD).is(userId);
 
     final Update update = new Update();
     update.set(PET_TYPE_FIELD, updatedPetAd.getPetType());

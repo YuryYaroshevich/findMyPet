@@ -1,5 +1,7 @@
 package com.yy.petfinder.rest;
 
+import static com.yy.petfinder.util.UserIdRetriever.userIdFromContext;
+
 import com.yy.petfinder.rest.model.Paging;
 import com.yy.petfinder.rest.model.PetAdView;
 import com.yy.petfinder.rest.model.PetSearchRequest;
@@ -31,7 +33,7 @@ public class PetAdController {
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
   public Mono<PetAdView> createPetAd(@RequestBody PetAdView petAd) {
-    return petAdService.createAd(petAd);
+    return userIdFromContext().flatMap(userId -> petAdService.createAd(petAd, userId));
   }
 
   @GetMapping("/{id}")
@@ -41,7 +43,7 @@ public class PetAdController {
 
   @PutMapping("/{id}")
   public Mono<PetAdView> updatePetAd(@PathVariable String id, @RequestBody PetAdView petAdView) {
-    return petAdService.updateAd(id, petAdView);
+    return userIdFromContext().flatMap(userId -> petAdService.updateAd(id, petAdView, userId));
   }
 
   @GetMapping
