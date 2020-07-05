@@ -22,7 +22,7 @@ public class JWTReactiveAuthenticationManager implements ReactiveAuthenticationM
   public Mono<Authentication> authenticate(final Authentication authentication) {
     return Mono.just(authentication)
         .cast(UsernamePasswordAuthenticationToken.class)
-        .filter(auth -> !tokenService.isExpired((String) auth.getCredentials()))
+        .filter(auth -> tokenService.isValid((String) auth.getCredentials()))
         .flatMap(this::getUserDetails)
         .switchIfEmpty(Mono.error(new BadCredentialsException("Invalid Credentials")))
         .map(

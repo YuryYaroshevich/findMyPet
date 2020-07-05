@@ -8,7 +8,9 @@ spring:
     mongodb:
       uri: 'mongodb://127.0.0.1:27017/pets'
 
-salt: JpxM4e858rc673syopdZnMFb*ExeqJtUc0HJ_iOxu~jiSYu+yPdPw93OBBjF
+token:
+  salt: JpxM4e858rc673syopdZnMFb*ExeqJtUc0HJ_iOxu~jiSYu+yPdPw93OBBjF
+  expirationMs: 86400000
 
 logging:
   level:
