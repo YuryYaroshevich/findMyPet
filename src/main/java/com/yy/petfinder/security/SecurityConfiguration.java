@@ -8,6 +8,7 @@ import com.yy.petfinder.security.service.TokenService;
 import com.yy.petfinder.security.service.UserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
@@ -36,6 +37,8 @@ public class SecurityConfiguration {
 
     http.authorizeExchange()
         .pathMatchers("/login", "/signUp")
+        .permitAll()
+        .pathMatchers(HttpMethod.GET, "/users/**/public")
         .permitAll()
         .matchers(new PetSearchRequestMatcher())
         .permitAll()

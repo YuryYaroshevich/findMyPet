@@ -36,7 +36,7 @@ public class UserController {
   }
 
   @PutMapping
-  public Mono<PrivateUserView> updatePetAd(@RequestBody UserUpdate userUpdate) {
+  public Mono<PrivateUserView> updateUser(@RequestBody UserUpdate userUpdate) {
     return userIdFromContext().flatMap(userId -> userService.updateUser(userId, userUpdate));
   }
 
