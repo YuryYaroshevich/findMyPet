@@ -3,7 +3,8 @@ package com.yy.petfinder.service;
 import com.yy.petfinder.model.User;
 import com.yy.petfinder.persistence.UserRepository;
 import com.yy.petfinder.rest.model.CreateUser;
-import com.yy.petfinder.rest.model.UserView;
+import com.yy.petfinder.rest.model.PrivateUserView;
+import com.yy.petfinder.rest.model.UserUpdate;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -21,13 +22,13 @@ public class UserService {
     this.passwordEncoder = passwordEncoder;
   }
 
-  public Mono<UserView> getUser(final String id) {
+  public Mono<PrivateUserView> getUser(final String id) {
     final Mono<User> user = userRepository.findById(id);
-    final Mono<UserView> userView = user.map(this::userToView);
+    final Mono<PrivateUserView> userView = user.map(this::userToView);
     return userView;
   }
 
-  public Mono<UserView> createUser(CreateUser createUser) {
+  public Mono<PrivateUserView> createUser(CreateUser createUser) {
     final String id = new ObjectId().toHexString();
     final String encodedPassword = passwordEncoder.encode(createUser.getPassword());
     final User newUser =
@@ -39,11 +40,15 @@ public class UserService {
             .build();
 
     final Mono<User> createdUser = userRepository.save(newUser);
-    final Mono<UserView> userView = createdUser.map(this::userToView);
+    final Mono<PrivateUserView> userView = createdUser.map(this::userToView);
     return userView;
   }
 
-  private UserView userToView(final User user) {
-    return new UserView(user.getId(), user.getEmail(), user.getPhone());
+  private PrivateUserView userToView(final User user) {
+    return new PrivateUserView(user.getId(), user.getEmail(), user.getPhone());
+  }
+
+  public Mono<PrivateUserView> updateUser(String userId, UserUpdate userUpdate) {
+    return userRepository.findAndModify(userUpdate, userId).map(this::userToView);
   }
 }

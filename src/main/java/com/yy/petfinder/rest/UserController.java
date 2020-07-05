@@ -1,10 +1,16 @@
 package com.yy.petfinder.rest;
 
-import com.yy.petfinder.rest.model.UserView;
+import static com.yy.petfinder.util.UserIdRetriever.userIdFromContext;
+
+import com.yy.petfinder.rest.model.PrivateUserView;
+import com.yy.petfinder.rest.model.PublicUserView;
+import com.yy.petfinder.rest.model.UserUpdate;
 import com.yy.petfinder.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
@@ -19,8 +25,22 @@ public class UserController {
     this.userService = userService;
   }
 
-  @GetMapping("/{id}")
-  public Mono<UserView> getUser(@PathVariable("id") final String id) {
-    return userService.getUser(id);
+  @GetMapping("/private")
+  public Mono<PrivateUserView> getPrivateUserView() {
+    return userIdFromContext().flatMap(userId -> userService.getUser(userId));
+  }
+
+  @GetMapping("/{id}/public")
+  public Mono<PublicUserView> getPublicUserView(@PathVariable("id") final String id) {
+    return userService.getUser(id).map(u -> toPublicView(u));
+  }
+
+  @PutMapping
+  public Mono<PrivateUserView> updatePetAd(@RequestBody UserUpdate userUpdate) {
+    return userIdFromContext().flatMap(userId -> userService.updateUser(userId, userUpdate));
+  }
+
+  private static PublicUserView toPublicView(final PrivateUserView privateUserView) {
+    return new PublicUserView(privateUserView.getId(), privateUserView.getPhone());
   }
 }

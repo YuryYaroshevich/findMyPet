@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.yy.petfinder.model.User;
 import com.yy.petfinder.persistence.UserRepository;
-import com.yy.petfinder.rest.model.UserView;
+import com.yy.petfinder.rest.model.PrivateUserView;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,17 +29,18 @@ public class UserControllerTest {
   @Test
   public void testGetUserReturnCorrectUser() {
     final User user = userBuilderWithDefaults().build();
-    final UserView expectedUser = new UserView(user.getId(), user.getEmail(), user.getPhone());
+    final PrivateUserView expectedUser =
+        new PrivateUserView(user.getId(), user.getEmail(), user.getPhone());
     userRepository.save(user).block();
 
-    final UserView createdUser =
+    final PrivateUserView createdUser =
         webTestClient
             .get()
             .uri("/users/" + user.getId())
             .exchange()
             .expectStatus()
             .isOk()
-            .expectBody(UserView.class)
+            .expectBody(PrivateUserView.class)
             .returnResult()
             .getResponseBody();
 
