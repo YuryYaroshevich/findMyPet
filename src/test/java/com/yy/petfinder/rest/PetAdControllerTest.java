@@ -15,7 +15,6 @@ import com.yy.petfinder.rest.model.SearchAreaView;
 import com.yy.petfinder.security.service.TokenService;
 import com.yy.petfinder.util.WebTestClientWrapper;
 import java.util.List;
-import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -82,7 +81,6 @@ public class PetAdControllerTest {
             List.of(53.911665, 27.469369));
     final PetType petType = PetType.DOG;
     final String name = "Fido";
-    final String ownerId = UUID.randomUUID().toString();
     final List<String> photoUrls =
         List.of("https://host.com/image1", "https://host.com/image2", "https://host.com/image3");
     final List<String> colors = List.of("black", "brown");
@@ -117,6 +115,35 @@ public class PetAdControllerTest {
     assertEquals(petAdView.getName(), petAd.getName());
     assertEquals(petAdView.getPhotoUrls(), petAd.getPhotoUrls());
     assertEquals(petAdView.getColors(), petAd.getColors());
+  }
+
+  @Test
+  public void testCreatePetAdWithoutAuthHeaderFails() {
+    // given
+    final List<List<Double>> coordinates =
+        List.of(
+            List.of(53.911665, 27.469369),
+            List.of(53.911867, 27.491685),
+            List.of(53.899226, 27.491856),
+            List.of(53.897405, 27.461129),
+            List.of(53.911665, 27.469369));
+    final PetAdView petAdView =
+        PetAdView.builder()
+            .searchArea(new SearchAreaView(coordinates))
+            .petType(PetType.DOG)
+            .name("Fido")
+            .photoUrls(List.of("https://host.com/image1"))
+            .colors(List.of("black", "brown"))
+            .build();
+
+    // when then
+    webTestClient
+        .post()
+        .uri("/pets/ad")
+        .bodyValue(petAdView)
+        .exchange()
+        .expectStatus()
+        .isUnauthorized();
   }
 
   @Test
@@ -172,5 +199,38 @@ public class PetAdControllerTest {
     assertEquals(updatedPetAdView.getPhotoUrls(), updatedPetAd.getPhotoUrls());
     assertEquals(updatedPetAdView.getColors(), updatedPetAd.getColors());
     assertEquals(updatedPetAdView.isFound(), updatedPetAd.isFound());
+  }
+
+  @Test
+  public void testUpdatePetAdWithoutAuthHeaderFails() {
+    // given
+    final PetAd petAd = petAdBuilderWithDefaults().ownerId(userId).build();
+    petAdRepository.save(petAd).block();
+
+    final List<List<Double>> newCoordinates =
+        List.of(
+            List.of(53.911665, 27.469369),
+            List.of(53.911867, 27.491685),
+            List.of(53.899226, 27.491856),
+            List.of(53.897405, 27.461129),
+            List.of(53.911665, 27.469369));
+    final PetAdView updatedPetAdView =
+        PetAdView.builder()
+            .searchArea(new SearchAreaView(newCoordinates))
+            .petType(PetType.DOG)
+            .name("Fido")
+            .photoUrls(List.of("https://res.cloudinary.com/demo/image1"))
+            .colors(List.of("black", "brown", "white"))
+            .id(petAd.getId())
+            .build();
+
+    // when
+    webTestClient
+        .put()
+        .uri("/pets/ad/" + petAd.getId())
+        .bodyValue(updatedPetAdView)
+        .exchange()
+        .expectStatus()
+        .isUnauthorized();
   }
 }
