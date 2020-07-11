@@ -20,13 +20,13 @@ public class PetAdService {
     this.petAdRepository = petAdRepository;
   }
 
-  public Mono<PetAdView> createAd(final PetAdView petAdView) {
+  public Mono<PetAdView> createAd(final PetAdView petAdView, String userId) {
     final String id = new ObjectId().toHexString();
 
-    final PetAd newPetAd = toPetAd(id, petAdView);
+    final PetAd newPetAd = toPetAd(id, petAdView, userId);
 
     final Mono<PetAd> createdAd = petAdRepository.save(newPetAd);
-    return createdAd.map(ad -> petAdView);
+    return createdAd.map(this::toPetAdView);
   }
 
   public Mono<PetAdView> getAd(final String id) {
@@ -38,18 +38,18 @@ public class PetAdService {
     return petAdRepository.findPetAds(petSearchReq, paging).map(this::toPetAdView).collectList();
   }
 
-  public Mono<PetAdView> updateAd(String id, final PetAdView updatedAdView) {
-    final PetAd updatedPetAd = toPetAd(id, updatedAdView);
-    return petAdRepository.findAndModify(updatedPetAd).map(this::toPetAdView);
+  public Mono<PetAdView> updateAd(String id, final PetAdView updatedAdView, String userId) {
+    final PetAd updatedPetAd = toPetAd(id, updatedAdView, userId);
+    return petAdRepository.findAndModify(updatedPetAd, userId).map(this::toPetAdView);
   }
 
-  private PetAd toPetAd(final String id, final PetAdView petAdView) {
+  private PetAd toPetAd(final String id, final PetAdView petAdView, String userId) {
     final SearchArea searchArea = SearchArea.of(petAdView.getSearchArea().getCoordinates());
     return PetAd.builder()
         .id(id)
         .colors(petAdView.getColors())
         .photoUrls(petAdView.getPhotoUrls())
-        .ownerId(petAdView.getOwnerId())
+        .ownerId(userId)
         .name(petAdView.getName())
         .petType(petAdView.getPetType())
         .searchArea(searchArea)
@@ -62,7 +62,6 @@ public class PetAdService {
         .id(petAd.getId())
         .colors(petAd.getColors())
         .photoUrls(petAd.getPhotoUrls())
-        .ownerId(petAd.getOwnerId())
         .name(petAd.getName())
         .petType(petAd.getPetType())
         .searchArea(new SearchAreaView(petAd.getSearchArea().getCoordinatesList()))

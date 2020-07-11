@@ -1,16 +1,17 @@
 package com.yy.petfinder.rest;
 
-import com.yy.petfinder.rest.model.CreateUser;
-import com.yy.petfinder.rest.model.UserView;
+import static com.yy.petfinder.util.UserIdRetriever.userIdFromContext;
+
+import com.yy.petfinder.rest.model.PrivateUserView;
+import com.yy.petfinder.rest.model.PublicUserView;
+import com.yy.petfinder.rest.model.UserUpdate;
 import com.yy.petfinder.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
@@ -24,14 +25,22 @@ public class UserController {
     this.userService = userService;
   }
 
-  @GetMapping("/{uuid}")
-  public Mono<UserView> getUser(@PathVariable("uuid") final String uuid) {
-    return userService.getUser(uuid);
+  @GetMapping("/private")
+  public Mono<PrivateUserView> getPrivateUserView() {
+    return userIdFromContext().flatMap(userId -> userService.getUser(userId));
   }
 
-  @PostMapping
-  @ResponseStatus(HttpStatus.CREATED)
-  public Mono<UserView> createUser(@RequestBody CreateUser user) {
-    return userService.createUser(user);
+  @GetMapping("/{id}/public")
+  public Mono<PublicUserView> getPublicUserView(@PathVariable("id") final String id) {
+    return userService.getUser(id).map(u -> toPublicView(u));
+  }
+
+  @PutMapping
+  public Mono<PrivateUserView> updateUser(@RequestBody UserUpdate userUpdate) {
+    return userIdFromContext().flatMap(userId -> userService.updateUser(userId, userUpdate));
+  }
+
+  private static PublicUserView toPublicView(final PrivateUserView privateUserView) {
+    return new PublicUserView(privateUserView.getId(), privateUserView.getPhone());
   }
 }
