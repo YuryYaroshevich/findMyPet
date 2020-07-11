@@ -1,5 +1,6 @@
 package com.yy.petfinder.service;
 
+import com.yy.petfinder.exception.PetAdNotFoundException;
 import com.yy.petfinder.model.PetAd;
 import com.yy.petfinder.model.SearchArea;
 import com.yy.petfinder.persistence.PetAdRepository;
@@ -31,16 +32,20 @@ public class PetAdService {
 
   public Mono<PetAdView> getAd(final String id) {
     final Mono<PetAd> petAd = petAdRepository.findById(id);
-    return petAd.map(this::toPetAdView);
+    return petAd.map(this::toPetAdView).switchIfEmpty(Mono.error(new PetAdNotFoundException(id)));
   }
 
   public Mono<List<PetAdView>> searchPets(final PetSearchRequest petSearchReq, Paging paging) {
     return petAdRepository.findPetAds(petSearchReq, paging).map(this::toPetAdView).collectList();
   }
 
-  public Mono<PetAdView> updateAd(String id, final PetAdView updatedAdView, String userId) {
+  public Mono<PetAdView> updateAd(
+      final String id, final PetAdView updatedAdView, final String userId) {
     final PetAd updatedPetAd = toPetAd(id, updatedAdView, userId);
-    return petAdRepository.findAndModify(updatedPetAd, userId).map(this::toPetAdView);
+    return petAdRepository
+        .findAndModify(updatedPetAd, userId)
+        .map(this::toPetAdView)
+        .switchIfEmpty(Mono.error(new PetAdNotFoundException(id)));
   }
 
   private PetAd toPetAd(final String id, final PetAdView petAdView, String userId) {
