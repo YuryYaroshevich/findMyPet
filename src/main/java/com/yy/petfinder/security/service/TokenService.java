@@ -1,6 +1,6 @@
 package com.yy.petfinder.security.service;
 
-import com.yy.petfinder.security.exception.TokenException;
+import com.yy.petfinder.exception.TokenException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
@@ -38,7 +38,7 @@ public class TokenService {
     try {
       claims = parseToken(token);
     } catch (JwtException e) {
-      throw new TokenException("invalid token");
+      throw new TokenException();
     }
     return claims.getSubject();
   }

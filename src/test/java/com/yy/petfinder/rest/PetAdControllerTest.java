@@ -15,11 +15,13 @@ import com.yy.petfinder.rest.model.SearchAreaView;
 import com.yy.petfinder.security.service.TokenService;
 import com.yy.petfinder.util.WebTestClientWrapper;
 import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
@@ -67,6 +69,29 @@ public class PetAdControllerTest {
 
     // then
     assertEquals(expectedPetAd, petAdView);
+  }
+
+  @Test
+  public void testGetPetAdReturnsNotFoundIfNoPetAdWithGivenId() {
+    // given
+    final String petAdId = "notExistsId";
+
+    // when
+    final Map<String, String> errorResp =
+        webTestClient
+            .get()
+            .uri("/pets/ad/" + petAdId)
+            .header(AUTHORIZATION, authHeaderValue)
+            .exchange()
+            .expectStatus()
+            .isNotFound()
+            .expectBody(new ParameterizedTypeReference<Map<String, String>>() {})
+            .returnResult()
+            .getResponseBody();
+
+    // then
+    final String errorMsg = "PetAd with provided id not found: id=" + petAdId;
+    assertEquals(errorMsg, errorResp.get("message"));
   }
 
   @Test
@@ -147,6 +172,43 @@ public class PetAdControllerTest {
   }
 
   @Test
+  public void testCreatePetAdWithInvalidTokenUnauthorized() {
+    // given
+    final List<List<Double>> coordinates =
+        List.of(
+            List.of(53.911665, 27.469369),
+            List.of(53.911867, 27.491685),
+            List.of(53.899226, 27.491856),
+            List.of(53.897405, 27.461129),
+            List.of(53.911665, 27.469369));
+    final PetAdView petAdView =
+        PetAdView.builder()
+            .searchArea(new SearchAreaView(coordinates))
+            .petType(PetType.DOG)
+            .name("Fido")
+            .photoUrls(List.of("https://host.com/image1"))
+            .colors(List.of("black", "brown"))
+            .build();
+
+    // when
+    final Map<String, String> errorResp =
+        webTestClient
+            .post()
+            .uri("/pets/ad")
+            .header(AUTHORIZATION, "Bearer invalidToken")
+            .bodyValue(petAdView)
+            .exchange()
+            .expectStatus()
+            .isUnauthorized()
+            .expectBody(new ParameterizedTypeReference<Map<String, String>>() {})
+            .returnResult()
+            .getResponseBody();
+
+    // then
+    assertEquals("Invalid token provided", errorResp.get("message"));
+  }
+
+  @Test
   public void testUpdatePetAdUpdatesFields() {
     // given
     final PetAd petAd = petAdBuilderWithDefaults().ownerId(userId).build();
@@ -199,6 +261,55 @@ public class PetAdControllerTest {
     assertEquals(updatedPetAdView.getPhotoUrls(), updatedPetAd.getPhotoUrls());
     assertEquals(updatedPetAdView.getColors(), updatedPetAd.getColors());
     assertEquals(updatedPetAdView.isFound(), updatedPetAd.isFound());
+  }
+
+  @Test
+  public void testUpdatePetAdReturnsNotFoundIfNoPetAdWithGivenId() {
+    // given
+    final List<List<Double>> newCoordinates =
+        List.of(
+            List.of(53.911665, 27.469369),
+            List.of(53.911867, 27.491685),
+            List.of(53.899226, 27.491856),
+            List.of(53.897405, 27.461129),
+            List.of(53.911665, 27.469369));
+    final PetType newPetType = PetType.DOG;
+    final String newName = "Fido";
+    final List<String> photoUrls =
+        List.of(
+            "https://res.cloudinary.com/demo/image1",
+            "https://res.cloudinary.com/demo/image2",
+            "https://res.cloudinary.com/demo/image3",
+            "https://res.cloudinary.com/demo/image4");
+    final List<String> newColors = List.of("black", "brown", "white");
+    final String petAdId = "notExistId";
+    final PetAdView updatedPetAdView =
+        PetAdView.builder()
+            .searchArea(new SearchAreaView(newCoordinates))
+            .petType(newPetType)
+            .name(newName)
+            .photoUrls(photoUrls)
+            .colors(newColors)
+            .id(petAdId)
+            .build();
+
+    // when
+    final Map<String, String> errorResp =
+        webTestClient
+            .put()
+            .uri("/pets/ad/" + petAdId)
+            .header(AUTHORIZATION, authHeaderValue)
+            .bodyValue(updatedPetAdView)
+            .exchange()
+            .expectStatus()
+            .isNotFound()
+            .expectBody(new ParameterizedTypeReference<Map<String, String>>() {})
+            .returnResult()
+            .getResponseBody();
+
+    // then
+    final String errorMsg = "PetAd with provided id not found: id=" + petAdId;
+    assertEquals(errorMsg, errorResp.get("message"));
   }
 
   @Test

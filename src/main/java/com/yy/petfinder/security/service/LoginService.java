@@ -1,8 +1,8 @@
 package com.yy.petfinder.security.service;
 
+import com.yy.petfinder.exception.InvalidCredentialsException;
 import com.yy.petfinder.rest.model.Login;
 import com.yy.petfinder.security.model.JWTToken;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -30,8 +30,7 @@ public class LoginService {
         userDetailsService
             .findByEmail(login.getEmail())
             .filter(user -> passwordEncoder.matches(login.getPassword(), user.getPassword()))
-            .switchIfEmpty(
-                Mono.error(new BadCredentialsException("email or password is incorrect")));
+            .switchIfEmpty(Mono.error(new InvalidCredentialsException()));
     return authenticatedUser
         .doOnNext(
             userDetails ->

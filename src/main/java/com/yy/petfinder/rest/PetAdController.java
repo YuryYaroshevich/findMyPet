@@ -7,6 +7,7 @@ import com.yy.petfinder.rest.model.PetAdView;
 import com.yy.petfinder.rest.model.PetSearchRequest;
 import com.yy.petfinder.service.PetAdService;
 import java.util.List;
+import javax.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,7 +33,7 @@ public class PetAdController {
 
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
-  public Mono<PetAdView> createPetAd(@RequestBody PetAdView petAd) {
+  public Mono<PetAdView> createPetAd(@RequestBody @Valid final PetAdView petAd) {
     return userIdFromContext().flatMap(userId -> petAdService.createAd(petAd, userId));
   }
 
@@ -42,7 +43,8 @@ public class PetAdController {
   }
 
   @PutMapping("/{id}")
-  public Mono<PetAdView> updatePetAd(@PathVariable String id, @RequestBody PetAdView petAdView) {
+  public Mono<PetAdView> updatePetAd(
+      @PathVariable final String id, @RequestBody @Valid final PetAdView petAdView) {
     return userIdFromContext().flatMap(userId -> petAdService.updateAd(id, petAdView, userId));
   }
 

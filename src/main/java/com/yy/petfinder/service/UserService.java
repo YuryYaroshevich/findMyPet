@@ -1,5 +1,6 @@
 package com.yy.petfinder.service;
 
+import com.yy.petfinder.exception.DuplicateEmailException;
 import com.yy.petfinder.model.User;
 import com.yy.petfinder.persistence.UserRepository;
 import com.yy.petfinder.rest.model.CreateUser;
@@ -7,6 +8,7 @@ import com.yy.petfinder.rest.model.PrivateUserView;
 import com.yy.petfinder.rest.model.UserUpdate;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -39,7 +41,13 @@ public class UserService {
             .password(encodedPassword)
             .build();
 
-    final Mono<User> createdUser = userRepository.save(newUser);
+    final Mono<User> createdUser =
+        userRepository
+            .save(newUser)
+            .onErrorMap(
+                DuplicateKeyException.class,
+                e -> new DuplicateEmailException(createUser.getEmail()));
+
     final Mono<PrivateUserView> userView = createdUser.map(this::userToView);
     return userView;
   }
