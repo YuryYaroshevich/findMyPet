@@ -12,6 +12,8 @@ token:
   salt: JpxM4e858rc673syopdZnMFb*ExeqJtUc0HJ_iOxu~jiSYu+yPdPw93OBBjF
   expirationMs: 86400000
 
+allowed.origin: 'http://localhost:3000'
+
 logging:
   level:
     root: debug

@@ -6,6 +6,8 @@ import com.yy.petfinder.security.service.PetSearchRequestMatcher;
 import com.yy.petfinder.security.service.TokenAuthenticationConverter;
 import com.yy.petfinder.security.service.TokenService;
 import com.yy.petfinder.security.service.UserDetailsService;
+import java.util.List;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -16,6 +18,9 @@ import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.crypto.password.Pbkdf2PasswordEncoder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.authentication.AuthenticationWebFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.reactive.CorsWebFilter;
+import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 
 @Configuration
 @EnableReactiveMethodSecurity
@@ -43,6 +48,10 @@ public class SecurityConfiguration {
         .matchers(new PetSearchRequestMatcher())
         .permitAll()
         .and()
+        .authorizeExchange()
+        .pathMatchers(HttpMethod.OPTIONS)
+        .permitAll()
+        .and()
         .addFilterAt(webFilter(), SecurityWebFiltersOrder.AUTHORIZATION)
         .authorizeExchange()
         .anyExchange()
@@ -66,6 +75,20 @@ public class SecurityConfiguration {
     JWTReactiveAuthenticationManager repositoryReactiveAuthenticationManager =
         new JWTReactiveAuthenticationManager(reactiveUserDetailsService, tokenService);
     return repositoryReactiveAuthenticationManager;
+  }
+
+  @Bean
+  public CorsWebFilter corsWebFilter(@Value("${allowed.origin}") final String allowedOrigin) {
+    final CorsConfiguration corsConfig = new CorsConfiguration();
+    corsConfig.setAllowedOrigins(List.of(allowedOrigin));
+    corsConfig.setMaxAge(8000L);
+    corsConfig.setAllowedMethods(List.of("GET", "POST", "PUT"));
+    corsConfig.setAllowedHeaders(List.of("Content-Type", "Authorization"));
+
+    final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+    source.registerCorsConfiguration("/**", corsConfig);
+
+    return new CorsWebFilter(source);
   }
 
   @Bean
