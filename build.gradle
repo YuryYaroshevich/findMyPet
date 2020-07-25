@@ -8,8 +8,8 @@ plugins {
 group = 'com.yy'
 version = '0.0.1-SNAPSHOT'
 
-targetCompatibility = '11'
-sourceCompatibility = '11'
+targetCompatibility = '8'
+sourceCompatibility = '8'
 
 wrapper {
   distributionType = Wrapper.DistributionType.ALL

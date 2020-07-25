@@ -2,6 +2,7 @@ package com.yy.petfinder.exception;
 
 import java.util.Map;
 import org.springframework.boot.web.reactive.error.DefaultErrorAttributes;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.server.ServerWebInputException;
@@ -16,7 +17,7 @@ public class ExceptionHandler extends DefaultErrorAttributes {
     final Throwable error = getError(request);
     final Map<String, Object> errorAttributes = super.getErrorAttributes(request, false);
     if (error instanceof BaseException) {
-      final var errorStatus = ((BaseException) error).getStatus();
+      final HttpStatus errorStatus = ((BaseException) error).getStatus();
       errorAttributes.replace(STATUS_FIELD, errorStatus.value());
       errorAttributes.replace(ERROR_FIELD, errorStatus.getReasonPhrase());
       return errorAttributes;
