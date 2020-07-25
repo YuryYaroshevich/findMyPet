@@ -11,5 +11,6 @@ To play with API install Postman and import postman collection(from `postman` di
 
 ### TODO
 1. to think about id in db
-4. logging
-5. password validation(min length for example)
+2. logging
+3. password validation(min length for example)
+4. change to java 8 for Heroku deployment
