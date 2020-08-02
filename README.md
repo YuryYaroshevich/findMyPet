@@ -21,7 +21,7 @@ run `heroku logs -a petfinder-yy`
 run `heroku run bash -a petfinder-yy`
 
 ### Debug performance
-Install heroku plugin `heroku plugins:install heroku-cli-java`
+Install heroku plugin `~~heroku plugins:install heroku-cli-java~~`
 and then you can run following commands:
 ```$xslt
 heroku java:jconsole -a petfinder-yy
@@ -29,6 +29,13 @@ heroku java:visualvm -a petfinder-yy
 heroku java:jmap -a petfinder-yy
 heroku java:jstack -a petfinder-yy
 ```
+It may be the case that for visualvm this command is needed:
+```
+jvisualvm -J-DsocksProxyHost=localhost -J-DsocksProxyPort=1080 --openjmx=:1098
+```
+
+### Instance management
+https://devcenter.heroku.com/articles/dynos#cli-commands-for-dyno-management
 
 ## TODO
 1. to think about id in db

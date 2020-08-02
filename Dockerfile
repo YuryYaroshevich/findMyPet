@@ -14,7 +14,7 @@ RUN chmod 777 run.sh
 
 EXPOSE 8080
 # jmx
-EXPOSE 1098
+EXPOSE 1099
 
 CMD ["./run.sh"]
 

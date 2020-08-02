@@ -3,8 +3,12 @@
 java -jar \
   -Xms300m -Xmx300m \
   -XX:+UseContainerSupport \
-  -Dcom.sun.management.jmxremote \
-  -Dcom.sun.management.jmxremote.port=1098 \
-  -Dcom.sun.management.jmxremote.authenticate=false \
-  -Dcom.sun.management.jmxremote.ssl=false \
   petfinder.jar
+
+  #-XX:+UseContainerSupport \
+  #-Dcom.sun.management.jmxremote=true \
+  #-Dcom.sun.management.jmxremote.port=9010 \
+  #-Dcom.sun.management.jmxremote.rmi.port=9010 \
+  #-Dcom.sun.management.jmxremote.authenticate=false \
+  #-Dcom.sun.management.jmxremote.ssl=false \
+
