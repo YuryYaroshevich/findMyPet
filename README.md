@@ -31,8 +31,9 @@ heroku java:jstack -a petfinder-yy
 ```
 It may be the case that for visualvm this command is needed:
 ```
-jvisualvm -J-DsocksProxyHost=localhost -J-DsocksProxyPort=1080 --openjmx=:1098
+jvisualvm -J-DsocksProxyHost=localhost -J-DsocksProxyPort=1080 --openjmx=:1099
 ```
+fucking visualvm: `jvisualvm -J-DsocksProxyHost=localhost -J-DsocksProxyPort=1080 --openjmx=:1098`
 
 ### Instance management
 https://devcenter.heroku.com/articles/dynos#cli-commands-for-dyno-management
