@@ -230,6 +230,7 @@ public class PetAdControllerTest {
             "https://res.cloudinary.com/demo/image3",
             "https://res.cloudinary.com/demo/image4");
     final List<String> newColors = List.of("black", "brown", "white");
+    final String newBreed = "retriever";
     final PetAdView updatedPetAdView =
         PetAdView.builder()
             .searchArea(new SearchAreaView(newCoordinates))
@@ -237,6 +238,7 @@ public class PetAdControllerTest {
             .name(newName)
             .photoUrls(photoUrls)
             .colors(newColors)
+            .breed(newBreed)
             .id(petAd.getId())
             .build();
 
@@ -260,6 +262,7 @@ public class PetAdControllerTest {
     assertEquals(petAd.getOwnerId(), updatedPetAd.getOwnerId());
     assertEquals(updatedPetAdView.getPhotoUrls(), updatedPetAd.getPhotoUrls());
     assertEquals(updatedPetAdView.getColors(), updatedPetAd.getColors());
+    assertEquals(updatedPetAdView.getBreed(), updatedPetAd.getBreed());
     assertEquals(updatedPetAdView.isFound(), updatedPetAd.isFound());
   }
 
