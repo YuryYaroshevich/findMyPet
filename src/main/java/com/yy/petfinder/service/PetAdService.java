@@ -57,6 +57,7 @@ public class PetAdService {
         .ownerId(userId)
         .name(petAdView.getName())
         .petType(petAdView.getPetType())
+        .breed(petAdView.getBreed())
         .searchArea(searchArea)
         .found(petAdView.isFound())
         .build();

@@ -27,12 +27,14 @@ public class PetAdFactory {
             "https://res.cloudinary.com/demo/image2",
             "https://res.cloudinary.com/demo/image3");
     final List<String> colors = List.of("black");
+    final String breed = "labrador";
 
     return PetAd.builder()
         .id(id)
         .searchArea(searchArea)
         .petType(petType)
         .name(name)
+        .breed(breed)
         .ownerId(ownerId)
         .photoUrls(photoUrls)
         .colors(colors);
