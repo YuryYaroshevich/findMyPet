@@ -70,6 +70,7 @@ public class PetAdService {
         .photoUrls(petAd.getPhotoUrls())
         .name(petAd.getName())
         .petType(petAd.getPetType())
+        .breed(petAd.getBreed())
         .searchArea(new SearchAreaView(petAd.getSearchArea().getCoordinatesList()))
         .found(petAd.isFound())
         .build();
