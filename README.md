@@ -38,6 +38,10 @@ fucking visualvm: `jvisualvm -J-DsocksProxyHost=localhost -J-DsocksProxyPort=108
 ### Instance management
 https://devcenter.heroku.com/articles/dynos#cli-commands-for-dyno-management
 
+### Issues
+* When application starts, it can fail with exception `no snakeyaml` found in classpath.
+Just do gradle refresh in IDE.
+
 ## TODO
 1. to think about id in db
 4. logging
