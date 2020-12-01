@@ -17,3 +17,9 @@ allowed.origin: 'http://localhost:3000'
 logging:
   level:
     root: info
+
+cloudinary:
+  cloudName: 'dtwihdglb'
+  apiKey: '253513754387222'
+  apiSecret: '1YKZO7Z4KK0xuf3CEXM1JvcQchA'
+
