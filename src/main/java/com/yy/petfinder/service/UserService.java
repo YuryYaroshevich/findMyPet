@@ -39,6 +39,7 @@ public class UserService {
             .email(createUser.getEmail())
             .phone(createUser.getPhone())
             .password(encodedPassword)
+            .messengers(createUser.getMessengers())
             .build();
 
     final Mono<User> createdUser =
