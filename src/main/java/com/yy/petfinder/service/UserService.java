@@ -54,7 +54,12 @@ public class UserService {
   }
 
   private PrivateUserView userToView(final User user) {
-    return new PrivateUserView(user.getId(), user.getEmail(), user.getPhone());
+    return PrivateUserView.builder()
+        .id(user.getId())
+        .email(user.getEmail())
+        .phone(user.getPhone())
+        .messengers(user.getMessengers())
+        .build();
   }
 
   public Mono<PrivateUserView> updateUser(String userId, UserUpdate userUpdate) {

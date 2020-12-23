@@ -41,6 +41,10 @@ public class UserController {
   }
 
   private static PublicUserView toPublicView(final PrivateUserView privateUserView) {
-    return new PublicUserView(privateUserView.getId(), privateUserView.getPhone());
+    return PublicUserView.builder()
+        .id(privateUserView.getId())
+        .phone(privateUserView.getPhone())
+        .messengers(privateUserView.getMessengers())
+        .build();
   }
 }
