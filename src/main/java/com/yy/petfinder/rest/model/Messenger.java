@@ -5,8 +5,8 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.Arrays;
 
 public enum Messenger {
-  TELEGRAM("dog"),
-  VIBER("cat");
+  TELEGRAM("telegram"),
+  VIBER("viber");
 
   private final String value;
 
