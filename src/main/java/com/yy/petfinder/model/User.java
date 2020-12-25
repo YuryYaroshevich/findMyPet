@@ -1,5 +1,7 @@
 package com.yy.petfinder.model;
 
+import com.yy.petfinder.rest.model.Messenger;
+import java.util.List;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.Value;
@@ -19,4 +21,5 @@ public class User {
 
   @NonNull private String password;
   @NonNull private String phone;
+  private List<Messenger> messengers;
 }

@@ -8,6 +8,7 @@ import com.yy.petfinder.model.User;
 import com.yy.petfinder.persistence.UserRepository;
 import com.yy.petfinder.rest.model.CreateUser;
 import com.yy.petfinder.rest.model.Login;
+import com.yy.petfinder.rest.model.Messenger;
 import com.yy.petfinder.security.model.JWTToken;
 import com.yy.petfinder.security.service.TokenService;
 import java.util.List;
@@ -43,7 +44,8 @@ public class AuthControllerTest {
     final String email = "abc@email.com";
     final String password = "xyz";
     final String phone = "+375296666666";
-    final CreateUser newUser = new CreateUser(email, phone, password);
+    final List<Messenger> messengers = List.of(Messenger.TELEGRAM, Messenger.VIBER);
+    final CreateUser newUser = new CreateUser(email, phone, password, messengers);
 
     // when
     webTestClient.post().uri("/signUp").bodyValue(newUser).exchange().expectStatus().isCreated();
@@ -57,6 +59,7 @@ public class AuthControllerTest {
     assertEquals(email, createdUser.getEmail());
     assertTrue(passwordEncoder.matches(password, createdUser.getPassword()));
     assertEquals(phone, createdUser.getPhone());
+    assertEquals(messengers, createdUser.getMessengers());
   }
 
   @Test
@@ -64,7 +67,8 @@ public class AuthControllerTest {
     // given
     final User user = userBuilderWithDefaults().build();
     userRepository.save(user).block();
-    final CreateUser newUser = new CreateUser(user.getEmail(), user.getPhone(), "1234");
+    final CreateUser newUser =
+        new CreateUser(user.getEmail(), user.getPhone(), "1234", List.of(Messenger.VIBER));
 
     // when
     final Map<String, String> errorResp =

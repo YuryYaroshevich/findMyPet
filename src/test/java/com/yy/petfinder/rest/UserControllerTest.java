@@ -62,7 +62,12 @@ public class UserControllerTest {
     final User user = userBuilderWithDefaults().build();
     userRepository.save(user).block();
     final PrivateUserView expectedUser =
-        new PrivateUserView(user.getId(), user.getEmail(), user.getPhone());
+        PrivateUserView.builder()
+            .id(user.getId())
+            .email(user.getEmail())
+            .phone(user.getPhone())
+            .messengers(user.getMessengers())
+            .build();
 
     // when
     final String authHeaderValue = "Bearer " + tokenService.createToken(user.getId());
