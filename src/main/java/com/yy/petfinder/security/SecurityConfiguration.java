@@ -1,5 +1,7 @@
 package com.yy.petfinder.security;
 
+import static com.yy.petfinder.rest.PetAdController.NEXT_PAGE_TOKEN;
+
 import com.yy.petfinder.security.service.AuthHeaderMatcher;
 import com.yy.petfinder.security.service.JWTReactiveAuthenticationManager;
 import com.yy.petfinder.security.service.PetSearchRequestMatcher;
@@ -84,6 +86,7 @@ public class SecurityConfiguration {
     corsConfig.setMaxAge(8000L);
     corsConfig.setAllowedMethods(List.of("GET", "POST", "PUT"));
     corsConfig.setAllowedHeaders(List.of("Content-Type", "Authorization"));
+    corsConfig.setExposedHeaders(List.of(NEXT_PAGE_TOKEN));
 
     final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
     source.registerCorsConfiguration("/**", corsConfig);

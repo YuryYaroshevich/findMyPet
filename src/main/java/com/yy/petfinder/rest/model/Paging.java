@@ -9,5 +9,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class Paging {
   private String nextPageToken = null;
-  private int pageSize = 20;
+  private int pageSize = 10;
 }
