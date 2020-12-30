@@ -25,6 +25,7 @@ import reactor.core.publisher.Mono;
 @RequestMapping("/pets/ad")
 public class PetAdController {
   public static final String NEXT_PAGE_TOKEN = "Next-page-token";
+  public static final int DEFAULT_PAGE_SIZE = 10;
 
   private final PetAdService petAdService;
 
@@ -54,19 +55,21 @@ public class PetAdController {
       final PetSearchRequest petSearchReq, final Paging paging) {
     return petAdService
         .searchPets(petSearchReq, paging)
-        .map(petAds -> createResponse(petAds, paging.getPageSize()));
+        .map(petAds -> createResponse(petAds, paging.getNextPageToken()));
   }
 
   private ResponseEntity<List<PetAdResponse>> createResponse(
-      final List<PetAdResponse> petAds, final int pageSize) {
+      final List<PetAdResponse> petAds, final String oldNextPageToken) {
     final ResponseEntity.BodyBuilder respBuilder = ResponseEntity.ok();
-    if (pageSize == petAds.size()) {
-      respBuilder.header(NEXT_PAGE_TOKEN, getNextPageToken(petAds));
-    }
+    respBuilder.header(NEXT_PAGE_TOKEN, getNextPageToken(petAds, oldNextPageToken));
     return respBuilder.body(petAds);
   }
 
-  private static String getNextPageToken(final List<PetAdResponse> petAds) {
+  private static String getNextPageToken(
+      final List<PetAdResponse> petAds, final String oldNextPageToken) {
+    if (petAds.isEmpty()) {
+      return oldNextPageToken;
+    }
     final int lastPetAdIndex = petAds.size() - 1;
     return petAds.get(lastPetAdIndex).getId();
   }

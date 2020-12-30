@@ -1,5 +1,7 @@
 package com.yy.petfinder.rest.model;
 
+import static com.yy.petfinder.rest.PetAdController.DEFAULT_PAGE_SIZE;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,5 +11,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class Paging {
   private String nextPageToken = null;
-  private int pageSize = 10;
+  private int pageSize = DEFAULT_PAGE_SIZE;
 }
