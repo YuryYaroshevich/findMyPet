@@ -1,5 +1,6 @@
 package com.yy.petfinder.rest;
 
+import static com.yy.petfinder.rest.PetAdController.DEFAULT_PAGE_SIZE;
 import static com.yy.petfinder.rest.PetAdController.NEXT_PAGE_TOKEN;
 import static com.yy.petfinder.testfactory.PetAdFactory.petAdBuilderWithDefaults;
 import static com.yy.petfinder.util.SearchUriBuilder.searchUri;
@@ -7,7 +8,6 @@ import static com.yy.petfinder.util.WebTestClientWrapper.getExchange;
 import static com.yy.petfinder.util.WebTestClientWrapper.getList;
 import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import com.yy.petfinder.model.PetAd;
 import com.yy.petfinder.model.PetType;
@@ -76,7 +76,7 @@ public class PetAdSearchPagingControllerTest {
 
     final EntityExchangeResult<List<PetAdView>> response2 =
         getExchange(webTestClient, searchUri(petSearchReq, paging2), PetAdView.class);
-    ;
+
     final List<PetAdView> petAdViews2 = response2.getResponseBody();
     assertEquals(2, petAdViews2.size());
     assertEquals(petAd3.getId(), petAdViews2.get(0).getId());
@@ -88,12 +88,21 @@ public class PetAdSearchPagingControllerTest {
 
     final EntityExchangeResult<List<PetAdView>> response3 =
         getExchange(webTestClient, searchUri(petSearchReq, paging3), PetAdView.class);
-    ;
+
     final List<PetAdView> petAdViews3 = response3.getResponseBody();
     assertEquals(1, petAdViews3.size());
     assertEquals(petAd1.getId(), petAdViews3.get(0).getId());
+    final String nextPageToken3 = response3.getResponseHeaders().get(NEXT_PAGE_TOKEN).get(0);
+    assertEquals(petAd1.getId(), nextPageToken3);
 
-    assertFalse(response3.getResponseHeaders().containsKey(NEXT_PAGE_TOKEN));
+    final Paging paging4 = new Paging(nextPageToken3, PAGE_SIZE);
+
+    final EntityExchangeResult<List<PetAdView>> response4 =
+        getExchange(webTestClient, searchUri(petSearchReq, paging4), PetAdView.class);
+    final List<PetAdView> petAdViews4 = response4.getResponseBody();
+    assertEquals(0, petAdViews4.size());
+    final String nextPageToken4 = response3.getResponseHeaders().get(NEXT_PAGE_TOKEN).get(0);
+    assertEquals(petAd1.getId(), nextPageToken4);
   }
 
   @Test
@@ -113,6 +122,6 @@ public class PetAdSearchPagingControllerTest {
     final List<PetAdView> petAdViews =
         getList(webTestClient, searchUri(petSearchReq), PetAdView.class);
 
-    assertEquals(20, petAdViews.size());
+    assertEquals(DEFAULT_PAGE_SIZE, petAdViews.size());
   }
 }
