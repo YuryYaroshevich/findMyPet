@@ -16,13 +16,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
 @RestController
-@RequestMapping("/pets/ad")
 public class PetAdController {
   public static final String NEXT_PAGE_TOKEN = "Next-page-token";
   public static final int DEFAULT_PAGE_SIZE = 10;
@@ -33,24 +31,24 @@ public class PetAdController {
     this.petAdService = petAdService;
   }
 
-  @PostMapping
+  @PostMapping("/pets/ad")
   @ResponseStatus(HttpStatus.CREATED)
   public Mono<PetAdResponse> createPetAd(@RequestBody @Valid final PetAdView petAd) {
     return userIdFromContext().flatMap(userId -> petAdService.createAd(petAd, userId));
   }
 
-  @GetMapping("/{id}")
+  @GetMapping("/pets/ad/{id}")
   public Mono<PetAdResponse> getPetAd(@PathVariable("id") final String id) {
     return petAdService.getAd(id);
   }
 
-  @PutMapping("/{id}")
+  @PutMapping("/pets/ad/{id}")
   public Mono<PetAdResponse> updatePetAd(
       @PathVariable final String id, @RequestBody @Valid final PetAdView petAdView) {
     return userIdFromContext().flatMap(userId -> petAdService.updateAd(id, petAdView, userId));
   }
 
-  @GetMapping
+  @GetMapping("/pets/ad")
   public Mono<ResponseEntity<List<PetAdResponse>>> searchPet(
       final PetSearchRequest petSearchReq, final Paging paging) {
     return petAdService
@@ -72,5 +70,10 @@ public class PetAdController {
     }
     final int lastPetAdIndex = petAds.size() - 1;
     return petAds.get(lastPetAdIndex).getId();
+  }
+
+  @GetMapping("/pets/user/ad")
+  public Mono<List<PetAdResponse>> getAccountPetAds() {
+    return userIdFromContext().flatMap(userId -> petAdService.getAds(userId));
   }
 }

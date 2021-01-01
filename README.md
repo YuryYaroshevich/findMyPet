@@ -42,5 +42,3 @@ https://devcenter.heroku.com/articles/dynos#cli-commands-for-dyno-management
 1. to think about id in db
 4. logging
 5. password validation(min length for example)
-6. user should have list of messengers to contact him.
-7. pet ad should contain id of user
