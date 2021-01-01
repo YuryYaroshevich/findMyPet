@@ -54,6 +54,10 @@ public class PetAdService {
         .switchIfEmpty(Mono.error(new PetAdNotFoundException(id)));
   }
 
+  public Mono<List<PetAdResponse>> getAds(String userId) {
+    return petAdRepository.findPetAdsByOwnerId(userId).map(this::toPetAdResponse).collectList();
+  }
+
   private PetAd toPetAd(final String id, final PetAdView petAdView, String userId) {
     final SearchArea searchArea = SearchArea.of(petAdView.getSearchArea().getCoordinates());
     return PetAd.builder()

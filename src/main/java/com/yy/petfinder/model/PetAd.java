@@ -7,6 +7,7 @@ import lombok.Value;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.GeoSpatialIndexType;
 import org.springframework.data.mongodb.core.index.GeoSpatialIndexed;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Value
@@ -27,5 +28,5 @@ public class PetAd {
 
   @NonNull private boolean found;
 
-  @NonNull private String ownerId;
+  @Indexed @NonNull private String ownerId;
 }
