@@ -26,7 +26,7 @@ public class PetAd {
   @NonNull
   private SearchArea searchArea;
 
-  @NonNull private boolean found;
+  @NonNull private PetAdStatus petAdStatus;
 
   @Indexed @NonNull private String ownerId;
 }

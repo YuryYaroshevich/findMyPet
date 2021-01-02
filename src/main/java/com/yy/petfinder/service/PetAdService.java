@@ -69,7 +69,7 @@ public class PetAdService {
         .petType(petAdView.getPetType())
         .breed(petAdView.getBreed())
         .searchArea(searchArea)
-        .found(petAdView.isFound())
+        .petAdStatus(petAdView.getPetAdStatus())
         .build();
   }
 
@@ -82,7 +82,7 @@ public class PetAdService {
         .petType(petAd.getPetType())
         .breed(petAd.getBreed())
         .searchArea(new SearchAreaView(petAd.getSearchArea().getCoordinatesList()))
-        .found(petAd.isFound())
+        .petAdStatus(petAd.getPetAdStatus())
         .ownerId(petAd.getOwnerId())
         .build();
   }

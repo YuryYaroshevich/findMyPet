@@ -1,5 +1,6 @@
 package com.yy.petfinder.rest.model;
 
+import com.yy.petfinder.model.PetAdStatus;
 import com.yy.petfinder.model.PetType;
 import java.util.List;
 import lombok.Builder;
@@ -16,5 +17,5 @@ public class PetAdView {
   @NonNull private String name;
   @NonNull private List<String> photoUrls;
   @NonNull private SearchAreaView searchArea;
-  private boolean found;
+  @NonNull private PetAdStatus petAdStatus;
 }
