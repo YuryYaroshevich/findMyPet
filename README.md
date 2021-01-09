@@ -39,6 +39,7 @@ fucking visualvm: `jvisualvm -J-DsocksProxyHost=localhost -J-DsocksProxyPort=108
 https://devcenter.heroku.com/articles/dynos#cli-commands-for-dyno-management
 
 ## TODO
+0. remove "_class" : "com.yy.petfinder.model.PetAdStatus" from mongo doc: https://docs.spring.io/spring-data/data-mongodb/docs/current/reference/html/#mongo-template.type-mapping
 1. to think about id in db
 4. logging
 5. password validation(min length for example)

@@ -1,5 +1,6 @@
 package com.yy.petfinder.rest;
 
+import static com.yy.petfinder.model.PetAdState.FOUND_BY_APP;
 import static com.yy.petfinder.testfactory.PetAdFactory.petAdBuilderWithDefaults;
 import static com.yy.petfinder.util.SearchUriBuilder.searchUri;
 import static com.yy.petfinder.util.WebTestClientWrapper.getList;
@@ -7,6 +8,7 @@ import static java.util.stream.Collectors.toSet;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.yy.petfinder.model.PetAd;
+import com.yy.petfinder.model.PetAdStatus;
 import com.yy.petfinder.model.PetType;
 import com.yy.petfinder.persistence.PetAdRepository;
 import com.yy.petfinder.rest.model.PetAdView;
@@ -148,7 +150,7 @@ public class PetAdSearchControllerTest {
             .petType(PetType.DOG)
             .colors(List.of("black", "white"))
             .breed(labradorBreed)
-            .found(true)
+            .petAdStatus(new PetAdStatus(true, FOUND_BY_APP))
             .build();
 
     final PetSearchRequest petSearchRequest5 =

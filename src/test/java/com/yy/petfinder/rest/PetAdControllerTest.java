@@ -6,6 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 import com.yy.petfinder.model.PetAd;
+import com.yy.petfinder.model.PetAdState;
+import com.yy.petfinder.model.PetAdStatus;
 import com.yy.petfinder.model.PetType;
 import com.yy.petfinder.model.User;
 import com.yy.petfinder.persistence.PetAdRepository;
@@ -60,6 +62,7 @@ public class PetAdControllerTest {
             .photoUrls(petAd.getPhotoUrls())
             .colors(petAd.getColors())
             .breed(petAd.getBreed())
+            .petAdStatus(new PetAdStatus(false, null))
             .build();
 
     petAdRepository.save(petAd).block();
@@ -117,6 +120,7 @@ public class PetAdControllerTest {
             .name(name)
             .photoUrls(photoUrls)
             .colors(colors)
+            .petAdStatus(new PetAdStatus(false, null))
             .build();
 
     // when
@@ -160,6 +164,7 @@ public class PetAdControllerTest {
             .name("Fido")
             .photoUrls(List.of("https://host.com/image1"))
             .colors(List.of("black", "brown"))
+            .petAdStatus(new PetAdStatus(false, null))
             .build();
 
     // when then
@@ -189,6 +194,7 @@ public class PetAdControllerTest {
             .name("Fido")
             .photoUrls(List.of("https://host.com/image1"))
             .colors(List.of("black", "brown"))
+            .petAdStatus(new PetAdStatus(false, null))
             .build();
 
     // when
@@ -232,6 +238,7 @@ public class PetAdControllerTest {
             "https://res.cloudinary.com/demo/image4");
     final List<String> newColors = List.of("black", "brown", "white");
     final String newBreed = "retriever";
+    final PetAdStatus newPetAdStatus = new PetAdStatus(true, PetAdState.FOUND_BY_APP);
     final PetAdView updatedPetAdView =
         PetAdView.builder()
             .searchArea(new SearchAreaView(newCoordinates))
@@ -241,6 +248,7 @@ public class PetAdControllerTest {
             .colors(newColors)
             .breed(newBreed)
             .id(petAd.getId())
+            .petAdStatus(newPetAdStatus)
             .build();
 
     // when
@@ -264,7 +272,7 @@ public class PetAdControllerTest {
     assertEquals(updatedPetAdView.getPhotoUrls(), updatedPetAd.getPhotoUrls());
     assertEquals(updatedPetAdView.getColors(), updatedPetAd.getColors());
     assertEquals(updatedPetAdView.getBreed(), updatedPetAd.getBreed());
-    assertEquals(updatedPetAdView.isFound(), updatedPetAd.isFound());
+    assertEquals(updatedPetAdView.getPetAdStatus(), updatedPetAd.getPetAdStatus());
   }
 
   @Test
@@ -295,6 +303,7 @@ public class PetAdControllerTest {
             .photoUrls(photoUrls)
             .colors(newColors)
             .id(petAdId)
+            .petAdStatus(new PetAdStatus(false, null))
             .build();
 
     // when
@@ -337,6 +346,7 @@ public class PetAdControllerTest {
             .photoUrls(List.of("https://res.cloudinary.com/demo/image1"))
             .colors(List.of("black", "brown", "white"))
             .id(petAd.getId())
+            .petAdStatus(new PetAdStatus(false, null))
             .build();
 
     // when
