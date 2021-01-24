@@ -1,5 +1,6 @@
 package com.yy.petfinder.service;
 
+import com.yy.petfinder.exception.InvalidSearchAreaException;
 import com.yy.petfinder.exception.PetAdNotFoundException;
 import com.yy.petfinder.model.PetAd;
 import com.yy.petfinder.model.SearchArea;
@@ -11,6 +12,8 @@ import com.yy.petfinder.rest.model.PetSearchRequest;
 import com.yy.petfinder.rest.model.SearchAreaView;
 import java.util.List;
 import org.bson.types.ObjectId;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.mongodb.UncategorizedMongoDbException;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
@@ -27,8 +30,18 @@ public class PetAdService {
 
     final PetAd newPetAd = toPetAd(id, petAdView, userId);
 
-    final Mono<PetAd> createdAd = petAdRepository.save(newPetAd);
+    final Mono<PetAd> createdAd =
+        petAdRepository.save(newPetAd).onErrorMap(this::mapDataIntegrityError);
     return createdAd.map(this::toPetAdResponse);
+  }
+
+  private Throwable mapDataIntegrityError(Throwable exception) {
+    if ((exception instanceof DataIntegrityViolationException
+            || exception instanceof UncategorizedMongoDbException)
+        && exception.getMessage().contains("Can't extract geo keys")) {
+      return new InvalidSearchAreaException();
+    }
+    return exception;
   }
 
   public Mono<PetAdResponse> getAd(final String id) {
@@ -50,6 +63,7 @@ public class PetAdService {
     final PetAd updatedPetAd = toPetAd(id, updatedAdView, userId);
     return petAdRepository
         .findAndModify(updatedPetAd, userId)
+        .onErrorMap(this::mapDataIntegrityError)
         .map(this::toPetAdResponse)
         .switchIfEmpty(Mono.error(new PetAdNotFoundException(id)));
   }

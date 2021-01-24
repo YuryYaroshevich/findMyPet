@@ -43,3 +43,4 @@ https://devcenter.heroku.com/articles/dynos#cli-commands-for-dyno-management
 1. to think about id in db
 4. logging
 5. password validation(min length for example)
+6. lombok @NonNull accepts empty string. Validate for empty string where needed.

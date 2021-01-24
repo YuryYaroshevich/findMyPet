@@ -147,6 +147,43 @@ public class PetAdControllerTest {
     assertEquals(petAdView.getColors(), petAd.getColors());
   }
 
+  /** Invalid polygon means polygon consisting of multiple closed figures. */
+  @Test
+  public void testCreatePetAdReturns400IfInvalidPolygon() {
+    // given
+    final List<List<Double>> coordinates =
+        List.of(
+            List.of(53.897016128611725, 27.39784374608335),
+            List.of(53.89600462155744, 27.42857153806619),
+            List.of(53.88396580815366, 27.39338049138193),
+            List.of(53.87961479577, 27.42874320170857),
+            List.of(53.897016128611725, 27.39784374608335));
+    final PetType petType = PetType.DOG;
+    final String name = "Fido";
+    final List<String> photoUrls =
+        List.of("https://host.com/image1", "https://host.com/image2", "https://host.com/image3");
+    final List<String> colors = List.of("black", "brown");
+    final PetAdView petAdView =
+        PetAdView.builder()
+            .searchArea(new SearchAreaView(coordinates))
+            .petType(petType)
+            .name(name)
+            .photoUrls(photoUrls)
+            .colors(colors)
+            .petAdStatus(new PetAdStatus(false, null))
+            .build();
+
+    // when
+    webTestClient
+        .post()
+        .uri("/pets/ad")
+        .header(AUTHORIZATION, authHeaderValue)
+        .bodyValue(petAdView)
+        .exchange()
+        .expectStatus()
+        .isBadRequest();
+  }
+
   @Test
   public void testCreatePetAdWithoutAuthHeaderFails() {
     // given
@@ -273,6 +310,54 @@ public class PetAdControllerTest {
     assertEquals(updatedPetAdView.getColors(), updatedPetAd.getColors());
     assertEquals(updatedPetAdView.getBreed(), updatedPetAd.getBreed());
     assertEquals(updatedPetAdView.getPetAdStatus(), updatedPetAd.getPetAdStatus());
+  }
+
+  /** Invalid polygon means polygon consisting of multiple closed figures. */
+  @Test
+  public void testUpdatePetAdReturns400IfInvalidPolygon() {
+    // given
+    final PetAd petAd = petAdBuilderWithDefaults().ownerId(userId).build();
+    petAdRepository.save(petAd).block();
+
+    final List<List<Double>> newCoordinates =
+        List.of(
+            List.of(53.897016128611725, 27.39784374608335),
+            List.of(53.89600462155744, 27.42857153806619),
+            List.of(53.88396580815366, 27.39338049138193),
+            List.of(53.87961479577, 27.42874320170857),
+            List.of(53.897016128611725, 27.39784374608335));
+    final PetType newPetType = PetType.DOG;
+    final String newName = "Fido";
+    final List<String> photoUrls =
+        List.of(
+            "https://res.cloudinary.com/demo/image1",
+            "https://res.cloudinary.com/demo/image2",
+            "https://res.cloudinary.com/demo/image3",
+            "https://res.cloudinary.com/demo/image4");
+    final List<String> newColors = List.of("black", "brown", "white");
+    final String newBreed = "retriever";
+    final PetAdStatus newPetAdStatus = new PetAdStatus(true, PetAdState.FOUND_BY_APP);
+    final PetAdView updatedPetAdView =
+        PetAdView.builder()
+            .searchArea(new SearchAreaView(newCoordinates))
+            .petType(newPetType)
+            .name(newName)
+            .photoUrls(photoUrls)
+            .colors(newColors)
+            .breed(newBreed)
+            .id(petAd.getId())
+            .petAdStatus(newPetAdStatus)
+            .build();
+
+    // when
+    webTestClient
+        .put()
+        .uri("/pets/ad/" + petAd.getId())
+        .header(AUTHORIZATION, authHeaderValue)
+        .bodyValue(updatedPetAdView)
+        .exchange()
+        .expectStatus()
+        .isBadRequest();
   }
 
   @Test
