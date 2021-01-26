@@ -12,6 +12,8 @@ import reactor.core.publisher.Mono;
 public class UserRepositoryImpl implements UserRepositoryCustom {
   private static final String ID_FIELD = "_id";
   private static final String PHONE_FIELD = "phone";
+  private static final String MESSENGERS_FIELD = "messengers";
+  private static final String PASSWORD_FIELD = "password";
 
   private final ReactiveMongoTemplate mongoTemplate;
 
@@ -26,6 +28,12 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
     final Update update = new Update();
     if (userUpdate.getPhone() != null) {
       update.set(PHONE_FIELD, userUpdate.getPhone());
+    }
+    if (userUpdate.getMessengers() != null) {
+      update.set(MESSENGERS_FIELD, userUpdate.getMessengers());
+    }
+    if (userUpdate.getPasswordUpdate() != null) {
+      update.set(PASSWORD_FIELD, userUpdate.getPasswordUpdate().getNewPassword());
     }
 
     return mongoTemplate.findAndModify(

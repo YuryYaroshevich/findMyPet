@@ -1,6 +1,7 @@
 package com.yy.petfinder.security.service;
 
-import com.yy.petfinder.exception.InvalidCredentialsException;
+import static com.yy.petfinder.exception.InvalidCredentialsException.invalidCredentials;
+
 import com.yy.petfinder.rest.model.Login;
 import com.yy.petfinder.security.model.JWTToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -30,7 +31,7 @@ public class LoginService {
         userDetailsService
             .findByEmail(login.getEmail())
             .filter(user -> passwordEncoder.matches(login.getPassword(), user.getPassword()))
-            .switchIfEmpty(Mono.error(new InvalidCredentialsException()));
+            .switchIfEmpty(Mono.error(invalidCredentials()));
     return authenticatedUser
         .doOnNext(
             userDetails ->

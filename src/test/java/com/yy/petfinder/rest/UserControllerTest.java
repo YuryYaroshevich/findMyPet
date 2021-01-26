@@ -1,5 +1,7 @@
 package com.yy.petfinder.rest;
 
+import static com.yy.petfinder.rest.model.Messenger.TELEGRAM;
+import static com.yy.petfinder.rest.model.Messenger.VIBER;
 import static com.yy.petfinder.testfactory.UserFactory.userBuilderWithDefaults;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -7,15 +9,19 @@ import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 import com.yy.petfinder.model.User;
 import com.yy.petfinder.persistence.UserRepository;
+import com.yy.petfinder.rest.model.Messenger;
+import com.yy.petfinder.rest.model.PasswordUpdate;
 import com.yy.petfinder.rest.model.PrivateUserView;
 import com.yy.petfinder.rest.model.UserUpdate;
 import com.yy.petfinder.security.service.TokenService;
+import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
@@ -26,6 +32,7 @@ public class UserControllerTest {
 
   @Autowired private UserRepository userRepository;
   @Autowired private TokenService tokenService;
+  @Autowired private PasswordEncoder passwordEncoder;
 
   @BeforeEach
   public void setup() {
@@ -98,7 +105,14 @@ public class UserControllerTest {
     final User user = userBuilderWithDefaults().build();
     userRepository.save(user).block();
     final String newPhone = "+375298887766";
-    final UserUpdate userUpdate = new UserUpdate(newPhone);
+    final List<Messenger> messengers = List.of(TELEGRAM, VIBER);
+    final String newPassword = "5678";
+    final UserUpdate userUpdate =
+        UserUpdate.builder()
+            .phone(newPhone)
+            .messengers(messengers)
+            .passwordUpdate(new PasswordUpdate(newPassword, user.getPassword()))
+            .build();
 
     // when
     final String authHeaderValue = "Bearer " + tokenService.createToken(user.getId());
@@ -115,12 +129,13 @@ public class UserControllerTest {
     final User updatedUser = userRepository.findById(user.getId()).block();
     assertEquals(user.getEmail(), updatedUser.getEmail());
     assertEquals(newPhone, updatedUser.getPhone());
+    assertEquals(passwordEncoder.encode(newPassword), updatedUser.getPassword());
   }
 
   @Test
   public void testUpdateUserWithoutTokenUnauthorized() {
     // given
-    final UserUpdate userUpdate = new UserUpdate("+375298887766");
+    final UserUpdate userUpdate = UserUpdate.builder().phone("+375298887766").build();
 
     // when then
     webTestClient
