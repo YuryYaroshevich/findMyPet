@@ -65,8 +65,9 @@ public class UserService {
         .build();
   }
 
-  public Mono<PrivateUserView> updateUser(final String userId, final UserUpdate userUpdate) {
+  public Mono<PrivateUserView> updateUser(final String userId, UserUpdate rawUserUpdate) {
     final Mono<Boolean> passwordUpdateValid = Mono.just(true);
+    final UserUpdate userUpdate = encodePasswordsIfSet(rawUserUpdate);
     final PasswordUpdate passwordUpdate = userUpdate.getPasswordUpdate();
     if (passwordUpdate != null) {
       passwordUpdateValid
@@ -78,17 +79,29 @@ public class UserService {
                 }
               });
     }
+
     return passwordUpdateValid.flatMap(
         ignore -> userRepository.findAndModify(userUpdate, userId).map(this::userToView));
   }
 
+  private UserUpdate encodePasswordsIfSet(final UserUpdate userUpdate) {
+    final PasswordUpdate passwordUpdate = userUpdate.getPasswordUpdate();
+    if (passwordUpdate != null) {
+      final String encodedNewPassword = passwordEncoder.encode(passwordUpdate.getNewPassword());
+      final String encodedOldPassword = passwordEncoder.encode(passwordUpdate.getOldPassword());
+      return userUpdate
+          .toBuilder()
+          .passwordUpdate(new PasswordUpdate(encodedNewPassword, encodedOldPassword))
+          .build();
+    }
+    return userUpdate;
+  }
+
   private Mono<Boolean> isOldPasswordMatch(
       final PasswordUpdate passwordUpdate, final String userId) {
-    final String oldEncodedPassProvidedByUser =
-        passwordEncoder.encode(passwordUpdate.getOldPassword());
     return userRepository
         .findById(userId)
         .map(User::getPassword)
-        .map(oldEncodedPass -> oldEncodedPass.equals(oldEncodedPassProvidedByUser));
+        .map(oldEncodedPass -> oldEncodedPass.equals(passwordUpdate.getOldPassword()));
   }
 }

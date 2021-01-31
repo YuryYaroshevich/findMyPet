@@ -102,8 +102,11 @@ public class UserControllerTest {
   @Test
   public void testUpdateUserUpdatesUserData() {
     // given
-    final User user = userBuilderWithDefaults().build();
+    final String oldPassword = "1234";
+    final String encodedOldPassword = passwordEncoder.encode(oldPassword);
+    final User user = userBuilderWithDefaults().password(encodedOldPassword).build();
     userRepository.save(user).block();
+
     final String newPhone = "+375298887766";
     final List<Messenger> messengers = List.of(TELEGRAM, VIBER);
     final String newPassword = "5678";
@@ -111,7 +114,7 @@ public class UserControllerTest {
         UserUpdate.builder()
             .phone(newPhone)
             .messengers(messengers)
-            .passwordUpdate(new PasswordUpdate(newPassword, user.getPassword()))
+            .passwordUpdate(new PasswordUpdate(newPassword, oldPassword))
             .build();
 
     // when
