@@ -66,18 +66,19 @@ public class UserService {
   }
 
   public Mono<PrivateUserView> updateUser(final String userId, UserUpdate rawUserUpdate) {
-    final Mono<Boolean> passwordUpdateValid = Mono.just(true);
+    Mono<Boolean> passwordUpdateValid = Mono.just(true);
     final UserUpdate userUpdate = encodePasswordsIfSet(rawUserUpdate);
     final PasswordUpdate passwordUpdate = userUpdate.getPasswordUpdate();
     if (passwordUpdate != null) {
-      passwordUpdateValid
-          .flatMap(ignore -> isOldPasswordMatch(passwordUpdate, userId))
-          .doOnNext(
-              passwordsMatch -> {
-                if (!passwordsMatch) {
-                  throw oldPasswordNotMatch();
-                }
-              });
+      passwordUpdateValid =
+          passwordUpdateValid
+              .flatMap(ignore -> isOldPasswordMatch(passwordUpdate, userId))
+              .doOnNext(
+                  passwordsMatch -> {
+                    if (!passwordsMatch) {
+                      throw oldPasswordNotMatch();
+                    }
+                  });
     }
 
     return passwordUpdateValid.flatMap(
@@ -88,10 +89,9 @@ public class UserService {
     final PasswordUpdate passwordUpdate = userUpdate.getPasswordUpdate();
     if (passwordUpdate != null) {
       final String encodedNewPassword = passwordEncoder.encode(passwordUpdate.getNewPassword());
-      final String encodedOldPassword = passwordEncoder.encode(passwordUpdate.getOldPassword());
       return userUpdate
           .toBuilder()
-          .passwordUpdate(new PasswordUpdate(encodedNewPassword, encodedOldPassword))
+          .passwordUpdate(new PasswordUpdate(encodedNewPassword, passwordUpdate.getOldPassword()))
           .build();
     }
     return userUpdate;
@@ -102,6 +102,8 @@ public class UserService {
     return userRepository
         .findById(userId)
         .map(User::getPassword)
-        .map(oldEncodedPass -> oldEncodedPass.equals(passwordUpdate.getOldPassword()));
+        .map(
+            oldEncodedPass ->
+                passwordEncoder.matches(passwordUpdate.getOldPassword(), oldEncodedPass));
   }
 }

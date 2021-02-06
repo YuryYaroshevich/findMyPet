@@ -5,6 +5,7 @@ import static com.yy.petfinder.rest.model.Messenger.VIBER;
 import static com.yy.petfinder.testfactory.UserFactory.userBuilderWithDefaults;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 import com.yy.petfinder.model.User;
@@ -132,7 +133,37 @@ public class UserControllerTest {
     final User updatedUser = userRepository.findById(user.getId()).block();
     assertEquals(user.getEmail(), updatedUser.getEmail());
     assertEquals(newPhone, updatedUser.getPhone());
-    assertEquals(passwordEncoder.encode(newPassword), updatedUser.getPassword());
+    assertTrue(passwordEncoder.matches(newPassword, updatedUser.getPassword()));
+  }
+
+  @Test
+  public void testUpdateUserReturnsIfUserProvidesInvalidPassword() {
+    // given
+    final String oldPassword = "1234";
+    final String encodedOldPassword = passwordEncoder.encode(oldPassword);
+    final User user = userBuilderWithDefaults().password(encodedOldPassword).build();
+    userRepository.save(user).block();
+
+    final String newPhone = "+375298887766";
+    final List<Messenger> messengers = List.of(TELEGRAM, VIBER);
+    final String newPassword = "5678";
+    final UserUpdate userUpdate =
+        UserUpdate.builder()
+            .phone(newPhone)
+            .messengers(messengers)
+            .passwordUpdate(new PasswordUpdate(newPassword, "invalidOldPass"))
+            .build();
+
+    // when then
+    final String authHeaderValue = "Bearer " + tokenService.createToken(user.getId());
+    webTestClient
+        .put()
+        .uri("/users")
+        .bodyValue(userUpdate)
+        .header(AUTHORIZATION, authHeaderValue)
+        .exchange()
+        .expectStatus()
+        .isBadRequest();
   }
 
   @Test
