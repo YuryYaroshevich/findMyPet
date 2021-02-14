@@ -1,9 +1,12 @@
 package com.yy.petfinder.service;
 
+import static com.yy.petfinder.exception.InvalidCredentialsException.oldPasswordNotMatch;
+
 import com.yy.petfinder.exception.DuplicateEmailException;
 import com.yy.petfinder.model.User;
 import com.yy.petfinder.persistence.UserRepository;
 import com.yy.petfinder.rest.model.CreateUser;
+import com.yy.petfinder.rest.model.PasswordUpdate;
 import com.yy.petfinder.rest.model.PrivateUserView;
 import com.yy.petfinder.rest.model.UserUpdate;
 import org.bson.types.ObjectId;
@@ -62,7 +65,45 @@ public class UserService {
         .build();
   }
 
-  public Mono<PrivateUserView> updateUser(String userId, UserUpdate userUpdate) {
-    return userRepository.findAndModify(userUpdate, userId).map(this::userToView);
+  public Mono<PrivateUserView> updateUser(final String userId, UserUpdate rawUserUpdate) {
+    Mono<Boolean> passwordUpdateValid = Mono.just(true);
+    final UserUpdate userUpdate = encodePasswordsIfSet(rawUserUpdate);
+    final PasswordUpdate passwordUpdate = userUpdate.getPasswordUpdate();
+    if (passwordUpdate != null) {
+      passwordUpdateValid =
+          passwordUpdateValid
+              .flatMap(ignore -> isOldPasswordMatch(passwordUpdate, userId))
+              .doOnNext(
+                  passwordsMatch -> {
+                    if (!passwordsMatch) {
+                      throw oldPasswordNotMatch();
+                    }
+                  });
+    }
+
+    return passwordUpdateValid.flatMap(
+        ignore -> userRepository.findAndModify(userUpdate, userId).map(this::userToView));
+  }
+
+  private UserUpdate encodePasswordsIfSet(final UserUpdate userUpdate) {
+    final PasswordUpdate passwordUpdate = userUpdate.getPasswordUpdate();
+    if (passwordUpdate != null) {
+      final String encodedNewPassword = passwordEncoder.encode(passwordUpdate.getNewPassword());
+      return userUpdate
+          .toBuilder()
+          .passwordUpdate(new PasswordUpdate(encodedNewPassword, passwordUpdate.getOldPassword()))
+          .build();
+    }
+    return userUpdate;
+  }
+
+  private Mono<Boolean> isOldPasswordMatch(
+      final PasswordUpdate passwordUpdate, final String userId) {
+    return userRepository
+        .findById(userId)
+        .map(User::getPassword)
+        .map(
+            oldEncodedPass ->
+                passwordEncoder.matches(passwordUpdate.getOldPassword(), oldEncodedPass));
   }
 }
