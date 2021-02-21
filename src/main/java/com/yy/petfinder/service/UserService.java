@@ -7,6 +7,7 @@ import com.yy.petfinder.model.User;
 import com.yy.petfinder.persistence.UserRepository;
 import com.yy.petfinder.rest.model.CreateUser;
 import com.yy.petfinder.rest.model.PasswordUpdate;
+import com.yy.petfinder.rest.model.PasswordUpdateEmail;
 import com.yy.petfinder.rest.model.PrivateUserView;
 import com.yy.petfinder.rest.model.UserUpdate;
 import org.bson.types.ObjectId;
@@ -20,11 +21,16 @@ import reactor.core.publisher.Mono;
 public class UserService {
   private final UserRepository userRepository;
   private final PasswordEncoder passwordEncoder;
+  private final EmailService emailService;
 
   @Autowired
-  public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+  public UserService(
+      final UserRepository userRepository,
+      final PasswordEncoder passwordEncoder,
+      final EmailService emailService) {
     this.userRepository = userRepository;
     this.passwordEncoder = passwordEncoder;
+    this.emailService = emailService;
   }
 
   public Mono<PrivateUserView> getUser(final String id) {
@@ -105,5 +111,11 @@ public class UserService {
         .map(
             oldEncodedPass ->
                 passwordEncoder.matches(passwordUpdate.getOldPassword(), oldEncodedPass));
+  }
+
+  public Mono initiatePasswordUpdate(final PasswordUpdateEmail passwordUpdateEmail) {
+    return userRepository
+        .findByEmail(passwordUpdateEmail.getEmail())
+        .flatMap(user -> emailService.sendNewPasswordEmail(passwordUpdateEmail, user.getId()));
   }
 }
