@@ -10,11 +10,17 @@ spring:
   mail:
     host: 'smtp.gmail.com'
     port: 587
-    username: 'petfndr@gmail.com'
-    password: CwXt|'S4q|>>
-    smtp:
-      auth: true
-      starttls.enable: true
+    username: petfnder@gmail.com
+    password:
+    tls: true
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls.enable: true
+          ssl.enable: true
+
+
 
 token:
   salt: JpxM4e858rc673syopdZnMFb*ExeqJtUc0HJ_iOxu~jiSYu+yPdPw93OBBjF
