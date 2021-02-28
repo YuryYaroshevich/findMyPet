@@ -4,6 +4,7 @@ import static com.yy.petfinder.exception.InvalidCredentialsException.oldPassword
 
 import com.yy.petfinder.exception.DuplicateEmailException;
 import com.yy.petfinder.model.User;
+import com.yy.petfinder.persistence.UserRandomKeyRepository;
 import com.yy.petfinder.persistence.UserRepository;
 import com.yy.petfinder.rest.model.CreateUser;
 import com.yy.petfinder.rest.model.PasswordUpdate;
@@ -20,15 +21,18 @@ import reactor.core.publisher.Mono;
 @Service
 public class UserService {
   private final UserRepository userRepository;
+  private final UserRandomKeyRepository userRandomKeyRepository;
   private final PasswordEncoder passwordEncoder;
   private final EmailService emailService;
 
   @Autowired
   public UserService(
       final UserRepository userRepository,
+      final UserRandomKeyRepository userRandomKeyRepository,
       final PasswordEncoder passwordEncoder,
       final EmailService emailService) {
     this.userRepository = userRepository;
+    this.userRandomKeyRepository = userRandomKeyRepository;
     this.passwordEncoder = passwordEncoder;
     this.emailService = emailService;
   }
@@ -113,9 +117,11 @@ public class UserService {
                 passwordEncoder.matches(passwordUpdate.getOldPassword(), oldEncodedPass));
   }
 
-  public Mono initiatePasswordUpdate(final PasswordUpdateEmail passwordUpdateEmail) {
+  public Mono<Void> initiatePasswordUpdate(final PasswordUpdateEmail passwordUpdateEmail) {
     return userRepository
         .findByEmail(passwordUpdateEmail.getEmail())
-        .flatMap(user -> emailService.sendNewPasswordEmail(passwordUpdateEmail, user.getId()));
+        .flatMap(user -> emailService.sendNewPasswordEmail(passwordUpdateEmail, user.getId()))
+        .doOnSuccess(userRandomKey -> userRandomKeyRepository.save(userRandomKey))
+        .then();
   }
 }
