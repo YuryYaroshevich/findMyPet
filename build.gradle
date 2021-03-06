@@ -31,6 +31,7 @@ dependencies {
   testImplementation 'org.springframework.boot:spring-boot-starter-test'
   testImplementation 'io.projectreactor:reactor-test'
   testImplementation group: "de.flapdoodle.embed", name: "de.flapdoodle.embed.mongo", version: "2.2.0"
+  implementation group: 'com.icegreen', name: 'greenmail-junit5', version: '1.6.2'
 
   testImplementation "org.junit.jupiter:junit-jupiter-api"
   testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
