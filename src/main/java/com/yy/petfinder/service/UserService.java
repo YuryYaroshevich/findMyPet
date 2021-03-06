@@ -4,6 +4,7 @@ import static com.yy.petfinder.exception.InvalidCredentialsException.oldPassword
 
 import com.yy.petfinder.exception.DuplicateEmailException;
 import com.yy.petfinder.model.User;
+import com.yy.petfinder.model.UserRandomKey;
 import com.yy.petfinder.persistence.UserRandomKeyRepository;
 import com.yy.petfinder.persistence.UserRepository;
 import com.yy.petfinder.rest.model.CreateUser;
@@ -117,11 +118,10 @@ public class UserService {
                 passwordEncoder.matches(passwordUpdate.getOldPassword(), oldEncodedPass));
   }
 
-  public Mono<Void> initiatePasswordUpdate(final PasswordUpdateEmail passwordUpdateEmail) {
+  public Mono<UserRandomKey> initiatePasswordUpdate(final PasswordUpdateEmail passwordUpdateEmail) {
     return userRepository
         .findByEmail(passwordUpdateEmail.getEmail())
         .flatMap(user -> emailService.sendNewPasswordEmail(passwordUpdateEmail, user.getId()))
-        .doOnSuccess(userRandomKey -> userRandomKeyRepository.save(userRandomKey))
-        .then();
+        .flatMap(userRandomKey -> userRandomKeyRepository.save(userRandomKey));
   }
 }

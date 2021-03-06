@@ -49,7 +49,7 @@ public class UserController {
 
   @PostMapping("/newPasswordEmail")
   public Mono<Void> sendNewPasswordEmail(@RequestBody PasswordUpdateEmail passwordUpdateEmail) {
-    return userService.initiatePasswordUpdate(passwordUpdateEmail);
+    return userService.initiatePasswordUpdate(passwordUpdateEmail).then();
   }
 
   private static PublicUserView toPublicView(final PrivateUserView privateUserView) {
