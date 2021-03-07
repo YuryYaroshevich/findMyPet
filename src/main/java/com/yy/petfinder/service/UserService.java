@@ -3,6 +3,7 @@ package com.yy.petfinder.service;
 import static com.yy.petfinder.exception.InvalidCredentialsException.oldPasswordNotMatch;
 
 import com.yy.petfinder.exception.DuplicateEmailException;
+import com.yy.petfinder.exception.InvalidPasswordRecoveryRequestException;
 import com.yy.petfinder.model.User;
 import com.yy.petfinder.model.UserRandomKey;
 import com.yy.petfinder.persistence.UserRandomKeyRepository;
@@ -10,6 +11,7 @@ import com.yy.petfinder.persistence.UserRepository;
 import com.yy.petfinder.rest.model.CreateUser;
 import com.yy.petfinder.rest.model.PasswordUpdate;
 import com.yy.petfinder.rest.model.PasswordUpdateEmail;
+import com.yy.petfinder.rest.model.PasswordUpdateRequest;
 import com.yy.petfinder.rest.model.PrivateUserView;
 import com.yy.petfinder.rest.model.UserUpdate;
 import org.bson.types.ObjectId;
@@ -21,6 +23,8 @@ import reactor.core.publisher.Mono;
 
 @Service
 public class UserService {
+  private static final String NOT_NEEDED_OLD_PASSWD = "not_needed";
+
   private final UserRepository userRepository;
   private final UserRandomKeyRepository userRandomKeyRepository;
   private final PasswordEncoder passwordEncoder;
@@ -123,5 +127,21 @@ public class UserService {
         .findByEmail(passwordUpdateEmail.getEmail())
         .flatMap(user -> emailService.sendNewPasswordEmail(passwordUpdateEmail, user.getId()))
         .flatMap(userRandomKey -> userRandomKeyRepository.save(userRandomKey));
+  }
+
+  public Mono setNewPassword(PasswordUpdateRequest passwordUpdateRequest) {
+    return userRandomKeyRepository
+        .findByIdAndRandomKey(passwordUpdateRequest.getUserId(), passwordUpdateRequest.getKey())
+        .switchIfEmpty(Mono.error(new InvalidPasswordRecoveryRequestException()))
+        .flatMap(
+            ignore -> {
+              final String encodedNewPassword =
+                  passwordEncoder.encode(passwordUpdateRequest.getNewPassword());
+              final UserUpdate userUpdate =
+                  UserUpdate.builder()
+                      .passwordUpdate(new PasswordUpdate(encodedNewPassword, NOT_NEEDED_OLD_PASSWD))
+                      .build();
+              return userRepository.findAndModify(userUpdate, passwordUpdateRequest.getUserId());
+            });
   }
 }

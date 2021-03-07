@@ -43,7 +43,8 @@ public class UserControllerTest {
   @RegisterExtension
   static GreenMailExtension greenMail =
       new GreenMailExtension(ServerSetupTest.SMTP)
-          .withConfiguration(GreenMailConfiguration.aConfig().withUser("petfnder@gmail.com", "pass"))
+          .withConfiguration(
+              GreenMailConfiguration.aConfig().withUser("petfnder@gmail.com", "pass"))
           .withPerMethodLifecycle(false);
 
   @Autowired private WebTestClient webTestClient;
@@ -207,7 +208,10 @@ public class UserControllerTest {
     final User user = userBuilderWithDefaults().build();
     userRepository.save(user).block();
     final PasswordUpdateEmail passwordUpdateEmail =
-        PasswordUpdateEmail.builder().email(user.getEmail()).frontendHost("localhost:3000").build();
+        PasswordUpdateEmail.builder()
+            .email(user.getEmail())
+            .frontendHost("http://localhost:3000")
+            .build();
 
     // when
     webTestClient
@@ -223,9 +227,16 @@ public class UserControllerTest {
     assertEquals(user.getId(), userRandomKey.getId());
 
     MimeMessage receivedMessage = greenMail.getReceivedMessages()[0];
-    assertTrue(GreenMailUtil.getBody(receivedMessage).startsWith("To reset your password click the following link: https://localhost:3000?key"));
+    assertTrue(
+        GreenMailUtil.getBody(receivedMessage)
+            .startsWith(
+                "To reset your password click the following link: http://localhost:3000?key"));
     assertTrue(GreenMailUtil.getBody(receivedMessage).contains(user.getId()));
     assertEquals(1, receivedMessage.getAllRecipients().length);
     assertEquals(user.getEmail(), receivedMessage.getAllRecipients()[0].toString());
   }
+
+  @DisplayName("sets new password if userId and key are correct")
+  @Test
+  public void testNewPasswordSetsNewPassword() {}
 }

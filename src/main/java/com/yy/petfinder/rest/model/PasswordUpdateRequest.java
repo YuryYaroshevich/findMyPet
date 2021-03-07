@@ -6,7 +6,8 @@ import lombok.Value;
 
 @Value
 @Builder(toBuilder = true)
-public class PasswordUpdateEmail {
-  @NonNull private String email;
-  @NonNull private String frontendHost;
+public class PasswordUpdateRequest {
+  @NonNull private String userId;
+  @NonNull private String key;
+  @NonNull private String newPassword;
 }

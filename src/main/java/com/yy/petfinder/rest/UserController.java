@@ -3,6 +3,7 @@ package com.yy.petfinder.rest;
 import static com.yy.petfinder.util.UserIdRetriever.userIdFromContext;
 
 import com.yy.petfinder.rest.model.PasswordUpdateEmail;
+import com.yy.petfinder.rest.model.PasswordUpdateRequest;
 import com.yy.petfinder.rest.model.PrivateUserView;
 import com.yy.petfinder.rest.model.PublicUserView;
 import com.yy.petfinder.rest.model.UserUpdate;
@@ -43,8 +44,9 @@ public class UserController {
   }
 
   @PutMapping("/newPassword")
-  public Mono updateUserWithNewPassword() {
-    return null;
+  public Mono<Void> updateUserWithNewPassword(
+      @RequestBody PasswordUpdateRequest passwordUpdateRequest) {
+    return userService.setNewPassword(passwordUpdateRequest).then();
   }
 
   @PostMapping("/newPasswordEmail")

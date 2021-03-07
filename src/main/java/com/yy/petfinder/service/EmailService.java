@@ -36,7 +36,7 @@ public class EmailService {
               message.setSubject(NEW_PASSWORD_SUBJECT);
               message.setText(
                   String.format(
-                      "To reset your password click the following link: https://%s?key=%s&userId=%s",
+                      "To reset your password click the following link: %s?key=%s&userId=%s",
                       passwordUpdateEmail.getFrontendHost(), randomKey, userId));
               emailSender.send(message);
               return randomKey;
