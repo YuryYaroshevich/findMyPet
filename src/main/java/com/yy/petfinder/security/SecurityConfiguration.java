@@ -43,7 +43,7 @@ public class SecurityConfiguration {
     http.httpBasic().disable().formLogin().disable().csrf().disable().logout().disable();
 
     http.authorizeExchange()
-        .pathMatchers("/login", "/signUp", "/users/newPasswordEmail")
+        .pathMatchers("/login", "/signUp", "/users/newPasswordEmail", "/users/newPassword")
         .permitAll()
         .pathMatchers(HttpMethod.GET, "/users/**/public")
         .permitAll()

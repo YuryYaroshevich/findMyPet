@@ -2,6 +2,7 @@ package com.yy.petfinder.service;
 
 import com.yy.petfinder.model.UserRandomKey;
 import com.yy.petfinder.rest.model.PasswordUpdateEmail;
+import java.time.Instant;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -41,6 +42,12 @@ public class EmailService {
               emailSender.send(message);
               return randomKey;
             })
-        .map(randomKey -> UserRandomKey.builder().id(userId).randomKey(randomKey).build());
+        .map(
+            randomKey ->
+                UserRandomKey.builder()
+                    .id(userId)
+                    .randomKey(randomKey)
+                    .createdAt(Instant.now())
+                    .build());
   }
 }
