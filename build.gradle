@@ -22,6 +22,7 @@ dependencies {
   implementation 'org.springframework.boot:spring-boot-starter-data-mongodb-reactive'
   implementation 'org.springframework.boot:spring-boot-starter-webflux'
   implementation 'org.springframework.boot:spring-boot-starter-security'
+  implementation 'org.springframework.boot:spring-boot-starter-mail'
   compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.12'
   annotationProcessor group: 'org.projectlombok', name: 'lombok', version: '1.18.12'
   compile group: 'io.jsonwebtoken', name: 'jjwt', version: '0.9.1'
@@ -30,6 +31,7 @@ dependencies {
   testImplementation 'org.springframework.boot:spring-boot-starter-test'
   testImplementation 'io.projectreactor:reactor-test'
   testImplementation group: "de.flapdoodle.embed", name: "de.flapdoodle.embed.mongo", version: "2.2.0"
+  implementation group: 'com.icegreen', name: 'greenmail-junit5', version: '1.6.2'
 
   testImplementation "org.junit.jupiter:junit-jupiter-api"
   testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"

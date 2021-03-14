@@ -1,0 +1,20 @@
+
+
+spring:
+  mail:
+    host: '127.0.0.1'
+    port: 3025
+    username: petfnder@gmail.com
+    password: pass
+    protocol: smtp
+    test-connection: true
+
+token:
+  salt: abcdef
+  expirationMs: 86400000
+
+allowed.origin: 'http://localhost:3000'
+
+logging:
+  level:
+    root: info
