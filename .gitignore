@@ -3,4 +3,5 @@
 .gradle
 db
 build/
+out/
 .java-version
