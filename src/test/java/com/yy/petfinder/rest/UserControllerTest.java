@@ -23,7 +23,6 @@ import com.yy.petfinder.rest.model.PasswordUpdateRequest;
 import com.yy.petfinder.rest.model.PrivateUserView;
 import com.yy.petfinder.rest.model.UserUpdate;
 import com.yy.petfinder.security.service.TokenService;
-
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
@@ -217,11 +216,14 @@ public class UserControllerTest {
         PasswordUpdateEmail.builder()
             .email(user.getEmail())
             .frontendHost("http://localhost:3000")
+            .emailText("To reset your password click the following link: {link}")
             .build();
 
     // when
     webTestClient
-        .mutate().responseTimeout(Duration.ofMillis(10000)).build()
+        .mutate()
+        .responseTimeout(Duration.ofMillis(10000))
+        .build()
         .post()
         .uri("/users/newPasswordEmail")
         .bodyValue(passwordUpdateEmail)

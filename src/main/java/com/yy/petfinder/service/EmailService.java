@@ -17,6 +17,7 @@ public class EmailService {
   private final String appEmail;
 
   private static final String NEW_PASSWORD_SUBJECT = "Password reset";
+  private static final String LINK_PLACEHOLDER = "{link}";
 
   @Autowired
   public EmailService(
@@ -35,10 +36,8 @@ public class EmailService {
               message.setFrom(appEmail);
               message.setTo(passwordUpdateEmail.getEmail());
               message.setSubject(NEW_PASSWORD_SUBJECT);
-              message.setText(
-                  String.format(
-                      "To reset your password click the following link: %s?key=%s&userId=%s",
-                      passwordUpdateEmail.getFrontendHost(), randomKey, userId));
+              final String emailText = emailText(passwordUpdateEmail, userId, randomKey);
+              message.setText(emailText);
               emailSender.send(message);
               return randomKey;
             })
@@ -49,5 +48,14 @@ public class EmailService {
                     .randomKey(randomKey)
                     .createdAt(Instant.now())
                     .build());
+  }
+
+  private String emailText(
+      final PasswordUpdateEmail passwordUpdateEmail, final String userId, final String randomKey) {
+    final String link =
+        String.format(
+            "%s?key=%s&userId=%s", passwordUpdateEmail.getFrontendHost(), randomKey, userId);
+    final String emailText = passwordUpdateEmail.getEmailText().replace(LINK_PLACEHOLDER, link);
+    return emailText;
   }
 }
