@@ -9,4 +9,5 @@ import lombok.Value;
 public class PasswordUpdateEmail {
   @NonNull private String email;
   @NonNull private String frontendHost;
+  @NonNull private String emailText;
 }
