@@ -11,8 +11,8 @@ To play with API install Postman and import postman collection(from `postman` di
 
 ## Heroku deployment
 
-### Deploy to Heroku
-run `./heroku.sh`
+### Deploy to Heroku staging
+run `./heroku-staging.sh`
 
 ### Get app's logs from Heroku
 run `heroku logs -a petfinder-yy`
