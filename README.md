@@ -39,6 +39,7 @@ fucking visualvm: `jvisualvm -J-DsocksProxyHost=localhost -J-DsocksProxyPort=108
 https://devcenter.heroku.com/articles/dynos#cli-commands-for-dyno-management
 
 ## TODO
+* deliver endpoint for seenAd creation without view/get functionality for the time being
 1. to think about id in db
 4. logging
 5. password validation(min length for example)
