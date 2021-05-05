@@ -7,7 +7,7 @@ import lombok.NonNull;
 import lombok.Value;
 
 @Value
-@Builder
+@Builder(toBuilder = true)
 public class SpotAdView {
   private String id;
   private double longitude;

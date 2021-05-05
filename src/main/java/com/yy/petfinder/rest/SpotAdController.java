@@ -18,7 +18,7 @@ public class SpotAdController {
 
   @PostMapping
   @ResponseStatus(HttpStatus.CREATED)
-  public Mono createSpotAd(@RequestBody @Valid final SpotAdView spotAdView) {
+  public Mono<SpotAdView> createSpotAd(@RequestBody @Valid final SpotAdView spotAdView) {
     return spotAdService.createAd(spotAdView);
   }
 }

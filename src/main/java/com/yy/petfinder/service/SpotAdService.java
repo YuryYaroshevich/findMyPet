@@ -11,12 +11,14 @@ import reactor.core.publisher.Mono;
 @Service
 public class SpotAdService {
   private final SpotAdRepository spotAdRepository;
+  private final PetAdService petAdService;
 
-  public SpotAdService(final SpotAdRepository spotAdRepository) {
+  public SpotAdService(final SpotAdRepository spotAdRepository, final PetAdService petAdService) {
     this.spotAdRepository = spotAdRepository;
+    this.petAdService = petAdService;
   }
 
-  public Mono createAd(final SpotAdView spotAdView) {
+  public Mono<SpotAdView> createAd(final SpotAdView spotAdView) {
     final String id = new ObjectId().toHexString();
     final SpotAd spotAd =
         SpotAd.builder()
@@ -28,6 +30,6 @@ public class SpotAdService {
             .point(List.of(spotAdView.getLongitude(), spotAdView.getLatitude()))
             .build();
 
-    return spotAdRepository.save(spotAd);
+    return spotAdRepository.save(spotAd).map(ad -> spotAdView.toBuilder().id(ad.getId()).build());
   }
 }
