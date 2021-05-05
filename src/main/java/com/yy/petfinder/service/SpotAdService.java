@@ -7,6 +7,7 @@ import java.util.List;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 @Service
 public class SpotAdService {
@@ -30,6 +31,18 @@ public class SpotAdService {
             .point(List.of(spotAdView.getLongitude(), spotAdView.getLatitude()))
             .build();
 
-    return spotAdRepository.save(spotAd).map(ad -> spotAdView.toBuilder().id(ad.getId()).build());
+    Mono.fromRunnable(
+            () -> {
+              try {
+                Thread.sleep(6000);
+              } catch (InterruptedException e) {
+                e.printStackTrace();
+              }
+              System.out.println("ha!");
+            })
+        .subscribeOn(Schedulers.newElastic("sendEmails"))
+        .subscribe();
+
+    return spotAdRepository.save(spotAd).map(ignore -> spotAdView.toBuilder().id(id).build());
   }
 }
