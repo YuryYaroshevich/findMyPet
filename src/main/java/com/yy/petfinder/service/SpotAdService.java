@@ -2,6 +2,7 @@ package com.yy.petfinder.service;
 
 import com.yy.petfinder.model.SpotAd;
 import com.yy.petfinder.persistence.SpotAdRepository;
+import com.yy.petfinder.rest.model.PetSearchRequest;
 import com.yy.petfinder.rest.model.SpotAdView;
 import java.util.List;
 import org.bson.types.ObjectId;
@@ -30,6 +31,14 @@ public class SpotAdService {
             .radius(spotAdView.getRadius())
             .point(List.of(spotAdView.getLongitude(), spotAdView.getLatitude()))
             .build();
+
+    final PetSearchRequest searchRequest = PetSearchRequest
+      .builder()
+      .latitude(spotAdView.getLatitude())
+      .longitude(spotAdView.getLongitude())
+      .radius(spotAdView.getRadius())
+      .petType(spotAdView.getPetType())
+      .build();
 
     Mono.fromRunnable(
             () -> {
