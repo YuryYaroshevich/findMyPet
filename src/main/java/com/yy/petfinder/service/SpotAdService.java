@@ -4,30 +4,26 @@ import com.yy.petfinder.model.PetAd;
 import com.yy.petfinder.model.SpotAd;
 import com.yy.petfinder.persistence.SpotAdRepository;
 import com.yy.petfinder.rest.model.PetSearchRequest;
-import com.yy.petfinder.rest.model.PrivateUserView;
 import com.yy.petfinder.rest.model.SpotAdView;
 import java.util.List;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 @Service
 public class SpotAdService {
   private final SpotAdRepository spotAdRepository;
   private final PetAdService petAdService;
-  private final UserService userService;
-  private final EmailService emailService;
+  private final NotificationService notificationService;
 
   public SpotAdService(
       final SpotAdRepository spotAdRepository,
       final PetAdService petAdService,
-      final UserService userService,
-      final EmailService emailService) {
+      final NotificationService notificationService) {
     this.spotAdRepository = spotAdRepository;
     this.petAdService = petAdService;
-    this.userService = userService;
-    this.emailService = emailService;
+    this.notificationService = notificationService;
   }
 
   public Mono<SpotAdView> createAd(final SpotAdView spotAdView) {
@@ -38,14 +34,9 @@ public class SpotAdService {
             .radius(spotAdView.getRadius())
             .petType(spotAdView.getPetType())
             .build();
-    petAdService
-        .searchAllPets(searchRequest)
-        .map(PetAd::getOwnerId)
-        .flatMap(ownerId -> userService.getUser(ownerId))
-        .map(PrivateUserView::getEmail)
-        .flatMap(email -> emailService.sendSpotAdEmail(email, spotAdView.getEmailMessageData()))
-        .subscribeOn(Schedulers.parallel())
-        .subscribe();
+    final Flux<String> usersToNotify =
+        petAdService.searchAllPets(searchRequest).map(PetAd::getOwnerId);
+    notificationService.notifyUsers(usersToNotify, spotAdView.getEmailMessageData());
 
     final String id = new ObjectId().toHexString();
     final SpotAd spotAd =
