@@ -37,7 +37,7 @@ public class PasswdUpdateEmailService {
     final EmailMessageData emailMessageData =
         passwordUpdateEmail.getEmailMessageData().toBuilder().text(emailText).build();
     return emailService
-        .sendSpotAdEmail(passwordUpdateEmail.getEmail(), emailMessageData)
+        .sendEmail(passwordUpdateEmail.getEmail(), emailMessageData)
         .thenReturn(
             UserRandomKey.builder()
                 .id(userId)

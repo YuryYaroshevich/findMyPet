@@ -20,7 +20,7 @@ public class EmailService {
     this.appEmail = appEmail;
   }
 
-  public Mono<Void> sendSpotAdEmail(final String email, final EmailMessageData emailMessageData) {
+  public Mono<Void> sendEmail(final String email, final EmailMessageData emailMessageData) {
     return Mono.fromRunnable(
         () -> {
           final SimpleMailMessage message = new SimpleMailMessage();

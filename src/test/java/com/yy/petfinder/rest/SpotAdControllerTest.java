@@ -111,9 +111,9 @@ public class SpotAdControllerTest {
         SpotAdView.builder()
             .petType(PetType.DOG)
             .description("I've seen this dog next to my house!")
-            .longitude(27.42050170898437)
-            .latitude(53.888558623056724)
-            .radius(400)
+            .longitude(27.42513656616211)
+            .latitude(53.88714221971583)
+            .radius(1000)
             .photoIds(List.of("photo1", "photo2"))
             .emailMessageData(
                 EmailMessageData.builder()
@@ -140,18 +140,22 @@ public class SpotAdControllerTest {
     assertEquals(spotAdView.getRadius(), spotAd.getRadius());
     assertEquals(spotAdView.getPhotoIds(), spotAd.getPhotoIds());
 
+    try {
+      Thread.sleep(5000);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    }
+
     MimeMessage receivedMessage1 = greenMail.getReceivedMessages()[0];
     assertTrue(
         GreenMailUtil.getBody(receivedMessage1).equals(spotAdView.getEmailMessageData().getText()));
-    assertTrue(GreenMailUtil.getBody(receivedMessage1).contains(user1.getId()));
     assertEquals(1, receivedMessage1.getAllRecipients().length);
-    assertEquals(user1.getEmail(), receivedMessage1.getAllRecipients()[0].toString());
+    assertEquals(user2.getEmail(), receivedMessage1.getAllRecipients()[0].toString());
 
     MimeMessage receivedMessage2 = greenMail.getReceivedMessages()[1];
     assertTrue(
         GreenMailUtil.getBody(receivedMessage2).equals(spotAdView.getEmailMessageData().getText()));
-    assertTrue(GreenMailUtil.getBody(receivedMessage2).contains(user2.getId()));
     assertEquals(1, receivedMessage2.getAllRecipients().length);
-    assertEquals(user2.getEmail(), receivedMessage2.getAllRecipients()[0].toString());
+    assertEquals(user1.getEmail(), receivedMessage2.getAllRecipients()[0].toString());
   }
 }

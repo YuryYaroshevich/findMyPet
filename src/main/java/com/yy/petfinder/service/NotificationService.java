@@ -22,7 +22,7 @@ public class NotificationService {
     userIds
         .flatMap(ownerId -> userService.getUser(ownerId))
         .map(PrivateUserView::getEmail)
-        .flatMap(email -> emailService.sendSpotAdEmail(email, emailMessageData))
+        .flatMap(email -> emailService.sendEmail(email, emailMessageData))
         .subscribeOn(Schedulers.parallel())
         .subscribe();
   }
