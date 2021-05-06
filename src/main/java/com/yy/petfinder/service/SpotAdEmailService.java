@@ -29,8 +29,8 @@ public class SpotAdEmailService {
           message.setFrom(appEmail);
           message.setTo("");
           message.setSubject(SPOT_AD_SUBJECT);
-          final String emailText = "";
-          message.setText(emailText);
+
+          message.setText(spotAdView.getEmailText());
           emailSender.send(message);
         });
   }

@@ -10,10 +10,14 @@ import lombok.Value;
 @Builder(toBuilder = true)
 public class SpotAdView {
   private String id;
+
   private double longitude;
   private double latitude;
   private double radius;
+
   @NonNull private PetType petType;
   @NonNull private String description;
   @NonNull private List<String> photoIds;
+
+  @NonNull private String emailText;
 }
