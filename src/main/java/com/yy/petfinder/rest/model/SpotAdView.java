@@ -19,5 +19,5 @@ public class SpotAdView {
   @NonNull private String description;
   @NonNull private List<String> photoIds;
 
-  @NonNull private String emailText;
+  @NonNull private EmailMessageData emailMessageData;
 }

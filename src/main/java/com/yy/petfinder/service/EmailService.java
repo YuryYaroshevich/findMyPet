@@ -1,6 +1,6 @@
 package com.yy.petfinder.service;
 
-import com.yy.petfinder.rest.model.SpotAdView;
+import com.yy.petfinder.rest.model.EmailMessageData;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
@@ -9,28 +9,26 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 @Service
-public class SpotAdEmailService {
-  private static final String SPOT_AD_SUBJECT = "Someone's seen this pet. Is it yours?";
-
+public class EmailService {
   private final JavaMailSender emailSender;
   private final String appEmail;
 
   @Autowired
-  public SpotAdEmailService(
+  public EmailService(
       final JavaMailSender emailSender, @Value("${spring.mail.username}") final String appEmail) {
     this.emailSender = emailSender;
     this.appEmail = appEmail;
   }
 
-  public Mono<Void> sendSpotAdEmail(final String email, final SpotAdView spotAdView) {
+  public Mono<Void> sendSpotAdEmail(final String email, final EmailMessageData emailMessageData) {
     return Mono.fromRunnable(
         () -> {
           final SimpleMailMessage message = new SimpleMailMessage();
           message.setFrom(appEmail);
           message.setTo(email);
-          message.setSubject(SPOT_AD_SUBJECT);
+          message.setSubject(emailMessageData.getSubject());
 
-          message.setText(spotAdView.getEmailText());
+          message.setText(emailMessageData.getText());
           emailSender.send(message);
         });
   }

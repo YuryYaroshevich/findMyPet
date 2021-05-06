@@ -17,17 +17,17 @@ public class SpotAdService {
   private final SpotAdRepository spotAdRepository;
   private final PetAdService petAdService;
   private final UserService userService;
-  private final SpotAdEmailService spotAdEmailService;
+  private final EmailService emailService;
 
   public SpotAdService(
       final SpotAdRepository spotAdRepository,
       final PetAdService petAdService,
       final UserService userService,
-      final SpotAdEmailService spotAdEmailService) {
+      final EmailService emailService) {
     this.spotAdRepository = spotAdRepository;
     this.petAdService = petAdService;
     this.userService = userService;
-    this.spotAdEmailService = spotAdEmailService;
+    this.emailService = emailService;
   }
 
   public Mono<SpotAdView> createAd(final SpotAdView spotAdView) {
@@ -43,7 +43,7 @@ public class SpotAdService {
         .map(PetAd::getOwnerId)
         .flatMap(ownerId -> userService.getUser(ownerId))
         .map(PrivateUserView::getEmail)
-        .flatMap(email -> spotAdEmailService.sendSpotAdEmail(email, spotAdView))
+        .flatMap(email -> emailService.sendSpotAdEmail(email, spotAdView.getEmailMessageData()))
         .subscribeOn(Schedulers.parallel())
         .subscribe();
 
