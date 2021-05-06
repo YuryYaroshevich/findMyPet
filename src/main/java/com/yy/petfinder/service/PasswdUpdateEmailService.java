@@ -12,15 +12,15 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 @Service
-public class EmailService {
-  private final JavaMailSender emailSender;
-  private final String appEmail;
-
+public class PasswdUpdateEmailService {
   private static final String NEW_PASSWORD_SUBJECT = "Password reset";
   private static final String LINK_PLACEHOLDER = "{link}";
 
+  private final JavaMailSender emailSender;
+  private final String appEmail;
+
   @Autowired
-  public EmailService(
+  public PasswdUpdateEmailService(
       final JavaMailSender emailSender, @Value("${spring.mail.username}") final String appEmail) {
     this.emailSender = emailSender;
     this.appEmail = appEmail;
