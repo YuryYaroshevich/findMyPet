@@ -55,7 +55,8 @@ public class PasswdUpdateEmailService {
     final String link =
         String.format(
             "%s?key=%s&userId=%s", passwordUpdateEmail.getFrontendHost(), randomKey, userId);
-    final String emailText = passwordUpdateEmail.getEmailText().replace(LINK_PLACEHOLDER, link);
+    final String emailText =
+        passwordUpdateEmail.getEmailMessageData().getText().replace(LINK_PLACEHOLDER, link);
     return emailText;
   }
 }

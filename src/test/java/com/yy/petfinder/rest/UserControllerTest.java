@@ -16,12 +16,7 @@ import com.yy.petfinder.model.User;
 import com.yy.petfinder.model.UserRandomKey;
 import com.yy.petfinder.persistence.UserRandomKeyRepository;
 import com.yy.petfinder.persistence.UserRepository;
-import com.yy.petfinder.rest.model.Messenger;
-import com.yy.petfinder.rest.model.PasswordUpdate;
-import com.yy.petfinder.rest.model.PasswordUpdateEmail;
-import com.yy.petfinder.rest.model.PasswordUpdateRequest;
-import com.yy.petfinder.rest.model.PrivateUserView;
-import com.yy.petfinder.rest.model.UserUpdate;
+import com.yy.petfinder.rest.model.*;
 import com.yy.petfinder.security.service.TokenService;
 import java.time.Duration;
 import java.time.Instant;
@@ -216,7 +211,11 @@ public class UserControllerTest {
         PasswordUpdateEmail.builder()
             .email(user.getEmail())
             .frontendHost("http://localhost:3000")
-            .emailText("To reset your password click the following link: {link}")
+            .emailMessageData(
+                EmailMessageData.builder()
+                    .subject("Reset password")
+                    .text("To reset your password click the following link: {link}")
+                    .build())
             .build();
 
     // when

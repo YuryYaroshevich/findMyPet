@@ -27,7 +27,7 @@ public class SpotAdEmailService {
         () -> {
           final SimpleMailMessage message = new SimpleMailMessage();
           message.setFrom(appEmail);
-          message.setTo("");
+          message.setTo(email);
           message.setSubject(SPOT_AD_SUBJECT);
 
           message.setText(spotAdView.getEmailText());
