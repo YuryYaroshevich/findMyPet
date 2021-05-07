@@ -117,6 +117,7 @@ public class SpotAdControllerTest {
         SpotAdView.builder()
             .petType(PetType.DOG)
             .description("I've seen this dog next to my house!")
+            .phone("375297778899")
             .longitude(27.42513656616211)
             .latitude(53.88714221971583)
             .radius(1000)
@@ -141,6 +142,7 @@ public class SpotAdControllerTest {
     final SpotAd spotAd = spotAdRepository.findAll().blockFirst();
     assertEquals(spotAdView.getPetType(), spotAd.getPetType());
     assertEquals(spotAdView.getDescription(), spotAd.getDescription());
+    assertEquals(spotAdView.getPhone(), spotAd.getPhone());
     assertEquals(spotAdView.getLongitude(), spotAd.getPoint().get(0));
     assertEquals(spotAdView.getLatitude(), spotAd.getPoint().get(1));
     assertEquals(spotAdView.getRadius(), spotAd.getRadius());
@@ -180,6 +182,7 @@ public class SpotAdControllerTest {
         SpotAd.builder()
             .id(new ObjectId().toHexString())
             .description("I've seen this dog next to my house")
+            .phone("375297778899")
             .point(List.of(27.42513656616211, 53.88714221971583))
             .radius(40000)
             .photoIds(List.of("photo1"))
@@ -188,18 +191,19 @@ public class SpotAdControllerTest {
     spotAdRepository.save(spotAd).block();
 
     // when
-    final SpotAdResponse spotAdView =
+    final SpotAdResponse spotAdResponse =
         WebTestClientWrapper.get(
             webTestClient, "/pets/spotAd/" + spotAd.getId(), SpotAdResponse.class);
 
     // then
-    assertEquals(spotAd.getId(), spotAdView.getId());
-    assertEquals(spotAd.getDescription(), spotAdView.getDescription());
-    assertEquals(spotAd.getPoint().get(0), spotAdView.getLongitude());
-    assertEquals(spotAd.getPoint().get(1), spotAdView.getLatitude());
-    assertEquals(spotAd.getPetType(), spotAdView.getPetType());
-    assertEquals(spotAd.getRadius(), spotAdView.getRadius());
-    assertEquals(spotAd.getPhotoIds(), spotAdView.getPhotoIds());
+    assertEquals(spotAd.getId(), spotAdResponse.getId());
+    assertEquals(spotAd.getDescription(), spotAdResponse.getDescription());
+    assertEquals(spotAd.getPhone(), spotAdResponse.getPhone());
+    assertEquals(spotAd.getPoint().get(0), spotAdResponse.getLongitude());
+    assertEquals(spotAd.getPoint().get(1), spotAdResponse.getLatitude());
+    assertEquals(spotAd.getPetType(), spotAdResponse.getPetType());
+    assertEquals(spotAd.getRadius(), spotAdResponse.getRadius());
+    assertEquals(spotAd.getPhotoIds(), spotAdResponse.getPhotoIds());
   }
 
   @Test

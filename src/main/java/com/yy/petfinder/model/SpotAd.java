@@ -15,7 +15,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class SpotAd {
   @Id @NonNull private String id;
   @NonNull private PetType petType;
-  @NonNull private String description;
+  private String description;
+  private String phone;
   @NonNull private List<String> photoIds;
 
   @GeoSpatialIndexed(type = GeoSpatialIndexType.GEO_2DSPHERE)

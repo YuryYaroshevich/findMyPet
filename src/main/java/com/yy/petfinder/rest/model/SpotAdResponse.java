@@ -16,6 +16,7 @@ public class SpotAdResponse {
   private double radius;
 
   @NonNull private PetType petType;
-  @NonNull private String description;
+  private String description;
+  private String phone;
   @NonNull private List<String> photoIds;
 }
