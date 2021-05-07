@@ -1,5 +1,6 @@
 package com.yy.petfinder.rest;
 
+import com.yy.petfinder.rest.model.SpotAdResponse;
 import com.yy.petfinder.rest.model.SpotAdView;
 import com.yy.petfinder.service.SpotAdService;
 import javax.validation.Valid;
@@ -20,5 +21,10 @@ public class SpotAdController {
   @ResponseStatus(HttpStatus.CREATED)
   public Mono<SpotAdView> createSpotAd(@RequestBody @Valid final SpotAdView spotAdView) {
     return spotAdService.createAd(spotAdView);
+  }
+
+  @GetMapping("{id}")
+  public Mono<SpotAdResponse> getSpotAd(@PathVariable final String id) {
+    return spotAdService.getAd(id);
   }
 }

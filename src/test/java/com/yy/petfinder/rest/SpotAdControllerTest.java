@@ -14,15 +14,19 @@ import com.yy.petfinder.persistence.PetAdRepository;
 import com.yy.petfinder.persistence.SpotAdRepository;
 import com.yy.petfinder.persistence.UserRepository;
 import com.yy.petfinder.rest.model.*;
+import com.yy.petfinder.util.WebTestClientWrapper;
 import java.util.List;
+import java.util.Map;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
+import org.bson.types.ObjectId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
@@ -157,5 +161,56 @@ public class SpotAdControllerTest {
         GreenMailUtil.getBody(receivedMessage2).equals(spotAdView.getEmailMessageData().getText()));
     assertEquals(1, receivedMessage2.getAllRecipients().length);
     assertEquals(user1.getEmail(), receivedMessage2.getAllRecipients()[0].toString());
+  }
+
+  @Test
+  public void testGetSpotAdReturnsCorrectly() {
+    // given
+    final SpotAd spotAd =
+        SpotAd.builder()
+            .id(new ObjectId().toHexString())
+            .description("I've seen this dog next to my house")
+            .point(List.of(27.42513656616211, 53.88714221971583))
+            .radius(40000)
+            .photoIds(List.of("photo1"))
+            .petType(PetType.DOG)
+            .build();
+    spotAdRepository.save(spotAd).block();
+
+    // when
+    final SpotAdResponse spotAdView =
+        WebTestClientWrapper.get(
+            webTestClient, "/pets/spotAd/" + spotAd.getId(), SpotAdResponse.class);
+
+    // then
+    assertEquals(spotAd.getId(), spotAdView.getId());
+    assertEquals(spotAd.getDescription(), spotAdView.getDescription());
+    assertEquals(spotAd.getPoint().get(0), spotAdView.getLongitude());
+    assertEquals(spotAd.getPoint().get(1), spotAdView.getLatitude());
+    assertEquals(spotAd.getPetType(), spotAdView.getPetType());
+    assertEquals(spotAd.getRadius(), spotAdView.getRadius());
+    assertEquals(spotAd.getPhotoIds(), spotAdView.getPhotoIds());
+  }
+
+  @Test
+  public void testGetSpotAdReturns404IfNotFound() {
+    // given
+    final String spotAdId = new ObjectId().toHexString();
+
+    // when
+    final Map<String, String> errorResp =
+        webTestClient
+            .get()
+            .uri("/pets/spotAd/" + spotAdId)
+            .exchange()
+            .expectStatus()
+            .isNotFound()
+            .expectBody(new ParameterizedTypeReference<Map<String, String>>() {})
+            .returnResult()
+            .getResponseBody();
+
+    // then
+    final String errorMsg = "SpotAd with provided id not found: id=" + spotAdId;
+    assertEquals(errorMsg, errorResp.get("message"));
   }
 }
