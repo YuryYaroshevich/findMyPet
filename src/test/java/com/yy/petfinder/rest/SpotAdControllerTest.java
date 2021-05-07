@@ -15,8 +15,10 @@ import com.yy.petfinder.persistence.SpotAdRepository;
 import com.yy.petfinder.persistence.UserRepository;
 import com.yy.petfinder.rest.model.*;
 import com.yy.petfinder.util.WebTestClientWrapper;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import org.bson.types.ObjectId;
@@ -150,17 +152,25 @@ public class SpotAdControllerTest {
       e.printStackTrace();
     }
 
+    final Set<String> expectedEmails = new HashSet<>();
+    expectedEmails.add(email1);
+    expectedEmails.add(email2);
+
     MimeMessage receivedMessage1 = greenMail.getReceivedMessages()[0];
     assertTrue(
         GreenMailUtil.getBody(receivedMessage1).equals(spotAdView.getEmailMessageData().getText()));
     assertEquals(1, receivedMessage1.getAllRecipients().length);
-    assertEquals(user2.getEmail(), receivedMessage1.getAllRecipients()[0].toString());
+    assertTrue(expectedEmails.contains(receivedMessage1.getAllRecipients()[0].toString()));
+    expectedEmails.remove(receivedMessage1.getAllRecipients()[0].toString());
 
     MimeMessage receivedMessage2 = greenMail.getReceivedMessages()[1];
     assertTrue(
         GreenMailUtil.getBody(receivedMessage2).equals(spotAdView.getEmailMessageData().getText()));
     assertEquals(1, receivedMessage2.getAllRecipients().length);
-    assertEquals(user1.getEmail(), receivedMessage2.getAllRecipients()[0].toString());
+    assertTrue(expectedEmails.contains(receivedMessage2.getAllRecipients()[0].toString()));
+    expectedEmails.remove(receivedMessage2.getAllRecipients()[0].toString());
+
+    assertEquals(0, expectedEmails.size());
   }
 
   @Test
