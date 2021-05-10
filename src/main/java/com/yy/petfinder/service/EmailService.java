@@ -26,19 +26,13 @@ public class EmailService {
   public Mono<Void> sendEmail(final String email, final EmailMessageData emailMessageData) {
     return Mono.fromRunnable(
         () -> {
-          /*final SimpleMailMessage message = new SimpleMailMessage();
-          message.setFrom(appEmail);
-          message.setTo(email);
-          message.setSubject(emailMessageData.getSubject());
-          message.setText(emailMessageData.getText());
-          emailSender.send(message);*/
           final MimeMessage mimeMessage = emailSender.createMimeMessage();
           try {
             mimeMessage.setFrom(appEmail);
             mimeMessage.setRecipients(Message.RecipientType.TO, InternetAddress.parse(email));
             mimeMessage.setSubject(emailMessageData.getSubject());
             MimeBodyPart mimeBodyPart = new MimeBodyPart();
-            mimeBodyPart.setContent(emailMessageData.getText(), "text/html");
+            mimeBodyPart.setText(emailMessageData.getText(), "UTF-8", "html");
 
             Multipart multipart = new MimeMultipart();
             multipart.addBodyPart(mimeBodyPart);
