@@ -160,14 +160,16 @@ public class SpotAdControllerTest {
 
     MimeMessage receivedMessage1 = greenMail.getReceivedMessages()[0];
     assertTrue(
-        GreenMailUtil.getBody(receivedMessage1).equals(spotAdView.getEmailMessageData().getText()));
+        GreenMailUtil.getBody(receivedMessage1)
+            .contains(spotAdView.getEmailMessageData().getText()));
     assertEquals(1, receivedMessage1.getAllRecipients().length);
     assertTrue(expectedEmails.contains(receivedMessage1.getAllRecipients()[0].toString()));
     expectedEmails.remove(receivedMessage1.getAllRecipients()[0].toString());
 
     MimeMessage receivedMessage2 = greenMail.getReceivedMessages()[1];
     assertTrue(
-        GreenMailUtil.getBody(receivedMessage2).equals(spotAdView.getEmailMessageData().getText()));
+        GreenMailUtil.getBody(receivedMessage2)
+            .contains(spotAdView.getEmailMessageData().getText()));
     assertEquals(1, receivedMessage2.getAllRecipients().length);
     assertTrue(expectedEmails.contains(receivedMessage2.getAllRecipients()[0].toString()));
     expectedEmails.remove(receivedMessage2.getAllRecipients()[0].toString());

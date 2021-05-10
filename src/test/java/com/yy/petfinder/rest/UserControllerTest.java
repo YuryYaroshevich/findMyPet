@@ -237,7 +237,7 @@ public class UserControllerTest {
     MimeMessage receivedMessage = greenMail.getReceivedMessages()[0];
     assertTrue(
         GreenMailUtil.getBody(receivedMessage)
-            .startsWith(
+            .contains(
                 "To reset your password click the following link: http://localhost:3000?key"));
     assertTrue(GreenMailUtil.getBody(receivedMessage).contains(user.getId()));
     assertEquals(1, receivedMessage.getAllRecipients().length);
