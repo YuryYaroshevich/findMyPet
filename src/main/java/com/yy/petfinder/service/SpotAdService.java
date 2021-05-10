@@ -38,12 +38,13 @@ public class SpotAdService {
             .build();
     final Flux<String> usersToNotify =
         petAdService.searchAllPets(searchRequest).map(PetAd::getOwnerId);
-    notificationService.notifyUsers(usersToNotify, spotAdView.getEmailMessageData());
 
-    final String id = new ObjectId().toHexString();
+    final String spotAdId = new ObjectId().toHexString();
+    notificationService.notifyUsers(usersToNotify, spotAdId, spotAdView.getEmailMessageData());
+
     final SpotAd spotAd =
         SpotAd.builder()
-            .id(id)
+            .id(spotAdId)
             .petType(spotAdView.getPetType())
             .description(spotAdView.getDescription())
             .phone(spotAdView.getPhone())
@@ -51,7 +52,7 @@ public class SpotAdService {
             .radius(spotAdView.getRadius())
             .point(List.of(spotAdView.getLongitude(), spotAdView.getLatitude()))
             .build();
-    return spotAdRepository.save(spotAd).map(ignore -> spotAdView.toBuilder().id(id).build());
+    return spotAdRepository.save(spotAd).map(ignore -> spotAdView.toBuilder().id(spotAdId).build());
   }
 
   public Mono<SpotAdResponse> getAd(final String id) {

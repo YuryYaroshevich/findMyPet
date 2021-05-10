@@ -125,17 +125,22 @@ public class SpotAdControllerTest {
             .emailMessageData(
                 EmailMessageData.builder()
                     .subject("Is it your dog?")
-                    .text("Hey, User, this is may be your dog.")
+                    .text(
+                        "Hey, User, this is may be your dog: https://app.com/spotAdView/{spotAdId}")
                     .build())
             .build();
 
-    webTestClient
-        .post()
-        .uri("/pets/spotAd")
-        .bodyValue(spotAdView)
-        .exchange()
-        .expectStatus()
-        .isCreated();
+    final SpotAdView spotAdViewCreated =
+        webTestClient
+            .post()
+            .uri("/pets/spotAd")
+            .bodyValue(spotAdView)
+            .exchange()
+            .expectStatus()
+            .isCreated()
+            .expectBody(SpotAdView.class)
+            .returnResult()
+            .getResponseBody();
 
     // then
     assertEquals(1, spotAdRepository.count().block());
@@ -161,7 +166,9 @@ public class SpotAdControllerTest {
     MimeMessage receivedMessage1 = greenMail.getReceivedMessages()[0];
     assertTrue(
         GreenMailUtil.getBody(receivedMessage1)
-            .contains(spotAdView.getEmailMessageData().getText()));
+            .contains(
+                "Hey, User, this is may be your dog: https://app.com/spotAdView/"
+                    + spotAdViewCreated.getId()));
     assertEquals(1, receivedMessage1.getAllRecipients().length);
     assertTrue(expectedEmails.contains(receivedMessage1.getAllRecipients()[0].toString()));
     expectedEmails.remove(receivedMessage1.getAllRecipients()[0].toString());
@@ -169,7 +176,9 @@ public class SpotAdControllerTest {
     MimeMessage receivedMessage2 = greenMail.getReceivedMessages()[1];
     assertTrue(
         GreenMailUtil.getBody(receivedMessage2)
-            .contains(spotAdView.getEmailMessageData().getText()));
+            .contains(
+                "Hey, User, this is may be your dog: https://app.com/spotAdView/"
+                    + spotAdViewCreated.getId()));
     assertEquals(1, receivedMessage2.getAllRecipients().length);
     assertTrue(expectedEmails.contains(receivedMessage2.getAllRecipients()[0].toString()));
     expectedEmails.remove(receivedMessage2.getAllRecipients()[0].toString());

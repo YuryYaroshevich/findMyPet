@@ -10,19 +10,21 @@ import reactor.core.scheduler.Schedulers;
 @Service
 public class NotificationService {
   private final UserService userService;
-  private final EmailService emailService;
+  private final SpotAdEmailService spotAdEmailService;
 
   @Autowired
-  public NotificationService(final UserService userService, final EmailService emailService) {
+  public NotificationService(
+      final UserService userService, final SpotAdEmailService spotAdEmailService) {
     this.userService = userService;
-    this.emailService = emailService;
+    this.spotAdEmailService = spotAdEmailService;
   }
 
-  public void notifyUsers(final Flux<String> userIds, final EmailMessageData emailMessageData) {
+  public void notifyUsers(
+      final Flux<String> userIds, final String spotAdId, final EmailMessageData emailMessageData) {
     userIds
         .flatMap(ownerId -> userService.getUser(ownerId))
         .map(PrivateUserView::getEmail)
-        .flatMap(email -> emailService.sendEmail(email, emailMessageData))
+        .flatMap(email -> spotAdEmailService.notifyAboutSpotAd(email, spotAdId, emailMessageData))
         .subscribeOn(Schedulers.parallel())
         .subscribe();
   }
