@@ -2,12 +2,7 @@ package com.yy.petfinder.security;
 
 import static com.yy.petfinder.rest.PetAdController.NEXT_PAGE_TOKEN;
 
-import com.yy.petfinder.security.service.AuthHeaderMatcher;
-import com.yy.petfinder.security.service.JWTReactiveAuthenticationManager;
-import com.yy.petfinder.security.service.PetSearchRequestMatcher;
-import com.yy.petfinder.security.service.TokenAuthenticationConverter;
-import com.yy.petfinder.security.service.TokenService;
-import com.yy.petfinder.security.service.UserDetailsService;
+import com.yy.petfinder.security.service.*;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -43,12 +38,16 @@ public class SecurityConfiguration {
     http.httpBasic().disable().formLogin().disable().csrf().disable().logout().disable();
 
     http.authorizeExchange()
-        .pathMatchers("/login", "/signUp",
-          "/users/newPasswordEmail", "/users/newPassword", "/anonymous-feedback")
+        .pathMatchers(
+            "/login",
+            "/signUp",
+            "/users/newPasswordEmail",
+            "/users/newPassword",
+            "/anonymous-feedback")
         .permitAll()
         .pathMatchers(HttpMethod.GET, "/users/**/public")
         .permitAll()
-        .matchers(new PetSearchRequestMatcher())
+        .matchers(new PetSearchRequestMatcher(), new SpotAdRequestMatcher())
         .permitAll()
         .and()
         .authorizeExchange()

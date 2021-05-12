@@ -1,12 +1,12 @@
 package com.yy.petfinder.service;
 
-import com.yy.petfinder.model.UserRandomKey;
-import com.yy.petfinder.rest.model.PasswordUpdateEmail;
-import java.time.Instant;
-import java.util.UUID;
+import com.yy.petfinder.rest.model.EmailMessageData;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.Multipart;
+import javax.mail.internet.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -16,9 +16,6 @@ public class EmailService {
   private final JavaMailSender emailSender;
   private final String appEmail;
 
-  private static final String NEW_PASSWORD_SUBJECT = "Password reset";
-  private static final String LINK_PLACEHOLDER = "{link}";
-
   @Autowired
   public EmailService(
       final JavaMailSender emailSender, @Value("${spring.mail.username}") final String appEmail) {
@@ -26,36 +23,25 @@ public class EmailService {
     this.appEmail = appEmail;
   }
 
-  public Mono<UserRandomKey> sendNewPasswordEmail(
-      final PasswordUpdateEmail passwordUpdateEmail, final String userId) {
+  public Mono<Void> sendEmail(final String email, final EmailMessageData emailMessageData) {
+    return Mono.fromRunnable(
+        () -> {
+          final MimeMessage mimeMessage = emailSender.createMimeMessage();
+          try {
+            mimeMessage.setFrom(appEmail);
+            mimeMessage.setRecipients(Message.RecipientType.TO, InternetAddress.parse(email));
+            mimeMessage.setSubject(emailMessageData.getSubject());
+            MimeBodyPart mimeBodyPart = new MimeBodyPart();
+            mimeBodyPart.setText(emailMessageData.getText(), "UTF-8", "html");
 
-    return Mono.fromCallable(
-            () -> {
-              final SimpleMailMessage message = new SimpleMailMessage();
-              final String randomKey = UUID.randomUUID().toString();
-              message.setFrom(appEmail);
-              message.setTo(passwordUpdateEmail.getEmail());
-              message.setSubject(NEW_PASSWORD_SUBJECT);
-              final String emailText = emailText(passwordUpdateEmail, userId, randomKey);
-              message.setText(emailText);
-              emailSender.send(message);
-              return randomKey;
-            })
-        .map(
-            randomKey ->
-                UserRandomKey.builder()
-                    .id(userId)
-                    .randomKey(randomKey)
-                    .createdAt(Instant.now())
-                    .build());
-  }
+            Multipart multipart = new MimeMultipart();
+            multipart.addBodyPart(mimeBodyPart);
 
-  private String emailText(
-      final PasswordUpdateEmail passwordUpdateEmail, final String userId, final String randomKey) {
-    final String link =
-        String.format(
-            "%s?key=%s&userId=%s", passwordUpdateEmail.getFrontendHost(), randomKey, userId);
-    final String emailText = passwordUpdateEmail.getEmailText().replace(LINK_PLACEHOLDER, link);
-    return emailText;
+            mimeMessage.setContent(multipart);
+          } catch (MessagingException e) {
+            e.printStackTrace();
+          }
+          emailSender.send(mimeMessage);
+        });
   }
 }

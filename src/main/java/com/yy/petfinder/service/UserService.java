@@ -28,18 +28,18 @@ public class UserService {
   private final UserRepository userRepository;
   private final UserRandomKeyRepository userRandomKeyRepository;
   private final PasswordEncoder passwordEncoder;
-  private final EmailService emailService;
+  private final PasswdUpdateEmailService passwdUpdateEmailService;
 
   @Autowired
   public UserService(
       final UserRepository userRepository,
       final UserRandomKeyRepository userRandomKeyRepository,
       final PasswordEncoder passwordEncoder,
-      final EmailService emailService) {
+      final PasswdUpdateEmailService passwdUpdateEmailService) {
     this.userRepository = userRepository;
     this.userRandomKeyRepository = userRandomKeyRepository;
     this.passwordEncoder = passwordEncoder;
-    this.emailService = emailService;
+    this.passwdUpdateEmailService = passwdUpdateEmailService;
   }
 
   public Mono<PrivateUserView> getUser(final String id) {
@@ -125,11 +125,13 @@ public class UserService {
   public Mono<UserRandomKey> initiatePasswordUpdate(final PasswordUpdateEmail passwordUpdateEmail) {
     return userRepository
         .findByEmail(passwordUpdateEmail.getEmail())
-        .flatMap(user -> emailService.sendNewPasswordEmail(passwordUpdateEmail, user.getId()))
+        .flatMap(
+            user ->
+                passwdUpdateEmailService.sendNewPasswordEmail(passwordUpdateEmail, user.getId()))
         .flatMap(userRandomKey -> userRandomKeyRepository.save(userRandomKey));
   }
 
-  public Mono setNewPassword(PasswordUpdateRequest passwordUpdateRequest) {
+  public Mono<User> setNewPassword(PasswordUpdateRequest passwordUpdateRequest) {
     return userRandomKeyRepository
         .findByIdAndRandomKey(passwordUpdateRequest.getUserId(), passwordUpdateRequest.getKey())
         .switchIfEmpty(Mono.error(new InvalidPasswordRecoveryRequestException()))

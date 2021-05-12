@@ -12,4 +12,8 @@ import lombok.NoArgsConstructor;
 public class Paging {
   private String nextPageToken = null;
   private int pageSize = DEFAULT_PAGE_SIZE;
+
+  public Paging(final int pageSize) {
+    this.pageSize = pageSize;
+  }
 }

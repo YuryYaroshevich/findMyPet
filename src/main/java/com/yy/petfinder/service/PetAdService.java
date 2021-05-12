@@ -15,6 +15,7 @@ import org.bson.types.ObjectId;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.mongodb.UncategorizedMongoDbException;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Service
@@ -56,6 +57,10 @@ public class PetAdService {
         .findPetAds(petSearchReq, paging)
         .map(this::toPetAdResponse)
         .collectList();
+  }
+
+  public Flux<PetAd> searchAllPets(final PetSearchRequest petSearchReq) {
+    return petAdRepository.findPetAds(petSearchReq, new Paging(Integer.MAX_VALUE));
   }
 
   public Mono<PetAdResponse> updateAd(
