@@ -8,6 +8,7 @@ import static com.yy.petfinder.util.WebTestClientWrapper.getExchange;
 import static com.yy.petfinder.util.WebTestClientWrapper.getList;
 import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import com.yy.petfinder.model.PetAd;
 import com.yy.petfinder.model.PetType;
@@ -95,17 +96,7 @@ public class PetAdSearchPagingControllerTest {
     final List<PetAdView> petAdViews3 = response3.getResponseBody();
     assertEquals(1, petAdViews3.size());
     assertEquals(petAd1.getId(), petAdViews3.get(0).getId());
-    final String nextPageToken3 = response3.getResponseHeaders().get(NEXT_PAGE_TOKEN).get(0);
-    assertEquals(petAd1.getId(), nextPageToken3);
-
-    final Paging paging4 = new Paging(nextPageToken3, PAGE_SIZE);
-
-    final EntityExchangeResult<List<PetAdView>> response4 =
-        getExchange(webTestClient, searchUri(petSearchReq, paging4), PetAdView.class);
-    final List<PetAdView> petAdViews4 = response4.getResponseBody();
-    assertEquals(0, petAdViews4.size());
-    final String nextPageToken4 = response3.getResponseHeaders().get(NEXT_PAGE_TOKEN).get(0);
-    assertEquals(petAd1.getId(), nextPageToken4);
+    assertNull(response3.getResponseHeaders().get(NEXT_PAGE_TOKEN));
   }
 
   @Test
