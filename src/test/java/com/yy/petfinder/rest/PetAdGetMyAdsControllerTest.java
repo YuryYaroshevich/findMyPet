@@ -57,12 +57,14 @@ public class PetAdGetMyAdsControllerTest {
   public void testGetMyPetAdsReturnsCorrectAds() {
     // given
     final PetAd petAd1 = petAdBuilderWithDefaults().ownerId(userId1).build();
+    petAdRepository.save(petAd1).block();
     final PetAd petAd2 = petAdBuilderWithDefaults().ownerId(userId1).build();
+    petAdRepository.save(petAd2).block();
 
     final PetAd petAd3 = petAdBuilderWithDefaults().ownerId(userId2).build();
+    petAdRepository.save(petAd3).block();
     final PetAd petAd4 = petAdBuilderWithDefaults().ownerId(userId2).build();
-
-    petAdRepository.saveAll(List.of(petAd1, petAd2, petAd3, petAd4)).blockLast();
+    petAdRepository.save(petAd4).block();
 
     // when
     final List<PetAdView> petAdViews =
