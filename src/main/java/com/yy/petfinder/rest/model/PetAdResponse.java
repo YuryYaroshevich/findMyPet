@@ -9,7 +9,7 @@ import lombok.Value;
 
 @Value
 @Builder
-public class PetAdResponse {
+public class PetAdResponse implements Identifiable {
   private String id;
   @NonNull private PetType petType;
   private List<String> colors;

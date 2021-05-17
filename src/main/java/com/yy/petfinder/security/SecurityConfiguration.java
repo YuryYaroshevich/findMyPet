@@ -1,6 +1,6 @@
 package com.yy.petfinder.security;
 
-import static com.yy.petfinder.rest.PetAdController.NEXT_PAGE_TOKEN;
+import static com.yy.petfinder.util.PaginatedResponseHelper.NEXT_PAGE_TOKEN;
 
 import com.yy.petfinder.security.service.*;
 import java.util.List;

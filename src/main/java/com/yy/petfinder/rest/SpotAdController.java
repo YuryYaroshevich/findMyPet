@@ -1,10 +1,13 @@
 package com.yy.petfinder.rest;
 
-import com.yy.petfinder.rest.model.SpotAdResponse;
-import com.yy.petfinder.rest.model.SpotAdView;
+import static com.yy.petfinder.util.PaginatedResponseHelper.createResponse;
+
+import com.yy.petfinder.rest.model.*;
 import com.yy.petfinder.service.SpotAdService;
+import java.util.List;
 import javax.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
@@ -21,6 +24,12 @@ public class SpotAdController {
   @ResponseStatus(HttpStatus.CREATED)
   public Mono<SpotAdView> createSpotAd(@RequestBody @Valid final SpotAdView spotAdView) {
     return spotAdService.createAd(spotAdView);
+  }
+
+  @GetMapping
+  public Mono<ResponseEntity<List<SpotAdResponse>>> getSpotAds(
+      final SpotAdRequest spotAdRequest, final Paging paging) {
+    return spotAdService.getAds(spotAdRequest, paging).map(ads -> createResponse(ads, paging));
   }
 
   @GetMapping("{id}")
