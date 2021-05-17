@@ -1,6 +1,7 @@
 package com.yy.petfinder.rest;
 
 import static com.yy.petfinder.testfactory.PetAdFactory.petAdBuilderWithDefaults;
+import static com.yy.petfinder.testfactory.SpotAdFactory.spotAdBuilderWithDefaults;
 import static com.yy.petfinder.testfactory.UserFactory.userBuilderWithDefaults;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -237,5 +238,17 @@ public class SpotAdControllerTest {
     // then
     final String errorMsg = "SpotAd with provided id not found: id=" + spotAdId;
     assertEquals(errorMsg, errorResp.get("message"));
+  }
+
+  @Test
+  public void testGetSpotAdsReturnsRelevantAds() {
+    final SpotAd spotAd1 = spotAdBuilderWithDefaults().build();
+    spotAdRepository.save(spotAd1).block();
+
+    final SpotAd spotAd2 = spotAdBuilderWithDefaults().build();
+    spotAdRepository.save(spotAd2).block();
+
+    final SpotAd spotAd3 = spotAdBuilderWithDefaults().build();
+    spotAdRepository.save(spotAd3).block();
   }
 }
