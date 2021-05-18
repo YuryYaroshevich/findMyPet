@@ -3,6 +3,7 @@ package com.yy.petfinder.persistence;
 import com.yy.petfinder.model.SpotAd;
 import com.yy.petfinder.rest.model.Paging;
 import com.yy.petfinder.rest.model.SpotAdRequest;
+import org.bson.types.ObjectId;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -31,6 +32,9 @@ public class SpotAdRepositoryImpl implements SpotAdRepositoryCustom {
         Criteria.where(POINT_FIELD).nearSphere(point).maxDistance(spotAdRequest.getRadius());
     criteria.and(PET_TYPE_FIELD).is(spotAdRequest.getPetType());
 
+    if (paging.getNextPageToken() != null) {
+      criteria.and(ID_FIELD).lt(new ObjectId(paging.getNextPageToken()));
+    }
     final Pageable pageable =
         PageRequest.of(0, paging.getPageSize(), Sort.by(Sort.Direction.DESC, ID_FIELD));
 

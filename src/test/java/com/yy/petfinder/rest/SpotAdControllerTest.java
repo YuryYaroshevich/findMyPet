@@ -3,8 +3,10 @@ package com.yy.petfinder.rest;
 import static com.yy.petfinder.testfactory.PetAdFactory.petAdBuilderWithDefaults;
 import static com.yy.petfinder.testfactory.SpotAdFactory.spotAdBuilderWithDefaults;
 import static com.yy.petfinder.testfactory.UserFactory.userBuilderWithDefaults;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static com.yy.petfinder.util.PaginatedResponseHelper.NEXT_PAGE_TOKEN;
+import static com.yy.petfinder.util.SearchUriBuilder.getSpotAdsUri;
+import static com.yy.petfinder.util.WebTestClientWrapper.getExchange;
+import static org.junit.jupiter.api.Assertions.*;
 
 import com.icegreen.greenmail.configuration.GreenMailConfiguration;
 import com.icegreen.greenmail.junit5.GreenMailExtension;
@@ -31,6 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.web.reactive.server.EntityExchangeResult;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 @ExtendWith(SpringExtension.class)
@@ -242,13 +245,89 @@ public class SpotAdControllerTest {
 
   @Test
   public void testGetSpotAdsReturnsRelevantAds() {
-    final SpotAd spotAd1 = spotAdBuilderWithDefaults().build();
+    // given
+    final SpotAd spotAd1 =
+        spotAdBuilderWithDefaults()
+            // Minsk
+            .point(List.of(27.429428100585938, 53.874291225365305))
+            .build();
     spotAdRepository.save(spotAd1).block();
 
-    final SpotAd spotAd2 = spotAdBuilderWithDefaults().build();
+    final SpotAd spotAd2 =
+        spotAdBuilderWithDefaults()
+            // Minsk
+            .point(List.of(27.432174682617184, 53.87165982602082))
+            .build();
     spotAdRepository.save(spotAd2).block();
 
-    final SpotAd spotAd3 = spotAdBuilderWithDefaults().build();
+    final SpotAd spotAd3 =
+        spotAdBuilderWithDefaults()
+            // Warsaw
+            .point(List.of(21.02783203125, 52.217704193421454))
+            .build();
     spotAdRepository.save(spotAd3).block();
+
+    final SpotAdRequest spotAdRequest =
+        SpotAdRequest.builder()
+            .petType(PetType.DOG)
+            .radius(40000)
+            .latitude(53.93365607146903)
+            .longitude(27.62889862060547)
+            .build();
+
+    // when
+    final List<SpotAdResponse> spotAds =
+        WebTestClientWrapper.getList(
+            webTestClient, getSpotAdsUri(spotAdRequest), SpotAdResponse.class);
+
+    // then
+    assertEquals(2, spotAds.size());
+    assertEquals(spotAd2.getId(), spotAds.get(0).getId());
+    assertEquals(spotAd1.getId(), spotAds.get(1).getId());
+  }
+
+  @Test
+  public void testGetSpotAdsPagingWorksCorrectly() {
+    // given
+    final SpotAd spotAd1 =
+        spotAdBuilderWithDefaults().point(List.of(27.429428100585938, 53.874291225365305)).build();
+    spotAdRepository.save(spotAd1).block();
+
+    final SpotAd spotAd2 =
+        spotAdBuilderWithDefaults().point(List.of(27.432174682617184, 53.87165982602082)).build();
+    spotAdRepository.save(spotAd2).block();
+
+    final SpotAd spotAd3 =
+        spotAdBuilderWithDefaults().point(List.of(27.47852325439453, 53.879654718999255)).build();
+    spotAdRepository.save(spotAd3).block();
+
+    final SpotAdRequest spotAdRequest =
+        SpotAdRequest.builder()
+            .petType(PetType.DOG)
+            .radius(40000)
+            .latitude(53.93365607146903)
+            .longitude(27.62889862060547)
+            .build();
+
+    // when
+    final EntityExchangeResult<List<SpotAdResponse>> response =
+        getExchange(
+            webTestClient, getSpotAdsUri(spotAdRequest, new Paging(2)), SpotAdResponse.class);
+    final List<SpotAdResponse> spotAds1 = response.getResponseBody();
+    assertEquals(2, spotAds1.size());
+    assertEquals(spotAd3.getId(), spotAds1.get(0).getId());
+    assertEquals(spotAd2.getId(), spotAds1.get(1).getId());
+    final String nextPageToken = response.getResponseHeaders().get(NEXT_PAGE_TOKEN).get(0);
+    assertEquals(spotAd2.getId(), nextPageToken);
+
+    final EntityExchangeResult<List<SpotAdResponse>> response2 =
+        getExchange(
+            webTestClient,
+            getSpotAdsUri(spotAdRequest, new Paging(nextPageToken, 2)),
+            SpotAdResponse.class);
+    final List<SpotAdResponse> spotAds2 = response2.getResponseBody();
+    assertEquals(1, spotAds2.size());
+    assertEquals(spotAd1.getId(), spotAds2.get(0).getId());
+    assertNull(response2.getResponseHeaders().get(NEXT_PAGE_TOKEN));
   }
 }

@@ -1,11 +1,11 @@
 package com.yy.petfinder.rest.model;
 
 import com.yy.petfinder.model.PetType;
-import lombok.Builder;
-import lombok.NonNull;
-import lombok.Value;
+import lombok.*;
 
-@Value
+@NoArgsConstructor
+@Data
+@AllArgsConstructor
 @Builder(toBuilder = true)
 public class SpotAdRequest {
   private double longitude;
