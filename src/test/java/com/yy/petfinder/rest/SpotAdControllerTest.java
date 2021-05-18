@@ -1,11 +1,14 @@
 package com.yy.petfinder.rest;
 
+import static com.yy.petfinder.rest.PetAdController.DEFAULT_PAGE_SIZE;
 import static com.yy.petfinder.testfactory.PetAdFactory.petAdBuilderWithDefaults;
 import static com.yy.petfinder.testfactory.SpotAdFactory.spotAdBuilderWithDefaults;
 import static com.yy.petfinder.testfactory.UserFactory.userBuilderWithDefaults;
 import static com.yy.petfinder.util.PaginatedResponseHelper.NEXT_PAGE_TOKEN;
 import static com.yy.petfinder.util.SearchUriBuilder.getSpotAdsUri;
 import static com.yy.petfinder.util.WebTestClientWrapper.getExchange;
+import static com.yy.petfinder.util.WebTestClientWrapper.getList;
+import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.icegreen.greenmail.configuration.GreenMailConfiguration;
@@ -22,6 +25,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.IntStream;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import org.bson.types.ObjectId;
@@ -329,5 +333,25 @@ public class SpotAdControllerTest {
     assertEquals(1, spotAds2.size());
     assertEquals(spotAd1.getId(), spotAds2.get(0).getId());
     assertNull(response2.getResponseHeaders().get(NEXT_PAGE_TOKEN));
+  }
+
+  @Test
+  public void testDefaultPageSizeWorks() {
+    final List<SpotAd> spotAds =
+        IntStream.range(0, 30).mapToObj(i -> spotAdBuilderWithDefaults().build()).collect(toList());
+    spotAdRepository.saveAll(spotAds).blockLast();
+
+    final SpotAdRequest spotAdRequest =
+        SpotAdRequest.builder()
+            .petType(PetType.DOG)
+            .radius(40000)
+            .latitude(53.93365607146903)
+            .longitude(27.62889862060547)
+            .build();
+
+    final List<SpotAdResponse> spotAdResponses =
+        getList(webTestClient, getSpotAdsUri(spotAdRequest), SpotAdResponse.class);
+
+    assertEquals(DEFAULT_PAGE_SIZE, spotAdResponses.size());
   }
 }
