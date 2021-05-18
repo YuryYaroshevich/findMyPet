@@ -4,9 +4,7 @@ import com.yy.petfinder.exception.SpotAdNotFoundException;
 import com.yy.petfinder.model.PetAd;
 import com.yy.petfinder.model.SpotAd;
 import com.yy.petfinder.persistence.SpotAdRepository;
-import com.yy.petfinder.rest.model.PetSearchRequest;
-import com.yy.petfinder.rest.model.SpotAdResponse;
-import com.yy.petfinder.rest.model.SpotAdView;
+import com.yy.petfinder.rest.model.*;
 import java.util.List;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
@@ -58,18 +56,27 @@ public class SpotAdService {
   public Mono<SpotAdResponse> getAd(final String id) {
     return spotAdRepository
         .findById(id)
-        .map(
-            spotAd ->
-                SpotAdResponse.builder()
-                    .id(spotAd.getId())
-                    .petType(spotAd.getPetType())
-                    .description(spotAd.getDescription())
-                    .phone(spotAd.getPhone())
-                    .photoIds(spotAd.getPhotoIds())
-                    .longitude(spotAd.getPoint().get(0))
-                    .latitude(spotAd.getPoint().get(1))
-                    .radius(spotAd.getRadius())
-                    .build())
+        .map(this::toSpotAdResponse)
         .switchIfEmpty(Mono.error(new SpotAdNotFoundException(id)));
+  }
+
+  public Mono<List<SpotAdResponse>> getAds(final SpotAdRequest spotAdRequest, final Paging paging) {
+    return spotAdRepository
+        .findSpotAds(spotAdRequest, paging)
+        .map(this::toSpotAdResponse)
+        .collectList();
+  }
+
+  private SpotAdResponse toSpotAdResponse(final SpotAd spotAd) {
+    return SpotAdResponse.builder()
+        .id(spotAd.getId())
+        .petType(spotAd.getPetType())
+        .description(spotAd.getDescription())
+        .phone(spotAd.getPhone())
+        .photoIds(spotAd.getPhotoIds())
+        .longitude(spotAd.getPoint().get(0))
+        .latitude(spotAd.getPoint().get(1))
+        .radius(spotAd.getRadius())
+        .build();
   }
 }

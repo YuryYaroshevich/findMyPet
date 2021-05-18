@@ -1,8 +1,8 @@
 package com.yy.petfinder.rest;
 
 import static com.yy.petfinder.rest.PetAdController.DEFAULT_PAGE_SIZE;
-import static com.yy.petfinder.rest.PetAdController.NEXT_PAGE_TOKEN;
 import static com.yy.petfinder.testfactory.PetAdFactory.petAdBuilderWithDefaults;
+import static com.yy.petfinder.util.PaginatedResponseHelper.NEXT_PAGE_TOKEN;
 import static com.yy.petfinder.util.SearchUriBuilder.searchUri;
 import static com.yy.petfinder.util.WebTestClientWrapper.getExchange;
 import static com.yy.petfinder.util.WebTestClientWrapper.getList;

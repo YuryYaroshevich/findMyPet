@@ -1,5 +1,6 @@
 package com.yy.petfinder.rest;
 
+import static com.yy.petfinder.util.PaginatedResponseHelper.createResponse;
 import static com.yy.petfinder.util.UserIdRetriever.userIdFromContext;
 
 import com.yy.petfinder.rest.model.Paging;
@@ -8,7 +9,6 @@ import com.yy.petfinder.rest.model.PetAdView;
 import com.yy.petfinder.rest.model.PetSearchRequest;
 import com.yy.petfinder.service.PetAdService;
 import java.util.List;
-import java.util.Optional;
 import javax.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +23,7 @@ import reactor.core.publisher.Mono;
 
 @RestController
 public class PetAdController {
-  public static final String NEXT_PAGE_TOKEN = "Next-page-token";
+
   public static final int DEFAULT_PAGE_SIZE = 10;
 
   private final PetAdService petAdService;
@@ -55,24 +55,6 @@ public class PetAdController {
     return petAdService
         .searchPets(petSearchReq, paging)
         .map(petAds -> createResponse(petAds, paging));
-  }
-
-  private ResponseEntity<List<PetAdResponse>> createResponse(
-      final List<PetAdResponse> petAds, final Paging paging) {
-    final ResponseEntity.BodyBuilder respBuilder = ResponseEntity.ok();
-    getNextPageToken(petAds, paging.getPageSize())
-        .ifPresent(nextPageToken -> respBuilder.header(NEXT_PAGE_TOKEN, nextPageToken));
-    return respBuilder.body(petAds);
-  }
-
-  private static Optional<String> getNextPageToken(
-      final List<PetAdResponse> petAds, final int pageSize) {
-    if (petAds.size() == pageSize) {
-      final int lastPetAdIndex = petAds.size() - 1;
-      return Optional.of(petAds.get(lastPetAdIndex).getId());
-    } else {
-      return Optional.empty();
-    }
   }
 
   @GetMapping("/pets/user/ad")

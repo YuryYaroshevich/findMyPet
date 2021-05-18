@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.UUID;
 import org.bson.types.ObjectId;
 
-public class PetAdFactory {
+public final class PetAdFactory {
   public static PetAd.PetAdBuilder petAdBuilderWithDefaults() {
     final String id = new ObjectId().toHexString();
     final SearchArea searchArea =

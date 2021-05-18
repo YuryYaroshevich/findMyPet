@@ -8,7 +8,7 @@ import lombok.Value;
 
 @Value
 @Builder(toBuilder = true)
-public class SpotAdResponse {
+public class SpotAdResponse implements Identifiable {
   @NonNull private String id;
 
   private double longitude;

@@ -5,7 +5,7 @@ import com.yy.petfinder.rest.model.Messenger;
 import java.util.List;
 import org.bson.types.ObjectId;
 
-public class UserFactory {
+public final class UserFactory {
   public static User.UserBuilder userBuilderWithDefaults() {
     final String email = "abc@email.com";
     final String password = "1234";
