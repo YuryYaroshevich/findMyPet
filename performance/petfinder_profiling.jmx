@@ -21,7 +21,7 @@
           </elementProp>
           <elementProp name="auth_heaer" elementType="Argument">
             <stringProp name="Argument.name">auth_heaer</stringProp>
-            <stringProp name="Argument.value">Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiI2MDhhOWNlNzk2ZTEwYTM0NDdhNjBkZDciLCJleHAiOjE2MTk4NzQ3NjN9.ZheJ30AW3PfiPTWKAvXyJct4t_AvXjWRszLNkoHB8it0_gBySVEwf5tgROtLwHas1RJxjomhdqXzAPZe6UNtsQ</stringProp>
+            <stringProp name="Argument.value">Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiI2MGFlMmMyM2I3OWFmODFkMzliMzZiMTMiLCJleHAiOjE2MjIxMTM3OTl9.VW__Ldum9rD2nX2mDUTpl6BzMMEXa6yELl_EtjxaVFqoD4xaApbJYAfnbEGaXaP-HFdpGFz_zndBwTay5kTlmQ</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
         </collectionProp>
@@ -234,7 +234,7 @@
           <collectionProp name="HeaderManager.headers">
             <elementProp name="" elementType="Header">
               <stringProp name="Header.name">Authorization</stringProp>
-              <stringProp name="Header.value">Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiI2MDhhOWNlNzk2ZTEwYTM0NDdhNjBkZDciLCJleHAiOjE2MTk4NzQ3NjN9.ZheJ30AW3PfiPTWKAvXyJct4t_AvXjWRszLNkoHB8it0_gBySVEwf5tgROtLwHas1RJxjomhdqXzAPZe6UNtsQ</stringProp>
+              <stringProp name="Header.value">Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiI2MGFlMmMyM2I3OWFmODFkMzliMzZiMTMiLCJleHAiOjE2MjIxMTM3OTl9.VW__Ldum9rD2nX2mDUTpl6BzMMEXa6yELl_EtjxaVFqoD4xaApbJYAfnbEGaXaP-HFdpGFz_zndBwTay5kTlmQ</stringProp>
             </elementProp>
           </collectionProp>
         </HeaderManager>
