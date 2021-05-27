@@ -18,6 +18,17 @@ spring:
           auth: true
           starttls:
             enable: true
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: 699410328807-c4uv0d4jtn0udkm110toeu9cs4h87371.apps.googleusercontent.com
+            client-secret: kmTucwGpXKZofoIF9raDNhyn
+            redirectUri: "{baseUrl}/oauth2/callback/{registrationId}"
+            scope:
+              - email
+              - profile
 
 token:
   salt: JpxM4e858rc673syopdZnMFb*ExeqJtUc0HJ_iOxu~jiSYu+yPdPw93OBBjF
@@ -25,9 +36,16 @@ token:
 
 allowed.origin: 'http://localhost:3000'
 
+app:
+  oauth2:
+    # After successfully authenticating with the OAuth2 Provider,
+    # we'll be generating an auth token for the user and sending the token to the
+    # redirectUri mentioned by the frontend client in the /oauth2/authorize request.
+    # We're not using cookies because they won't work well in mobile clients.
+    authorizedRedirectUris:
+      - http://localhost:3000/oauth2/redirect
+
 logging:
   level:
     root: info
-
-
 

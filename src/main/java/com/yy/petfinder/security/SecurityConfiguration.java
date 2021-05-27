@@ -57,7 +57,8 @@ public class SecurityConfiguration {
         .addFilterAt(webFilter(), SecurityWebFiltersOrder.AUTHORIZATION)
         .authorizeExchange()
         .anyExchange()
-        .authenticated();
+        .authenticated().and().oauth2Login().authorizationRequestRepository()
+
 
     return http.build();
   }
