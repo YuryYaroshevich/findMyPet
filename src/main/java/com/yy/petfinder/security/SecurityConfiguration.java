@@ -25,11 +25,17 @@ import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 public class SecurityConfiguration {
   private final UserDetailsService reactiveUserDetailsService;
   private final TokenService tokenService;
+  private final OAuth2AuthenticationSuccessHandler authenticationSuccessHandler;
+  private final OAuth2AuthenticationFailureHandler authenticationFailureHandler;
 
   public SecurityConfiguration(
-      UserDetailsService reactiveUserDetailsService, TokenService tokenProvider) {
+    UserDetailsService reactiveUserDetailsService, TokenService tokenProvider,
+    OAuth2AuthenticationSuccessHandler authenticationSuccessHandler,
+    OAuth2AuthenticationFailureHandler authenticationFailureHandler) {
     this.reactiveUserDetailsService = reactiveUserDetailsService;
     this.tokenService = tokenProvider;
+    this.authenticationSuccessHandler = authenticationSuccessHandler;
+    this.authenticationFailureHandler = authenticationFailureHandler;
   }
 
   @Bean
@@ -60,7 +66,9 @@ public class SecurityConfiguration {
         .authenticated()
         .and()
         .oauth2Login()
-        .authorizationRequestRepository(new HttpCookieOAuth2AuthorizationRequestRepository());
+        .authorizationRequestRepository(new HttpCookieOAuth2AuthorizationRequestRepository())
+        .authenticationSuccessHandler(authenticationSuccessHandler)
+        .authenticationFailureHandler(authenticationFailureHandler);
 
     return http.build();
   }
