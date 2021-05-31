@@ -1,6 +1,11 @@
 package com.yy.petfinder.security.service;
 
+import java.time.Duration;
 import java.util.Base64;
+import java.util.Optional;
+
+import org.springframework.http.HttpCookie;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.oauth2.client.web.server.ServerAuthorizationRequestRepository;
 import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.util.SerializationUtils;
@@ -11,25 +16,35 @@ public class HttpCookieOAuth2AuthorizationRequestRepository
     implements ServerAuthorizationRequestRepository<OAuth2AuthorizationRequest> {
   public static final String OAUTH2_AUTH_REQ = "oauth2_auth_request";
   public static final String REDIRECT_URI = "redirect_uri";
+  private static final int COOKIE_EXPIRES_SEC = 180;
 
   @Override
   public Mono<OAuth2AuthorizationRequest> loadAuthorizationRequest(ServerWebExchange exchange) {
-    final String oauthCookieVal =
-        exchange.getRequest().getCookies().getFirst(OAUTH2_AUTH_REQ).getValue();
-    final OAuth2AuthorizationRequest oAuth2AuthorizationRequest =
-        OAuth2AuthorizationRequest.class.cast(
-            SerializationUtils.deserialize(Base64.getUrlDecoder().decode(oauthCookieVal)));
-    return Mono.just(oAuth2AuthorizationRequest);
+      return Optional.ofNullable(exchange.getRequest().getCookies())
+        .map(cookies -> cookies.getFirst(OAUTH2_AUTH_REQ))
+        .map(HttpCookie::getValue)
+        .map(val -> Base64.getUrlDecoder().decode(val))
+        .map(SerializationUtils::deserialize)
+        .map(OAuth2AuthorizationRequest.class::cast)
+        .map(Mono::just)
+        .orElseGet(Mono::empty);
   }
 
   @Override
   public Mono<Void> saveAuthorizationRequest(
       OAuth2AuthorizationRequest authorizationRequest, ServerWebExchange exchange) {
-    return null;
+    final String authReqSerialized = Base64.getUrlEncoder()
+      .encodeToString(SerializationUtils.serialize(authorizationRequest));
+    final ResponseCookie cookie = ResponseCookie.from(OAUTH2_AUTH_REQ, authReqSerialized)
+      .maxAge(COOKIE_EXPIRES_SEC).build();
+    exchange.getResponse().addCookie(cookie);
+    return Mono.just(new Object()).then();
   }
 
   @Override
   public Mono<OAuth2AuthorizationRequest> removeAuthorizationRequest(ServerWebExchange exchange) {
+    Optional.ofNullable(exchange.getResponse().getCookies())
+      .map(cookies -> cookies.remove(OAUTH2_AUTH_REQ));
     return loadAuthorizationRequest(exchange);
   }
 }

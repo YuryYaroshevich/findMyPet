@@ -25,7 +25,7 @@ spring:
           google:
             client-id: 699410328807-c4uv0d4jtn0udkm110toeu9cs4h87371.apps.googleusercontent.com
             client-secret: kmTucwGpXKZofoIF9raDNhyn
-            redirectUri: "{baseUrl}/oauth2/callback/{registrationId}"
+            redirectUri: "http://localhost:8080/login/oauth2/code/google"
             scope:
               - email
               - profile
