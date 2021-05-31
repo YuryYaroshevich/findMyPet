@@ -19,7 +19,9 @@ public class User {
   @NonNull
   private String email;
 
-  @NonNull private String password;
-  @NonNull private String phone;
+  private String password;
+  private String phone;
   private List<Messenger> messengers;
+
+  private OAuth2Provider oAuth2Provider;
 }
