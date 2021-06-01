@@ -24,8 +24,7 @@ public class CustomOAuth2UserService extends DefaultReactiveOAuth2UserService {
   }
 
   @Override
-  public Mono<OAuth2User> loadUser(OAuth2UserRequest userRequest)
-      throws OAuth2AuthenticationException {
+  public Mono<OAuth2User> loadUser(OAuth2UserRequest userRequest) {
     final String registrationId = userRequest.getClientRegistration().getRegistrationId();
     if (GOOGLE.name().equalsIgnoreCase(registrationId)) {
       final Mono<OAuth2User> oAuth2User = super.loadUser(userRequest);
@@ -41,6 +40,7 @@ public class CustomOAuth2UserService extends DefaultReactiveOAuth2UserService {
                         User.builder()
                             .id(new ObjectId().toHexString())
                             .email(email)
+                            .password("placeholder")
                             .oAuth2Provider(GOOGLE)
                             .build()))
                 .map(ignore -> oauthData);

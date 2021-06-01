@@ -67,7 +67,6 @@ public class SecurityConfiguration {
         .authenticated()
         .and()
         .oauth2Login()
-        .authorizationRequestRepository(new HttpCookieOAuth2AuthorizationRequestRepository())
         .authenticationSuccessHandler(authenticationSuccessHandler)
         .authenticationFailureHandler(authenticationFailureHandler);
 

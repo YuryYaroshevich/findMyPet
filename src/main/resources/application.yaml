@@ -37,8 +37,7 @@ token:
 allowed.origin: 'http://localhost:3000'
 
 oauth2:
-  authorizedRedirectUris:
-    - http://localhost:3000/
+  authorizedRedirectUri: http://localhost:3000/
 
 logging:
   level:

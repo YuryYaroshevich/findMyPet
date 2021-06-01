@@ -6,13 +6,15 @@ import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.security.web.server.authentication.ServerAuthenticationFailureHandler;
+import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
+@Component
 public class OAuth2AuthenticationFailureHandler implements ServerAuthenticationFailureHandler {
   private final String allowedRedirectUri;
 
   public OAuth2AuthenticationFailureHandler(
-      @Value("${oauth2.authorizedRedirectUris}") final String allowedRedirectUri) {
+      @Value("${oauth2.authorizedRedirectUri}") final String allowedRedirectUri) {
     this.allowedRedirectUri = allowedRedirectUri;
   }
 
