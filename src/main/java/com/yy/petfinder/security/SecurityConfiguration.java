@@ -29,9 +29,10 @@ public class SecurityConfiguration {
   private final OAuth2AuthenticationFailureHandler authenticationFailureHandler;
 
   public SecurityConfiguration(
-    UserDetailsService reactiveUserDetailsService, TokenService tokenProvider,
-    OAuth2AuthenticationSuccessHandler authenticationSuccessHandler,
-    OAuth2AuthenticationFailureHandler authenticationFailureHandler) {
+      UserDetailsService reactiveUserDetailsService,
+      TokenService tokenProvider,
+      OAuth2AuthenticationSuccessHandler authenticationSuccessHandler,
+      OAuth2AuthenticationFailureHandler authenticationFailureHandler) {
     this.reactiveUserDetailsService = reactiveUserDetailsService;
     this.tokenService = tokenProvider;
     this.authenticationSuccessHandler = authenticationSuccessHandler;
