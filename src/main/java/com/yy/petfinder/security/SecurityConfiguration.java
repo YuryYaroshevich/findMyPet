@@ -47,6 +47,7 @@ public class SecurityConfiguration {
     http.authorizeExchange()
         .pathMatchers(
             "/login",
+            "/login-with-key",
             "/signUp",
             "/users/newPasswordEmail",
             "/users/newPassword",
