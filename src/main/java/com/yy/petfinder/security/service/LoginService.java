@@ -2,6 +2,8 @@ package com.yy.petfinder.security.service;
 
 import static com.yy.petfinder.exception.InvalidCredentialsException.invalidCredentials;
 
+import com.yy.petfinder.exception.OAuth2FlowException;
+import com.yy.petfinder.model.UserRandomKey;
 import com.yy.petfinder.persistence.UserRandomKeyRepository;
 import com.yy.petfinder.rest.model.Login;
 import com.yy.petfinder.security.model.JWTToken;
@@ -51,6 +53,11 @@ public class LoginService {
   }
 
   public Mono<JWTToken> authenticate(final LoginKey loginKey) {
-    return null;
+    return userRandomKeyRepository
+        .findAndRemove(loginKey.getId(), loginKey.getKey())
+        .switchIfEmpty(Mono.error(new OAuth2FlowException()))
+        .map(UserRandomKey::getId)
+        .map(tokenService::createToken)
+        .map(JWTToken::new);
   }
 }
