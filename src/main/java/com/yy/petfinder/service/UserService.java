@@ -4,6 +4,7 @@ import static com.yy.petfinder.exception.InvalidCredentialsException.oldPassword
 
 import com.yy.petfinder.exception.DuplicateEmailException;
 import com.yy.petfinder.exception.InvalidPasswordRecoveryRequestException;
+import com.yy.petfinder.exception.UserNotFoundException;
 import com.yy.petfinder.model.User;
 import com.yy.petfinder.model.UserRandomKey;
 import com.yy.petfinder.persistence.UserRandomKeyRepository;
@@ -43,7 +44,8 @@ public class UserService {
   }
 
   public Mono<PrivateUserView> getUser(final String id) {
-    final Mono<User> user = userRepository.findById(id);
+    final Mono<User> user =
+        userRepository.findById(id).switchIfEmpty(Mono.error(new UserNotFoundException(id)));
     final Mono<PrivateUserView> userView = user.map(this::userToView);
     return userView;
   }
@@ -116,6 +118,7 @@ public class UserService {
       final PasswordUpdate passwordUpdate, final String userId) {
     return userRepository
         .findById(userId)
+        .switchIfEmpty(Mono.error(new UserNotFoundException(userId)))
         .map(User::getPassword)
         .map(
             oldEncodedPass ->

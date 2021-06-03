@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.UUID;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
+import org.bson.types.ObjectId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -82,6 +83,28 @@ public class UserControllerTest {
     assertEquals(user.getId(), fetchedUser.get("id"));
     assertEquals(user.getPhone(), fetchedUser.get("phone"));
     assertFalse(fetchedUser.containsKey("email"));
+  }
+
+  @Test
+  public void testGetUserPublicReturnNotFoundIfNoUser() {
+    // given
+    final String userId = new ObjectId().toHexString();
+
+    // when
+    final Map<String, String> errorResp =
+        webTestClient
+            .get()
+            .uri("/users/" + userId + "/public")
+            .exchange()
+            .expectStatus()
+            .isNotFound()
+            .expectBody(new ParameterizedTypeReference<Map<String, String>>() {})
+            .returnResult()
+            .getResponseBody();
+
+    // then
+    final String errorMsg = "User with provided id not found: id=" + userId;
+    assertEquals(errorMsg, errorResp.get("message"));
   }
 
   @Test

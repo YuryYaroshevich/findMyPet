@@ -10,6 +10,6 @@ import lombok.Value;
 public class PrivateUserView {
   @NonNull private String id;
   @NonNull private String email;
-  @NonNull private String phone;
+  private String phone;
   private List<Messenger> messengers;
 }
