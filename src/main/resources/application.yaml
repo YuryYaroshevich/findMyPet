@@ -28,7 +28,6 @@ spring:
             redirectUri: "http://localhost:8080/login/oauth2/code/google"
             scope:
               - email
-              - profile
 
 token:
   salt: JpxM4e858rc673syopdZnMFb*ExeqJtUc0HJ_iOxu~jiSYu+yPdPw93OBBjF
