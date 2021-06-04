@@ -24,4 +24,8 @@ public class User {
   private List<Messenger> messengers;
 
   private OAuth2Provider oAuth2Provider;
+
+  public boolean isOAuth2Authenticated() {
+    return getOAuth2Provider() != null;
+  }
 }

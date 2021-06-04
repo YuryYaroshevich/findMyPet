@@ -1,10 +1,12 @@
 package com.yy.petfinder.service;
 
 import static com.yy.petfinder.exception.InvalidCredentialsException.oldPasswordNotMatch;
+import static java.util.function.Predicate.not;
 
 import com.yy.petfinder.exception.DuplicateEmailException;
 import com.yy.petfinder.exception.InvalidPasswordRecoveryRequestException;
 import com.yy.petfinder.exception.UserNotFoundException;
+import com.yy.petfinder.exception.UserPasswordUpdateException;
 import com.yy.petfinder.model.User;
 import com.yy.petfinder.model.UserRandomKey;
 import com.yy.petfinder.persistence.UserRandomKeyRepository;
@@ -82,10 +84,9 @@ public class UserService {
         .build();
   }
 
-  public Mono<PrivateUserView> updateUser(final String userId, UserUpdate rawUserUpdate) {
+  public Mono<PrivateUserView> updateUser(final String userId, final UserUpdate rawUserUpdate) {
     Mono<Boolean> passwordUpdateValid = Mono.just(true);
-    final UserUpdate userUpdate = encodePasswordsIfSet(rawUserUpdate);
-    final PasswordUpdate passwordUpdate = userUpdate.getPasswordUpdate();
+    final PasswordUpdate passwordUpdate = rawUserUpdate.getPasswordUpdate();
     if (passwordUpdate != null) {
       passwordUpdateValid =
           passwordUpdateValid
@@ -98,11 +99,12 @@ public class UserService {
                   });
     }
 
+    final UserUpdate userUpdate = encodePasswordIfSet(rawUserUpdate);
     return passwordUpdateValid.flatMap(
         ignore -> userRepository.findAndModify(userUpdate, userId).map(this::userToView));
   }
 
-  private UserUpdate encodePasswordsIfSet(final UserUpdate userUpdate) {
+  private UserUpdate encodePasswordIfSet(final UserUpdate userUpdate) {
     final PasswordUpdate passwordUpdate = userUpdate.getPasswordUpdate();
     if (passwordUpdate != null) {
       final String encodedNewPassword = passwordEncoder.encode(passwordUpdate.getNewPassword());
@@ -119,6 +121,8 @@ public class UserService {
     return userRepository
         .findById(userId)
         .switchIfEmpty(Mono.error(new UserNotFoundException(userId)))
+        .filter(not(User::isOAuth2Authenticated))
+        .switchIfEmpty(Mono.error(new UserPasswordUpdateException()))
         .map(User::getPassword)
         .map(
             oldEncodedPass ->
