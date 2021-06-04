@@ -3,6 +3,7 @@ package com.yy.petfinder.security.service;
 import static java.util.function.Predicate.not;
 
 import java.util.List;
+import java.util.Optional;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -33,11 +34,10 @@ public class TokenAuthenticationConverter implements ServerAuthenticationConvert
   private String getTokenFromRequest(ServerWebExchange serverWebExchange) {
     final String token =
         serverWebExchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
-    if (token.contains(BEARER)) {
-      return token.substring(BEARER.length());
-    } else {
-      return Strings.EMPTY;
-    }
+    return Optional.ofNullable(token)
+        .filter(t -> t.contains(BEARER))
+        .map(t -> t.substring(BEARER.length()))
+        .orElse(Strings.EMPTY);
   }
 
   private Authentication getAuthentication(String token) {
