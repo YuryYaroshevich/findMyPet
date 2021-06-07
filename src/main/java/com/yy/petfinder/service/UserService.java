@@ -1,7 +1,6 @@
 package com.yy.petfinder.service;
 
 import static com.yy.petfinder.exception.InvalidCredentialsException.oldPasswordNotMatch;
-import static java.util.function.Predicate.not;
 
 import com.yy.petfinder.exception.DuplicateEmailException;
 import com.yy.petfinder.exception.InvalidPasswordRecoveryRequestException;
@@ -47,7 +46,7 @@ public class UserService {
 
   public Mono<PrivateUserView> getUser(final String id) {
     final Mono<User> user =
-        userRepository.findById(id).switchIfEmpty(Mono.error(new UserNotFoundException(id)));
+        userRepository.findById(id).switchIfEmpty(Mono.error(UserNotFoundException.withId(id)));
     final Mono<PrivateUserView> userView = user.map(this::userToView);
     return userView;
   }
@@ -120,9 +119,8 @@ public class UserService {
       final PasswordUpdate passwordUpdate, final String userId) {
     return userRepository
         .findById(userId)
-        .switchIfEmpty(Mono.error(new UserNotFoundException(userId)))
-        .filter(not(User::isOAuth2Authenticated))
-        .switchIfEmpty(Mono.error(new UserPasswordUpdateException()))
+        .switchIfEmpty(Mono.error(UserNotFoundException.withId(userId)))
+        .doOnNext(this::errorIfOAuth2Authorized)
         .map(User::getPassword)
         .map(
             oldEncodedPass ->
@@ -130,8 +128,11 @@ public class UserService {
   }
 
   public Mono<UserRandomKey> initiatePasswordUpdate(final PasswordUpdateEmail passwordUpdateEmail) {
+    final String email = passwordUpdateEmail.getEmail();
     return userRepository
-        .findByEmail(passwordUpdateEmail.getEmail())
+        .findByEmail(email)
+        .switchIfEmpty(Mono.error(UserNotFoundException.withEmail(email)))
+        .doOnNext(this::errorIfOAuth2Authorized)
         .flatMap(
             user ->
                 passwdUpdateEmailService.sendNewPasswordEmail(passwordUpdateEmail, user.getId()))
@@ -152,5 +153,11 @@ public class UserService {
                       .build();
               return userRepository.findAndModify(userUpdate, passwordUpdateRequest.getUserId());
             });
+  }
+
+  private void errorIfOAuth2Authorized(final User user) {
+    if (user.isOAuth2Authenticated()) {
+      throw new UserPasswordUpdateException(user.getOAuth2Provider());
+    }
   }
 }

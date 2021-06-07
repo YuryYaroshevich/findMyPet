@@ -246,7 +246,7 @@ public class UserControllerTest {
             .getResponseBody();
 
     // then
-    assertEquals("User was created with oauth2 provider", errorResp.get("message"));
+    assertEquals("User was created with oauth2 provider(Google)", errorResp.get("message"));
   }
 
   @Test
@@ -305,6 +305,85 @@ public class UserControllerTest {
     assertTrue(GreenMailUtil.getBody(receivedMessage).contains(user.getId()));
     assertEquals(1, receivedMessage.getAllRecipients().length);
     assertEquals(user.getEmail(), receivedMessage.getAllRecipients()[0].toString());
+  }
+
+  @Test
+  public void testEmailNotSentIfUserDoesNotExist() {
+    // given
+    final String email = "foobar@gmail.com";
+    final PasswordUpdateEmail passwordUpdateEmail =
+        PasswordUpdateEmail.builder()
+            .email(email)
+            .frontendHost("http://localhost:3000")
+            .emailMessageData(
+                EmailMessageData.builder()
+                    .subject("Reset password")
+                    .text("To reset your password click the following link: {link}")
+                    .build())
+            .build();
+
+    // when
+    final Map<String, String> errorResp =
+        webTestClient
+            .post()
+            .uri("/users/newPasswordEmail")
+            .bodyValue(passwordUpdateEmail)
+            .exchange()
+            .expectStatus()
+            .isNotFound()
+            .expectBody(new ParameterizedTypeReference<Map<String, String>>() {})
+            .returnResult()
+            .getResponseBody();
+
+    // then
+    final String errorMsg = "User with provided email not found: email=" + email;
+    assertEquals(errorMsg, errorResp.get("message"));
+
+    assertEquals(0, greenMail.getReceivedMessages().length);
+  }
+
+  @Test
+  public void testEmailNotSentIfUserOAuth2Authorized() {
+    // given
+    final String email = "foobar@gmail.com";
+    final User user =
+        User.builder()
+            .id(new ObjectId().toHexString())
+            .email(email)
+            .password(PASSWORD_PLACEHOLDER)
+            .oAuth2Provider(OAuth2Provider.GOOGLE)
+            .build();
+    userRepository.save(user).block();
+
+    final PasswordUpdateEmail passwordUpdateEmail =
+        PasswordUpdateEmail.builder()
+            .email(email)
+            .frontendHost("http://localhost:3000")
+            .emailMessageData(
+                EmailMessageData.builder()
+                    .subject("Reset password")
+                    .text("To reset your password click the following link: {link}")
+                    .build())
+            .build();
+
+    // when
+    final Map<String, String> errorResp =
+        webTestClient
+            .post()
+            .uri("/users/newPasswordEmail")
+            .bodyValue(passwordUpdateEmail)
+            .exchange()
+            .expectStatus()
+            .isBadRequest()
+            .expectBody(new ParameterizedTypeReference<Map<String, String>>() {})
+            .returnResult()
+            .getResponseBody();
+
+    // then
+    final String errorMsg = "User was created with oauth2 provider(Google)";
+    assertEquals(errorMsg, errorResp.get("message"));
+
+    assertEquals(0, greenMail.getReceivedMessages().length);
   }
 
   @DisplayName("sets new password if userId and key are correct")
