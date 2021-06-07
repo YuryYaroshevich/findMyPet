@@ -1,6 +1,7 @@
 package com.yy.petfinder.security.service;
 
 import static com.yy.petfinder.model.OAuth2Provider.GOOGLE;
+import static com.yy.petfinder.model.User.PASSWORD_PLACEHOLDER;
 
 import com.yy.petfinder.model.User;
 import com.yy.petfinder.persistence.UserRepository;
@@ -40,7 +41,7 @@ public class CustomOAuth2UserService extends DefaultReactiveOAuth2UserService {
                         User.builder()
                             .id(new ObjectId().toHexString())
                             .email(email)
-                            .password("placeholder")
+                            .password(PASSWORD_PLACEHOLDER)
                             .oAuth2Provider(GOOGLE)
                             .build()))
                 .map(ignore -> oauthData);

@@ -13,6 +13,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Value
 @Builder(toBuilder = true)
 public class User {
+  // for creation OAuth2 users
+  public static final String PASSWORD_PLACEHOLDER = "placeholder";
+
   @Id @NonNull private String id;
 
   @Indexed(unique = true)

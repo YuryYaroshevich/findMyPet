@@ -1,5 +1,6 @@
 package com.yy.petfinder.rest;
 
+import static com.yy.petfinder.model.User.PASSWORD_PLACEHOLDER;
 import static com.yy.petfinder.rest.model.Messenger.TELEGRAM;
 import static com.yy.petfinder.rest.model.Messenger.VIBER;
 import static com.yy.petfinder.testfactory.UserFactory.userBuilderWithDefaults;
@@ -12,6 +13,7 @@ import com.icegreen.greenmail.configuration.GreenMailConfiguration;
 import com.icegreen.greenmail.junit5.GreenMailExtension;
 import com.icegreen.greenmail.util.GreenMailUtil;
 import com.icegreen.greenmail.util.ServerSetupTest;
+import com.yy.petfinder.model.OAuth2Provider;
 import com.yy.petfinder.model.User;
 import com.yy.petfinder.model.UserRandomKey;
 import com.yy.petfinder.persistence.UserRandomKeyRepository;
@@ -207,6 +209,44 @@ public class UserControllerTest {
         .exchange()
         .expectStatus()
         .isBadRequest();
+  }
+
+  @Test
+  public void testUpdatePasswordReturns404ForOAuth2User() {
+    // given
+    final User user =
+        User.builder()
+            .id(new ObjectId().toHexString())
+            .email("foobar@gmail.com")
+            .password(PASSWORD_PLACEHOLDER)
+            .oAuth2Provider(OAuth2Provider.GOOGLE)
+            .build();
+    userRepository.save(user).block();
+    final String authHeaderValue = "Bearer " + tokenService.createToken(user.getId());
+
+    final UserUpdate userUpdate =
+        UserUpdate.builder()
+            .phone("375294443322")
+            .messengers(List.of(TELEGRAM))
+            .passwordUpdate(new PasswordUpdate("newPassword", "invalidOldPass"))
+            .build();
+
+    // when
+    final Map<String, String> errorResp =
+        webTestClient
+            .put()
+            .uri("/users")
+            .bodyValue(userUpdate)
+            .header(AUTHORIZATION, authHeaderValue)
+            .exchange()
+            .expectStatus()
+            .isBadRequest()
+            .expectBody(new ParameterizedTypeReference<Map<String, String>>() {})
+            .returnResult()
+            .getResponseBody();
+
+    // then
+    assertEquals("User was created with oauth2 provider", errorResp.get("message"));
   }
 
   @Test
