@@ -18,6 +18,16 @@ spring:
           auth: true
           starttls:
             enable: true
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: 699410328807-c4uv0d4jtn0udkm110toeu9cs4h87371.apps.googleusercontent.com
+            client-secret: kmTucwGpXKZofoIF9raDNhyn
+            redirectUri: "http://localhost:8080/login/oauth2/code/google"
+            scope:
+              - email
 
 token:
   salt: JpxM4e858rc673syopdZnMFb*ExeqJtUc0HJ_iOxu~jiSYu+yPdPw93OBBjF
@@ -25,9 +35,10 @@ token:
 
 allowed.origin: 'http://localhost:3000'
 
+oauth2:
+  authorizedRedirectUri: http://localhost:3000/
+
 logging:
   level:
     root: info
-
-
 

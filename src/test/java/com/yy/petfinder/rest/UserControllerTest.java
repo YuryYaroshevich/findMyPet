@@ -1,5 +1,6 @@
 package com.yy.petfinder.rest;
 
+import static com.yy.petfinder.model.User.PASSWORD_PLACEHOLDER;
 import static com.yy.petfinder.rest.model.Messenger.TELEGRAM;
 import static com.yy.petfinder.rest.model.Messenger.VIBER;
 import static com.yy.petfinder.testfactory.UserFactory.userBuilderWithDefaults;
@@ -12,6 +13,7 @@ import com.icegreen.greenmail.configuration.GreenMailConfiguration;
 import com.icegreen.greenmail.junit5.GreenMailExtension;
 import com.icegreen.greenmail.util.GreenMailUtil;
 import com.icegreen.greenmail.util.ServerSetupTest;
+import com.yy.petfinder.model.OAuth2Provider;
 import com.yy.petfinder.model.User;
 import com.yy.petfinder.model.UserRandomKey;
 import com.yy.petfinder.persistence.UserRandomKeyRepository;
@@ -25,6 +27,7 @@ import java.util.Map;
 import java.util.UUID;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
+import org.bson.types.ObjectId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -82,6 +85,28 @@ public class UserControllerTest {
     assertEquals(user.getId(), fetchedUser.get("id"));
     assertEquals(user.getPhone(), fetchedUser.get("phone"));
     assertFalse(fetchedUser.containsKey("email"));
+  }
+
+  @Test
+  public void testGetUserPublicReturnNotFoundIfNoUser() {
+    // given
+    final String userId = new ObjectId().toHexString();
+
+    // when
+    final Map<String, String> errorResp =
+        webTestClient
+            .get()
+            .uri("/users/" + userId + "/public")
+            .exchange()
+            .expectStatus()
+            .isNotFound()
+            .expectBody(new ParameterizedTypeReference<Map<String, String>>() {})
+            .returnResult()
+            .getResponseBody();
+
+    // then
+    final String errorMsg = "User with provided id not found: id=" + userId;
+    assertEquals(errorMsg, errorResp.get("message"));
   }
 
   @Test
@@ -187,6 +212,44 @@ public class UserControllerTest {
   }
 
   @Test
+  public void testUpdatePasswordReturns404ForOAuth2User() {
+    // given
+    final User user =
+        User.builder()
+            .id(new ObjectId().toHexString())
+            .email("foobar@gmail.com")
+            .password(PASSWORD_PLACEHOLDER)
+            .oAuth2Provider(OAuth2Provider.GOOGLE)
+            .build();
+    userRepository.save(user).block();
+    final String authHeaderValue = "Bearer " + tokenService.createToken(user.getId());
+
+    final UserUpdate userUpdate =
+        UserUpdate.builder()
+            .phone("375294443322")
+            .messengers(List.of(TELEGRAM))
+            .passwordUpdate(new PasswordUpdate("newPassword", "invalidOldPass"))
+            .build();
+
+    // when
+    final Map<String, String> errorResp =
+        webTestClient
+            .put()
+            .uri("/users")
+            .bodyValue(userUpdate)
+            .header(AUTHORIZATION, authHeaderValue)
+            .exchange()
+            .expectStatus()
+            .isBadRequest()
+            .expectBody(new ParameterizedTypeReference<Map<String, String>>() {})
+            .returnResult()
+            .getResponseBody();
+
+    // then
+    assertEquals("User was created with oauth2 provider(Google)", errorResp.get("message"));
+  }
+
+  @Test
   public void testUpdateUserWithoutTokenUnauthorized() {
     // given
     final UserUpdate userUpdate = UserUpdate.builder().phone("+375298887766").build();
@@ -242,6 +305,85 @@ public class UserControllerTest {
     assertTrue(GreenMailUtil.getBody(receivedMessage).contains(user.getId()));
     assertEquals(1, receivedMessage.getAllRecipients().length);
     assertEquals(user.getEmail(), receivedMessage.getAllRecipients()[0].toString());
+  }
+
+  @Test
+  public void testEmailNotSentIfUserDoesNotExist() {
+    // given
+    final String email = "foobar@gmail.com";
+    final PasswordUpdateEmail passwordUpdateEmail =
+        PasswordUpdateEmail.builder()
+            .email(email)
+            .frontendHost("http://localhost:3000")
+            .emailMessageData(
+                EmailMessageData.builder()
+                    .subject("Reset password")
+                    .text("To reset your password click the following link: {link}")
+                    .build())
+            .build();
+
+    // when
+    final Map<String, String> errorResp =
+        webTestClient
+            .post()
+            .uri("/users/newPasswordEmail")
+            .bodyValue(passwordUpdateEmail)
+            .exchange()
+            .expectStatus()
+            .isNotFound()
+            .expectBody(new ParameterizedTypeReference<Map<String, String>>() {})
+            .returnResult()
+            .getResponseBody();
+
+    // then
+    final String errorMsg = "User with provided email not found: email=" + email;
+    assertEquals(errorMsg, errorResp.get("message"));
+
+    assertEquals(0, greenMail.getReceivedMessages().length);
+  }
+
+  @Test
+  public void testEmailNotSentIfUserOAuth2Authorized() {
+    // given
+    final String email = "foobar@gmail.com";
+    final User user =
+        User.builder()
+            .id(new ObjectId().toHexString())
+            .email(email)
+            .password(PASSWORD_PLACEHOLDER)
+            .oAuth2Provider(OAuth2Provider.GOOGLE)
+            .build();
+    userRepository.save(user).block();
+
+    final PasswordUpdateEmail passwordUpdateEmail =
+        PasswordUpdateEmail.builder()
+            .email(email)
+            .frontendHost("http://localhost:3000")
+            .emailMessageData(
+                EmailMessageData.builder()
+                    .subject("Reset password")
+                    .text("To reset your password click the following link: {link}")
+                    .build())
+            .build();
+
+    // when
+    final Map<String, String> errorResp =
+        webTestClient
+            .post()
+            .uri("/users/newPasswordEmail")
+            .bodyValue(passwordUpdateEmail)
+            .exchange()
+            .expectStatus()
+            .isBadRequest()
+            .expectBody(new ParameterizedTypeReference<Map<String, String>>() {})
+            .returnResult()
+            .getResponseBody();
+
+    // then
+    final String errorMsg = "User was created with oauth2 provider(Google)";
+    assertEquals(errorMsg, errorResp.get("message"));
+
+    assertEquals(0, greenMail.getReceivedMessages().length);
   }
 
   @DisplayName("sets new password if userId and key are correct")

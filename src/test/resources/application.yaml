@@ -8,12 +8,25 @@ spring:
     password: pass
     protocol: smtp
     test-connection: true
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: id
+            client-secret: secret
+            redirectUri: "http://localhost:8080/login/oauth2/code/google"
+            scope:
+              - email
 
 token:
   salt: abcdef
   expirationMs: 86400000
 
 allowed.origin: 'http://localhost:3000'
+
+oauth2:
+  authorizedRedirectUri: http://localhost:3000/
 
 logging:
   level:

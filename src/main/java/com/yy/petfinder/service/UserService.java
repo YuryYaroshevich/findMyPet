@@ -4,6 +4,8 @@ import static com.yy.petfinder.exception.InvalidCredentialsException.oldPassword
 
 import com.yy.petfinder.exception.DuplicateEmailException;
 import com.yy.petfinder.exception.InvalidPasswordRecoveryRequestException;
+import com.yy.petfinder.exception.UserNotFoundException;
+import com.yy.petfinder.exception.UserPasswordUpdateException;
 import com.yy.petfinder.model.User;
 import com.yy.petfinder.model.UserRandomKey;
 import com.yy.petfinder.persistence.UserRandomKeyRepository;
@@ -43,7 +45,8 @@ public class UserService {
   }
 
   public Mono<PrivateUserView> getUser(final String id) {
-    final Mono<User> user = userRepository.findById(id);
+    final Mono<User> user =
+        userRepository.findById(id).switchIfEmpty(Mono.error(UserNotFoundException.withId(id)));
     final Mono<PrivateUserView> userView = user.map(this::userToView);
     return userView;
   }
@@ -80,10 +83,9 @@ public class UserService {
         .build();
   }
 
-  public Mono<PrivateUserView> updateUser(final String userId, UserUpdate rawUserUpdate) {
+  public Mono<PrivateUserView> updateUser(final String userId, final UserUpdate rawUserUpdate) {
     Mono<Boolean> passwordUpdateValid = Mono.just(true);
-    final UserUpdate userUpdate = encodePasswordsIfSet(rawUserUpdate);
-    final PasswordUpdate passwordUpdate = userUpdate.getPasswordUpdate();
+    final PasswordUpdate passwordUpdate = rawUserUpdate.getPasswordUpdate();
     if (passwordUpdate != null) {
       passwordUpdateValid =
           passwordUpdateValid
@@ -96,11 +98,12 @@ public class UserService {
                   });
     }
 
+    final UserUpdate userUpdate = encodePasswordIfSet(rawUserUpdate);
     return passwordUpdateValid.flatMap(
         ignore -> userRepository.findAndModify(userUpdate, userId).map(this::userToView));
   }
 
-  private UserUpdate encodePasswordsIfSet(final UserUpdate userUpdate) {
+  private UserUpdate encodePasswordIfSet(final UserUpdate userUpdate) {
     final PasswordUpdate passwordUpdate = userUpdate.getPasswordUpdate();
     if (passwordUpdate != null) {
       final String encodedNewPassword = passwordEncoder.encode(passwordUpdate.getNewPassword());
@@ -116,6 +119,8 @@ public class UserService {
       final PasswordUpdate passwordUpdate, final String userId) {
     return userRepository
         .findById(userId)
+        .switchIfEmpty(Mono.error(UserNotFoundException.withId(userId)))
+        .doOnNext(this::errorIfOAuth2Authorized)
         .map(User::getPassword)
         .map(
             oldEncodedPass ->
@@ -123,8 +128,11 @@ public class UserService {
   }
 
   public Mono<UserRandomKey> initiatePasswordUpdate(final PasswordUpdateEmail passwordUpdateEmail) {
+    final String email = passwordUpdateEmail.getEmail();
     return userRepository
-        .findByEmail(passwordUpdateEmail.getEmail())
+        .findByEmail(email)
+        .switchIfEmpty(Mono.error(UserNotFoundException.withEmail(email)))
+        .doOnNext(this::errorIfOAuth2Authorized)
         .flatMap(
             user ->
                 passwdUpdateEmailService.sendNewPasswordEmail(passwordUpdateEmail, user.getId()))
@@ -145,5 +153,11 @@ public class UserService {
                       .build();
               return userRepository.findAndModify(userUpdate, passwordUpdateRequest.getUserId());
             });
+  }
+
+  private void errorIfOAuth2Authorized(final User user) {
+    if (user.isOAuth2Authenticated()) {
+      throw new UserPasswordUpdateException(user.getOAuth2Provider());
+    }
   }
 }

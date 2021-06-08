@@ -13,13 +13,22 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Value
 @Builder(toBuilder = true)
 public class User {
+  // for creation OAuth2 users
+  public static final String PASSWORD_PLACEHOLDER = "placeholder";
+
   @Id @NonNull private String id;
 
   @Indexed(unique = true)
   @NonNull
   private String email;
 
-  @NonNull private String password;
-  @NonNull private String phone;
+  private String password;
+  private String phone;
   private List<Messenger> messengers;
+
+  private OAuth2Provider oAuth2Provider;
+
+  public boolean isOAuth2Authenticated() {
+    return getOAuth2Provider() != null;
+  }
 }

@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Mono;
 
 @Repository
-public interface UserRandomKeyRepository extends ReactiveCrudRepository<UserRandomKey, String> {
+public interface UserRandomKeyRepository
+    extends ReactiveCrudRepository<UserRandomKey, String>, UserRandomKeyRepositoryCustom {
   Mono<UserRandomKey> findByIdAndRandomKey(String id, String randomKey);
 }

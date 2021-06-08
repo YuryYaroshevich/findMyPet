@@ -3,6 +3,7 @@ package com.yy.petfinder.rest;
 import com.yy.petfinder.rest.model.CreateUser;
 import com.yy.petfinder.rest.model.Login;
 import com.yy.petfinder.security.model.JWTToken;
+import com.yy.petfinder.security.model.LoginKey;
 import com.yy.petfinder.security.service.LoginService;
 import com.yy.petfinder.service.UserService;
 import org.springframework.http.HttpStatus;
@@ -26,6 +27,12 @@ public class AuthController {
   @ResponseStatus(HttpStatus.CREATED)
   public Mono<JWTToken> login(@RequestBody Login login) {
     return loginService.authenticate(login);
+  }
+
+  @PostMapping(value = "/login-with-key")
+  @ResponseStatus(HttpStatus.CREATED)
+  public Mono<JWTToken> login(@RequestBody LoginKey loginKey) {
+    return loginService.authenticate(loginKey);
   }
 
   @PostMapping(value = "/signUp")
