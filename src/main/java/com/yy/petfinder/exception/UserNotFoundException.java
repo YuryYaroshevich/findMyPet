@@ -5,9 +5,10 @@ import org.springframework.http.HttpStatus;
 public class UserNotFoundException extends BaseException {
   private static final String ID_MSG_TMPL = "User with provided id not found: id=%s";
   private static final String EMAIL_MSG_TMPL = "User with provided email not found: email=%s";
+  private static final int CODE = 100001;
 
   private UserNotFoundException(final String msg) {
-    super(msg, HttpStatus.NOT_FOUND);
+    super(msg, HttpStatus.NOT_FOUND, CODE);
   }
 
   public static UserNotFoundException withId(final String userId) {

@@ -14,6 +14,7 @@ public class ExceptionHandler extends DefaultErrorAttributes {
   private static final String STATUS_FIELD = "status";
   private static final String ERROR_FIELD = "error";
   private static final String MESSAGE_FIELD = "message";
+  private static final String CODE_FIELD = "code";
 
   @Override
   public Map<String, Object> getErrorAttributes(ServerRequest request, boolean includeStackTrace) {
@@ -23,6 +24,7 @@ public class ExceptionHandler extends DefaultErrorAttributes {
       final var errorStatus = ((BaseException) error).getStatus();
       errorAttributes.replace(STATUS_FIELD, errorStatus.value());
       errorAttributes.replace(ERROR_FIELD, errorStatus.getReasonPhrase());
+      errorAttributes.put(CODE_FIELD, ((BaseException) error).getCode());
       return errorAttributes;
     } else if (error instanceof ServerWebInputException) {
       errorAttributes.replace(ERROR_FIELD, "Invalid json in request body");
