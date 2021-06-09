@@ -253,12 +253,12 @@ public class UserControllerTest {
   public void testEmptyUpdateUserDoesntSpoilUserData() {
     // given
     final User user =
-      User.builder()
-        .id(new ObjectId().toHexString())
-        .email("foobar@gmail.com")
-        .password(PASSWORD_PLACEHOLDER)
-        .oAuth2Provider(OAuth2Provider.GOOGLE)
-        .build();
+        User.builder()
+            .id(new ObjectId().toHexString())
+            .email("foobar@gmail.com")
+            .password(PASSWORD_PLACEHOLDER)
+            .oAuth2Provider(OAuth2Provider.GOOGLE)
+            .build();
     userRepository.save(user).block();
     final String authHeaderValue = "Bearer " + tokenService.createToken(user.getId());
 
@@ -266,17 +266,17 @@ public class UserControllerTest {
 
     // when
     final PrivateUserView userView =
-      webTestClient
-        .put()
-        .uri("/users")
-        .bodyValue(userUpdate)
-        .header(AUTHORIZATION, authHeaderValue)
-        .exchange()
-        .expectStatus()
-        .isOk()
-        .expectBody(PrivateUserView.class)
-        .returnResult()
-        .getResponseBody();
+        webTestClient
+            .put()
+            .uri("/users")
+            .bodyValue(userUpdate)
+            .header(AUTHORIZATION, authHeaderValue)
+            .exchange()
+            .expectStatus()
+            .isOk()
+            .expectBody(PrivateUserView.class)
+            .returnResult()
+            .getResponseBody();
 
     // then
     assertEquals(user.getId(), userView.getId());

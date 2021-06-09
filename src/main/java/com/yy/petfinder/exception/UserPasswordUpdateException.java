@@ -8,7 +8,6 @@ public class UserPasswordUpdateException extends BaseException {
   private static final int CODE = 100000;
 
   public UserPasswordUpdateException(final OAuth2Provider oAuth2Provider) {
-    super(String.format(MSG_TMPL, oAuth2Provider.getName()),
-      HttpStatus.BAD_REQUEST, CODE);
+    super(String.format(MSG_TMPL, oAuth2Provider.getName()), HttpStatus.BAD_REQUEST, CODE);
   }
 }
