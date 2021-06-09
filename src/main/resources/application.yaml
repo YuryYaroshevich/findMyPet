@@ -28,6 +28,11 @@ spring:
             redirectUri: "http://localhost:8080/login/oauth2/code/google"
             scope:
               - email
+          facebook:
+            client-id: 267623958479461
+            client-secret: 651c202edb7fba425d822c50f89e0794
+            scope:
+              - email
 
 token:
   salt: JpxM4e858rc673syopdZnMFb*ExeqJtUc0HJ_iOxu~jiSYu+yPdPw93OBBjF

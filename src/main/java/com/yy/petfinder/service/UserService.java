@@ -84,6 +84,9 @@ public class UserService {
   }
 
   public Mono<PrivateUserView> updateUser(final String userId, final UserUpdate rawUserUpdate) {
+    if (rawUserUpdate.isEmpty()) {
+      return userRepository.findById(userId).map(this::userToView);
+    }
     Mono<Boolean> passwordUpdateValid = Mono.just(true);
     final PasswordUpdate passwordUpdate = rawUserUpdate.getPasswordUpdate();
     if (passwordUpdate != null) {

@@ -1,7 +1,11 @@
 package com.yy.petfinder.model;
 
+import java.util.Arrays;
+import java.util.Optional;
+
 public enum OAuth2Provider {
-  GOOGLE("Google");
+  GOOGLE("Google"),
+  FACEBOOK("Facebook");
 
   private final String name;
 
@@ -11,5 +15,11 @@ public enum OAuth2Provider {
 
   public String getName() {
     return name;
+  }
+
+  public static Optional<OAuth2Provider> of(final String value) {
+    return Arrays.stream(values())
+        .filter(provider -> provider.name().equalsIgnoreCase(value))
+        .findFirst();
   }
 }
