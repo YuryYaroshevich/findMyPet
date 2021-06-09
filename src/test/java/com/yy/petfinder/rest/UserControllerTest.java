@@ -250,6 +250,40 @@ public class UserControllerTest {
   }
 
   @Test
+  public void testEmptyUpdateUserDoesntSpoilUserData() {
+    // given
+    final User user =
+      User.builder()
+        .id(new ObjectId().toHexString())
+        .email("foobar@gmail.com")
+        .password(PASSWORD_PLACEHOLDER)
+        .oAuth2Provider(OAuth2Provider.GOOGLE)
+        .build();
+    userRepository.save(user).block();
+    final String authHeaderValue = "Bearer " + tokenService.createToken(user.getId());
+
+    final UserUpdate userUpdate = UserUpdate.builder().build();
+
+    // when
+    final PrivateUserView userView =
+      webTestClient
+        .put()
+        .uri("/users")
+        .bodyValue(userUpdate)
+        .header(AUTHORIZATION, authHeaderValue)
+        .exchange()
+        .expectStatus()
+        .isOk()
+        .expectBody(PrivateUserView.class)
+        .returnResult()
+        .getResponseBody();
+
+    // then
+    assertEquals(user.getId(), userView.getId());
+    assertEquals(user.getEmail(), userView.getEmail());
+  }
+
+  @Test
   public void testUpdateUserWithoutTokenUnauthorized() {
     // given
     final UserUpdate userUpdate = UserUpdate.builder().phone("+375298887766").build();
