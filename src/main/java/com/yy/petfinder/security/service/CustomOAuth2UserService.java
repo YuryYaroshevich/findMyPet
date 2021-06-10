@@ -2,18 +2,27 @@ package com.yy.petfinder.security.service;
 
 import static com.yy.petfinder.model.User.PASSWORD_PLACEHOLDER;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.yy.petfinder.exception.OAuth2FlowException;
 import com.yy.petfinder.model.OAuth2Provider;
 import com.yy.petfinder.model.User;
 import com.yy.petfinder.persistence.UserRepository;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.security.oauth2.client.userinfo.DefaultReactiveOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.ClientResponse;
+import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
+import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 @Service
@@ -21,8 +30,32 @@ public class CustomOAuth2UserService extends DefaultReactiveOAuth2UserService {
   private final UserRepository userRepository;
 
   @Autowired
-  public CustomOAuth2UserService(UserRepository userRepository) {
+  public CustomOAuth2UserService(UserRepository userRepository, ObjectMapper objectMapper) {
     this.userRepository = userRepository;
+    setWebClient(
+        WebClient.builder()
+            .filter(
+                ExchangeFilterFunction.ofResponseProcessor(
+                    response ->
+                        response
+                            .bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {})
+                            .map(
+                                respBody -> {
+                                  if (respBody.containsKey("response")) {
+                                    return ((List) respBody.get("response")).get(0);
+                                  }
+                                  return respBody;
+                                })
+                            .map(
+                                data -> {
+                                  try {
+                                    return objectMapper.writeValueAsString(data);
+                                  } catch (JsonProcessingException e) {
+                                    throw new OAuth2FlowException();
+                                  }
+                                })
+                            .map(data -> ClientResponse.from(response).body(data).build())))
+            .build());
   }
 
   @Override

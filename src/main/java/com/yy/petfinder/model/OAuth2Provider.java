@@ -5,7 +5,8 @@ import java.util.Optional;
 
 public enum OAuth2Provider {
   GOOGLE("Google"),
-  FACEBOOK("Facebook");
+  FACEBOOK("Facebook"),
+  VK("VK");
 
   private final String name;
 
