@@ -8,6 +8,7 @@ import com.yy.petfinder.exception.OAuth2FlowException;
 import com.yy.petfinder.model.OAuth2Provider;
 import com.yy.petfinder.model.User;
 import com.yy.petfinder.persistence.UserRepository;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -18,6 +19,7 @@ import org.springframework.security.oauth2.client.userinfo.DefaultReactiveOAuth2
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.OAuth2Error;
+import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.ClientResponse;
@@ -27,6 +29,8 @@ import reactor.core.publisher.Mono;
 
 @Service
 public class CustomOAuth2UserService extends DefaultReactiveOAuth2UserService {
+  private static final String EMAIL_ATTR = "email";
+
   private final UserRepository userRepository;
 
   @Autowired
@@ -61,6 +65,9 @@ public class CustomOAuth2UserService extends DefaultReactiveOAuth2UserService {
   @Override
   public Mono<OAuth2User> loadUser(OAuth2UserRequest userRequest) {
     final String registrationId = userRequest.getClientRegistration().getRegistrationId();
+    final Optional<String> emailOpt =
+        Optional.ofNullable(userRequest.getAdditionalParameters().get(EMAIL_ATTR))
+            .map(o -> (String) o);
     final Optional<OAuth2Provider> oAuth2ProviderOpt = OAuth2Provider.of(registrationId);
     return oAuth2ProviderOpt
         .map(
@@ -68,7 +75,10 @@ public class CustomOAuth2UserService extends DefaultReactiveOAuth2UserService {
               final Mono<OAuth2User> oAuth2User = super.loadUser(userRequest);
               return oAuth2User.flatMap(
                   oauthData -> {
-                    final String email = oauthData.getAttribute("email");
+                    final String email =
+                        Optional.ofNullable(oauthData.getAttribute(EMAIL_ATTR))
+                            .map(o -> (String) o)
+                            .orElseGet(() -> emailOpt.orElseThrow(() -> new OAuth2FlowException()));
                     return userRepository
                         .findByEmail(email)
                         .map(user -> user.toBuilder().oAuth2Provider(oAuth2Provider).build())
@@ -81,7 +91,17 @@ public class CustomOAuth2UserService extends DefaultReactiveOAuth2UserService {
                                     .password(PASSWORD_PLACEHOLDER)
                                     .oAuth2Provider(oAuth2Provider)
                                     .build()))
-                        .map(ignore -> oauthData);
+                        .map(
+                            user -> {
+                              final Map<String, Object> newAttributes =
+                                  new HashMap<>(oauthData.getAttributes());
+                              newAttributes.put(EMAIL_ATTR, user.getEmail());
+                              return (OAuth2User)
+                                  new DefaultOAuth2User(
+                                      oauthData.getAuthorities(),
+                                      newAttributes,
+                                      oAuth2Provider.getNameAttributeKey());
+                            });
                   });
             })
         .orElseThrow(
@@ -89,7 +109,7 @@ public class CustomOAuth2UserService extends DefaultReactiveOAuth2UserService {
                 new OAuth2AuthenticationException(
                     new OAuth2Error(
                         "unsupported_oauth2_provider",
-                        "Only Google and Facebook are currently supported",
+                        "Only Google, Facebook and VK are currently supported",
                         null)));
   }
 }

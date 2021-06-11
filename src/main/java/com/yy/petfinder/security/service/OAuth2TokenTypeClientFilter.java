@@ -2,10 +2,11 @@ package com.yy.petfinder.security.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.yy.petfinder.security.model.OAuthTokenWrapper;
+import com.yy.petfinder.exception.OAuth2FlowException;
 import java.util.HashMap;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import reactor.core.publisher.Mono;
@@ -25,8 +26,7 @@ public class OAuth2TokenTypeClientFilter {
 
   public Mono<ClientResponse> addTokenType(final ClientResponse response) {
     return response
-        .bodyToMono(OAuthTokenWrapper.class)
-        .map(token -> token.getFields())
+        .bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {})
         .map(
             fields -> {
               if (fields.containsKey("token_type")) {
@@ -37,13 +37,12 @@ public class OAuth2TokenTypeClientFilter {
                 return fieldsWithTokenType;
               }
             })
-        .map(fields -> new OAuthTokenWrapper(fields))
         .map(
-            token -> {
+            fields -> {
               try {
-                return objectMapper.writeValueAsString(token);
+                return objectMapper.writeValueAsString(fields);
               } catch (JsonProcessingException e) {
-                throw new RuntimeException(e);
+                throw new OAuth2FlowException();
               }
             })
         .map(token -> ClientResponse.from(response).body(token).build());
