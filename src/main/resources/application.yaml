@@ -48,7 +48,7 @@ spring:
         provider:
           vk:
             authorizationUri: https://oauth.vk.com/authorize
-            tokenUri: ${VK_TOKEN_URI:https://oauth.vk.com/access_token?client_id=7876580&client_secret=zQ2R9CACCpjdwp7CQqTb}
+            tokenUri: ${VK_TOKEN_URI:https://oauth.vk.com/access_token?client_id=${VK_CLIENT_ID:7876580}&client_secret=${VK_CLIENT_SECRET:zQ2R9CACCpjdwp7CQqTb}}
             userInfoUri: https://api.vk.com/method/users.get?v=5.89
             userNameAttribute: id
 
