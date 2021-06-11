@@ -35,9 +35,9 @@ spring:
               - email
           vk:
             clientName: vk
-            clientId: 7876580
-            clientSecret: zQ2R9CACCpjdwp7CQqTb
-            redirectUri: "http://localhost:8080/login/oauth2/code/vk"
+            clientId: ${VK_CLIENT_ID:7876580}
+            clientSecret: ${VK_CLIENT_SECRET:zQ2R9CACCpjdwp7CQqTb}
+            redirectUri: ${VK_REDIRECT_URI:http://localhost:8080/login/oauth2/code/vk}
             authorizationGrantType: authorization_code
             clientAuthenticationMethod: basic
             scope: email
@@ -48,7 +48,7 @@ spring:
         provider:
           vk:
             authorizationUri: https://oauth.vk.com/authorize
-            tokenUri: https://oauth.vk.com/access_token?client_id=7876580&client_secret=zQ2R9CACCpjdwp7CQqTb
+            tokenUri: ${VK_TOKEN_URI:https://oauth.vk.com/access_token?client_id=7876580&client_secret=zQ2R9CACCpjdwp7CQqTb}
             userInfoUri: https://api.vk.com/method/users.get?v=5.89
             userNameAttribute: id
 
