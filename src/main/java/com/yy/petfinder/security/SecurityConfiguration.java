@@ -14,12 +14,15 @@ import org.springframework.security.config.annotation.web.reactive.EnableWebFlux
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.crypto.password.Pbkdf2PasswordEncoder;
+import org.springframework.security.oauth2.client.endpoint.WebClientReactiveAuthorizationCodeTokenResponseClient;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.authentication.AuthenticationWebFilter;
 import org.springframework.security.web.server.authentication.HttpStatusServerEntryPoint;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.reactive.CorsWebFilter;
 import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
+import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
+import org.springframework.web.reactive.function.client.WebClient;
 
 @Configuration
 @EnableReactiveMethodSecurity
@@ -29,16 +32,19 @@ public class SecurityConfiguration {
   private final TokenService tokenService;
   private final OAuth2AuthenticationSuccessHandler authenticationSuccessHandler;
   private final OAuth2AuthenticationFailureHandler authenticationFailureHandler;
+  private final OAuth2TokenTypeClientFilter oAuth2TokenTypeClientFilter;
 
   public SecurityConfiguration(
       UserDetailsService reactiveUserDetailsService,
       TokenService tokenProvider,
       OAuth2AuthenticationSuccessHandler authenticationSuccessHandler,
-      OAuth2AuthenticationFailureHandler authenticationFailureHandler) {
+      OAuth2AuthenticationFailureHandler authenticationFailureHandler,
+      OAuth2TokenTypeClientFilter oAuth2TokenTypeClientFilter) {
     this.reactiveUserDetailsService = reactiveUserDetailsService;
     this.tokenService = tokenProvider;
     this.authenticationSuccessHandler = authenticationSuccessHandler;
     this.authenticationFailureHandler = authenticationFailureHandler;
+    this.oAuth2TokenTypeClientFilter = oAuth2TokenTypeClientFilter;
   }
 
   @Bean
@@ -112,5 +118,23 @@ public class SecurityConfiguration {
   @Bean
   public Pbkdf2PasswordEncoder passwordEncoder() {
     return new Pbkdf2PasswordEncoder();
+  }
+
+  /**
+   * VK oauth2 provider doesn't return token type and it breaks token parse workflow in spring
+   * security codebase. So we need to set custom webClient which will add token_type using filter.
+   */
+  @Bean
+  public WebClientReactiveAuthorizationCodeTokenResponseClient
+      webClientReactiveAuthorizationCodeTokenResponseClient() {
+    final WebClientReactiveAuthorizationCodeTokenResponseClient client =
+        new WebClientReactiveAuthorizationCodeTokenResponseClient();
+    client.setWebClient(
+        WebClient.builder()
+            .filter(
+                ExchangeFilterFunction.ofResponseProcessor(
+                    oAuth2TokenTypeClientFilter::addTokenType))
+            .build());
+    return client;
   }
 }

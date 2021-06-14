@@ -33,6 +33,24 @@ spring:
             client-secret: 651c202edb7fba425d822c50f89e0794
             scope:
               - email
+          vk:
+            clientName: vk
+            clientId: ${VK_CLIENT_ID:7876580}
+            clientSecret: ${VK_CLIENT_SECRET:zQ2R9CACCpjdwp7CQqTb}
+            redirectUri: ${VK_REDIRECT_URI:http://localhost:8080/login/oauth2/code/vk}
+            authorizationGrantType: authorization_code
+            clientAuthenticationMethod: basic
+            scope: email
+            authorizationUri: https://oauth.vk.com/authorize
+            tokenUri: https://oauth.vk.com/access_token
+            userInfoUri: https://api.vk.com/method/users.get
+            provider: vk
+        provider:
+          vk:
+            authorizationUri: https://oauth.vk.com/authorize
+            tokenUri: ${VK_TOKEN_URI:https://oauth.vk.com/access_token?client_id=${VK_CLIENT_ID:7876580}&client_secret=${VK_CLIENT_SECRET:zQ2R9CACCpjdwp7CQqTb}}
+            userInfoUri: https://api.vk.com/method/users.get?v=5.89
+            userNameAttribute: id
 
 token:
   salt: JpxM4e858rc673syopdZnMFb*ExeqJtUc0HJ_iOxu~jiSYu+yPdPw93OBBjF
