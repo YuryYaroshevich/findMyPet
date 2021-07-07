@@ -44,3 +44,9 @@ https://devcenter.heroku.com/articles/dynos#cli-commands-for-dyno-management
 4. logging
 5. password validation(min length for example)
 6. lombok @NonNull accepts empty string. Validate for empty string where needed.
+
+## Computer Vision
+When ad is created, CV determines breed. It can be array which is assigned to
+cvDefinedBreed field of petAd. Then the one who found pet, will take a picutre,
+CV will derive pet's breed(as array probably) and normal search request will
+be sent with additional cvDefinedBreed field.
