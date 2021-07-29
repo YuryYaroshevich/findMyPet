@@ -51,6 +51,11 @@ public class UserService {
     return userView;
   }
 
+  /** For internal usage only. Shouldn't be used for public REST API. */
+  public Mono<User> getUserByEmail(final String email) {
+    return userRepository.findByEmail(email);
+  }
+
   public Mono<PrivateUserView> createUser(CreateUser createUser) {
     final String id = new ObjectId().toHexString();
     final String encodedPassword = passwordEncoder.encode(createUser.getPassword());
