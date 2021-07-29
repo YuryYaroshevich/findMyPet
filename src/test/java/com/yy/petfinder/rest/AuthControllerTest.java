@@ -4,6 +4,7 @@ import static com.yy.petfinder.testfactory.UserFactory.userBuilderWithDefaults;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.yy.petfinder.model.OAuth2Provider;
 import com.yy.petfinder.model.User;
 import com.yy.petfinder.persistence.UserRepository;
 import com.yy.petfinder.rest.model.CreateUser;
@@ -123,6 +124,34 @@ public class AuthControllerTest {
     userRepository.save(user).block();
     final Login login =
         Login.builder().email(user.getEmail()).password("incorrectPassword").build();
+
+    // when
+    final Map<String, String> errorResp =
+        webTestClient
+            .post()
+            .uri("/login")
+            .bodyValue(login)
+            .exchange()
+            .expectStatus()
+            .isUnauthorized()
+            .expectBody(new ParameterizedTypeReference<Map<String, String>>() {})
+            .returnResult()
+            .getResponseBody();
+
+    // then
+    assertEquals("Invalid credentials", errorResp.get("message"));
+  }
+
+  @Test
+  public void testLoginReturnsUnauthorizedIfOauthUserUsesPassword() {
+    // given
+    final User user =
+        userBuilderWithDefaults()
+            .oAuth2Provider(OAuth2Provider.GOOGLE)
+            .password("placeholder")
+            .build();
+    userRepository.save(user).block();
+    final Login login = Login.builder().email(user.getEmail()).password("mypass123").build();
 
     // when
     final Map<String, String> errorResp =
