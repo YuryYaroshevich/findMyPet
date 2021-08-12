@@ -23,8 +23,6 @@ public class PetAdRepositoryImpl implements PetAdRepositoryCustom {
   private static final String COLORS_FIELD = "colors";
   private static final String ID_FIELD = "_id";
   private static final String OWNER_ID_FIELD = "ownerId";
-  private static final String STATUS_FIELD = "petAdStatus";
-  private static final String FOUND_FIELD = "petAdStatus.found";
   private static final String NAME_FILED = "name";
   private static final String PHOTO_URLS_FILED = "photoUrls";
 
@@ -49,7 +47,6 @@ public class PetAdRepositoryImpl implements PetAdRepositoryCustom {
     if (petSearchReq.getColors() != null) {
       criteria.and(COLORS_FIELD).in(petSearchReq.getColors());
     }
-    criteria.and(FOUND_FIELD).is(false);
 
     if (paging.getNextPageToken() != null) {
       criteria.and(ID_FIELD).lt(new ObjectId(paging.getNextPageToken()));
@@ -77,7 +74,6 @@ public class PetAdRepositoryImpl implements PetAdRepositoryCustom {
     update.set(NAME_FILED, updatedPetAd.getName());
     update.set(PHOTO_URLS_FILED, updatedPetAd.getPhotoUrls());
     update.set(SEARCH_AREA_FIELD, updatedPetAd.getSearchArea());
-    update.set(STATUS_FIELD, updatedPetAd.getPetAdStatus());
 
     return mongoTemplate.findAndModify(
         new Query(criteria), update, new FindAndModifyOptions().returnNew(true), PetAd.class);

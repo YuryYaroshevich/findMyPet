@@ -2,9 +2,9 @@ package com.yy.petfinder.service;
 
 import com.yy.petfinder.exception.InvalidSearchAreaException;
 import com.yy.petfinder.exception.PetAdNotFoundException;
-import com.yy.petfinder.model.PetAd;
-import com.yy.petfinder.model.SearchArea;
+import com.yy.petfinder.model.*;
 import com.yy.petfinder.persistence.PetAdRepository;
+import com.yy.petfinder.persistence.PetAdResolutionRepository;
 import com.yy.petfinder.rest.model.Paging;
 import com.yy.petfinder.rest.model.PetAdResponse;
 import com.yy.petfinder.rest.model.PetAdView;
@@ -21,9 +21,13 @@ import reactor.core.publisher.Mono;
 @Service
 public class PetAdService {
   private final PetAdRepository petAdRepository;
+  private final PetAdResolutionRepository petAdResolutionRepository;
 
-  public PetAdService(final PetAdRepository petAdRepository) {
+  public PetAdService(
+      final PetAdRepository petAdRepository,
+      final PetAdResolutionRepository petAdResolutionRepository) {
     this.petAdRepository = petAdRepository;
+    this.petAdResolutionRepository = petAdResolutionRepository;
   }
 
   public Mono<PetAdResponse> createAd(final PetAdView petAdView, String userId) {
@@ -73,6 +77,26 @@ public class PetAdService {
         .switchIfEmpty(Mono.error(new PetAdNotFoundException(id)));
   }
 
+  public Mono<PetAdResolution> deletePetAd(
+      final String id, final PetAdState petAdState, final String userId) {
+    return petAdRepository
+        .findByIdAndOwnerId(id, userId)
+        .flatMap(
+            petAd ->
+                petAdRepository
+                    .deleteById(id)
+                    .map(
+                        ignore ->
+                            PetAdResolution.builder()
+                                .id(id)
+                                .petAdState(petAdState)
+                                .petType(petAd.getPetType())
+                                .breed(petAd.getBreed())
+                                .searchArea(petAd.getSearchArea())
+                                .build()))
+        .flatMap(petAdResolution -> petAdResolutionRepository.save(petAdResolution));
+  }
+
   public Mono<List<PetAdResponse>> getAds(String userId) {
     return petAdRepository.findPetAdsByOwnerId(userId).map(this::toPetAdResponse).collectList();
   }
@@ -88,7 +112,6 @@ public class PetAdService {
         .petType(petAdView.getPetType())
         .breed(petAdView.getBreed())
         .searchArea(searchArea)
-        .petAdStatus(petAdView.getPetAdStatus())
         .build();
   }
 
@@ -101,7 +124,6 @@ public class PetAdService {
         .petType(petAd.getPetType())
         .breed(petAd.getBreed())
         .searchArea(new SearchAreaView(petAd.getSearchArea().getCoordinatesList()))
-        .petAdStatus(petAd.getPetAdStatus())
         .ownerId(petAd.getOwnerId())
         .build();
   }
