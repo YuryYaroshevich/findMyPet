@@ -28,4 +28,9 @@ public enum PetAdState {
         .orElseThrow(
             () -> new IllegalArgumentException("Unknown pet ad state: " + petAdStateValue));
   }
+
+  @Override
+  public String toString() {
+    return value;
+  }
 }

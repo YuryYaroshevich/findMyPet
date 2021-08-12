@@ -4,14 +4,10 @@ import static com.yy.petfinder.util.PaginatedResponseHelper.createResponse;
 import static com.yy.petfinder.util.UserIdRetriever.userIdFromContext;
 
 import com.yy.petfinder.model.PetAdState;
-import com.yy.petfinder.rest.model.Paging;
-import com.yy.petfinder.rest.model.PetAdResponse;
-import com.yy.petfinder.rest.model.PetAdView;
-import com.yy.petfinder.rest.model.PetSearchRequest;
+import com.yy.petfinder.rest.model.*;
 import com.yy.petfinder.service.PetAdService;
 import java.util.List;
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -47,9 +43,9 @@ public class PetAdController {
 
   @DeleteMapping("/pets/ad/{id}")
   public Mono<ResponseEntity> deletePetAd(
-      @PathVariable final String id, @RequestBody @NotNull PetAdState petAdState) {
+      @PathVariable final String id, @RequestParam PetAdState state) {
     return userIdFromContext()
-        .flatMap(userId -> petAdService.deletePetAd(id, petAdState, userId))
+        .flatMap(userId -> petAdService.deletePetAd(id, state, userId))
         .map(ResponseEntity::ok);
   }
 

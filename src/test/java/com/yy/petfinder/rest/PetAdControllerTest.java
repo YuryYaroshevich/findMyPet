@@ -5,10 +5,9 @@ import static com.yy.petfinder.testfactory.UserFactory.userBuilderWithDefaults;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
-import com.yy.petfinder.model.PetAd;
-import com.yy.petfinder.model.PetType;
-import com.yy.petfinder.model.User;
+import com.yy.petfinder.model.*;
 import com.yy.petfinder.persistence.PetAdRepository;
+import com.yy.petfinder.persistence.PetAdResolutionRepository;
 import com.yy.petfinder.persistence.UserRepository;
 import com.yy.petfinder.rest.model.PetAdView;
 import com.yy.petfinder.rest.model.SearchAreaView;
@@ -26,6 +25,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import reactor.test.StepVerifier;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -34,6 +34,7 @@ public class PetAdControllerTest {
   @Autowired private WebTestClient webTestClient;
 
   @Autowired private PetAdRepository petAdRepository;
+  @Autowired private PetAdResolutionRepository petAdResolutionRepository;
   @Autowired private UserRepository userRepository;
   @Autowired private TokenService tokenService;
 
@@ -43,6 +44,7 @@ public class PetAdControllerTest {
   @BeforeEach
   public void setup() {
     petAdRepository.deleteAll().block();
+    petAdResolutionRepository.deleteAll().block();
     userRepository.deleteAll().block();
     final User user = userBuilderWithDefaults().build();
     userRepository.save(user).block();
@@ -431,5 +433,32 @@ public class PetAdControllerTest {
         .exchange()
         .expectStatus()
         .isUnauthorized();
+  }
+
+  @Test
+  public void testRemovePetAdDeletesAdAndCreatesResolution() {
+    // given
+    final PetAd petAd = petAdBuilderWithDefaults().ownerId(userId).build();
+    petAdRepository.save(petAd).block();
+    final PetAdState removalState = PetAdState.FOUND_BY_APP;
+
+    // when
+    webTestClient
+        .delete()
+        .uri("/pets/ad/" + petAd.getId() + "?state=" + removalState)
+        .header(AUTHORIZATION, authHeaderValue)
+        .exchange()
+        .expectStatus()
+        .isOk();
+
+    // then
+    StepVerifier.create(petAdRepository.findById(petAd.getId())).verifyComplete();
+    final PetAdResolution petAdResolution =
+        petAdResolutionRepository.findById(petAd.getId()).block();
+    assertEquals(petAd.getId(), petAdResolution.getId());
+    assertEquals(petAd.getPetType(), petAdResolution.getPetType());
+    assertEquals(petAd.getBreed(), petAdResolution.getBreed());
+    assertEquals(removalState, petAdResolution.getPetAdState());
+    assertEquals(petAd.getSearchArea(), petAdResolution.getSearchArea());
   }
 }
