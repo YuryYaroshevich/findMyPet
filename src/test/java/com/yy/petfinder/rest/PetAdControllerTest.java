@@ -3,14 +3,12 @@ package com.yy.petfinder.rest;
 import static com.yy.petfinder.testfactory.PetAdFactory.petAdBuilderWithDefaults;
 import static com.yy.petfinder.testfactory.UserFactory.userBuilderWithDefaults;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
-import com.yy.petfinder.model.PetAd;
-import com.yy.petfinder.model.PetAdState;
-import com.yy.petfinder.model.PetAdStatus;
-import com.yy.petfinder.model.PetType;
-import com.yy.petfinder.model.User;
+import com.yy.petfinder.model.*;
 import com.yy.petfinder.persistence.PetAdRepository;
+import com.yy.petfinder.persistence.PetAdResolutionRepository;
 import com.yy.petfinder.persistence.UserRepository;
 import com.yy.petfinder.rest.model.PetAdView;
 import com.yy.petfinder.rest.model.SearchAreaView;
@@ -18,6 +16,7 @@ import com.yy.petfinder.security.service.TokenService;
 import com.yy.petfinder.util.WebTestClientWrapper;
 import java.util.List;
 import java.util.Map;
+import org.bson.types.ObjectId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -36,6 +35,7 @@ public class PetAdControllerTest {
   @Autowired private WebTestClient webTestClient;
 
   @Autowired private PetAdRepository petAdRepository;
+  @Autowired private PetAdResolutionRepository petAdResolutionRepository;
   @Autowired private UserRepository userRepository;
   @Autowired private TokenService tokenService;
 
@@ -45,6 +45,7 @@ public class PetAdControllerTest {
   @BeforeEach
   public void setup() {
     petAdRepository.deleteAll().block();
+    petAdResolutionRepository.deleteAll().block();
     userRepository.deleteAll().block();
     final User user = userBuilderWithDefaults().build();
     userRepository.save(user).block();
@@ -65,7 +66,6 @@ public class PetAdControllerTest {
             .photoUrls(petAd.getPhotoUrls())
             .colors(petAd.getColors())
             .breed(petAd.getBreed())
-            .petAdStatus(new PetAdStatus(false, null))
             .build();
 
     petAdRepository.save(petAd).block();
@@ -123,7 +123,6 @@ public class PetAdControllerTest {
             .name(name)
             .photoUrls(photoUrls)
             .colors(colors)
-            .petAdStatus(new PetAdStatus(false, null))
             .build();
 
     // when
@@ -173,7 +172,6 @@ public class PetAdControllerTest {
             .name(name)
             .photoUrls(photoUrls)
             .colors(colors)
-            .petAdStatus(new PetAdStatus(false, null))
             .build();
 
     // when
@@ -204,7 +202,6 @@ public class PetAdControllerTest {
             .name("Fido")
             .photoUrls(List.of("https://host.com/image1"))
             .colors(List.of("black", "brown"))
-            .petAdStatus(new PetAdStatus(false, null))
             .build();
 
     // when then
@@ -234,7 +231,6 @@ public class PetAdControllerTest {
             .name("Fido")
             .photoUrls(List.of("https://host.com/image1"))
             .colors(List.of("black", "brown"))
-            .petAdStatus(new PetAdStatus(false, null))
             .build();
 
     // when
@@ -278,7 +274,6 @@ public class PetAdControllerTest {
             "https://res.cloudinary.com/demo/image4");
     final List<String> newColors = List.of("black", "brown", "white");
     final String newBreed = "retriever";
-    final PetAdStatus newPetAdStatus = new PetAdStatus(true, PetAdState.FOUND_BY_APP);
     final PetAdView updatedPetAdView =
         PetAdView.builder()
             .searchArea(new SearchAreaView(newCoordinates))
@@ -288,7 +283,6 @@ public class PetAdControllerTest {
             .colors(newColors)
             .breed(newBreed)
             .id(petAd.getId())
-            .petAdStatus(newPetAdStatus)
             .build();
 
     // when
@@ -312,7 +306,6 @@ public class PetAdControllerTest {
     assertEquals(updatedPetAdView.getPhotoUrls(), updatedPetAd.getPhotoUrls());
     assertEquals(updatedPetAdView.getColors(), updatedPetAd.getColors());
     assertEquals(updatedPetAdView.getBreed(), updatedPetAd.getBreed());
-    assertEquals(updatedPetAdView.getPetAdStatus(), updatedPetAd.getPetAdStatus());
   }
 
   /** Invalid polygon means polygon consisting of multiple closed figures. */
@@ -339,7 +332,6 @@ public class PetAdControllerTest {
             "https://res.cloudinary.com/demo/image4");
     final List<String> newColors = List.of("black", "brown", "white");
     final String newBreed = "retriever";
-    final PetAdStatus newPetAdStatus = new PetAdStatus(true, PetAdState.FOUND_BY_APP);
     final PetAdView updatedPetAdView =
         PetAdView.builder()
             .searchArea(new SearchAreaView(newCoordinates))
@@ -349,7 +341,6 @@ public class PetAdControllerTest {
             .colors(newColors)
             .breed(newBreed)
             .id(petAd.getId())
-            .petAdStatus(newPetAdStatus)
             .build();
 
     // when
@@ -391,7 +382,6 @@ public class PetAdControllerTest {
             .photoUrls(photoUrls)
             .colors(newColors)
             .id(petAdId)
-            .petAdStatus(new PetAdStatus(false, null))
             .build();
 
     // when
@@ -434,7 +424,6 @@ public class PetAdControllerTest {
             .photoUrls(List.of("https://res.cloudinary.com/demo/image1"))
             .colors(List.of("black", "brown", "white"))
             .id(petAd.getId())
-            .petAdStatus(new PetAdStatus(false, null))
             .build();
 
     // when
@@ -445,5 +434,56 @@ public class PetAdControllerTest {
         .exchange()
         .expectStatus()
         .isUnauthorized();
+  }
+
+  @Test
+  public void testRemovePetAdDeletesAdAndCreatesResolution() {
+    // given
+    final PetAd petAd = petAdBuilderWithDefaults().ownerId(userId).build();
+    petAdRepository.save(petAd).block();
+    final PetAdState removalState = PetAdState.FOUND_BY_APP;
+
+    // when
+    webTestClient
+        .delete()
+        .uri("/pets/ad/" + petAd.getId() + "?state=" + removalState.value())
+        .header(AUTHORIZATION, authHeaderValue)
+        .exchange()
+        .expectStatus()
+        .isOk();
+
+    // then
+    assertNull(petAdRepository.findById(petAd.getId()).block());
+    final PetAdResolution petAdResolution =
+        petAdResolutionRepository.findById(petAd.getId()).block();
+    assertEquals(petAd.getId(), petAdResolution.getId());
+    assertEquals(petAd.getPetType(), petAdResolution.getPetType());
+    assertEquals(petAd.getBreed(), petAdResolution.getBreed());
+    assertEquals(removalState, petAdResolution.getPetAdState());
+    assertEquals(petAd.getSearchArea(), petAdResolution.getSearchArea());
+  }
+
+  @Test
+  public void testRemovePetAdReturnsNotFoundIfNoPetAd() {
+    // given
+    final String petAdId = ObjectId.get().toHexString();
+    final PetAdState removalState = PetAdState.FOUND_BY_APP;
+
+    // when
+    final Map<String, String> errorResp =
+        webTestClient
+            .delete()
+            .uri("/pets/ad/" + petAdId + "?state=" + removalState.value())
+            .header(AUTHORIZATION, authHeaderValue)
+            .exchange()
+            .expectStatus()
+            .isNotFound()
+            .expectBody(new ParameterizedTypeReference<Map<String, String>>() {})
+            .returnResult()
+            .getResponseBody();
+
+    // then
+    final String errorMsg = "PetAd with provided id not found: id=" + petAdId;
+    assertEquals(errorMsg, errorResp.get("message"));
   }
 }

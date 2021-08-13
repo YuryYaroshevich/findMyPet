@@ -1,6 +1,5 @@
 package com.yy.petfinder.rest;
 
-import static com.yy.petfinder.model.PetAdState.FOUND_BY_APP;
 import static com.yy.petfinder.testfactory.PetAdFactory.petAdBuilderWithDefaults;
 import static com.yy.petfinder.util.SearchUriBuilder.searchUri;
 import static com.yy.petfinder.util.WebTestClientWrapper.getList;
@@ -8,7 +7,6 @@ import static java.util.stream.Collectors.toSet;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.yy.petfinder.model.PetAd;
-import com.yy.petfinder.model.PetAdStatus;
 import com.yy.petfinder.model.PetType;
 import com.yy.petfinder.persistence.PetAdRepository;
 import com.yy.petfinder.rest.model.PetAdView;
@@ -141,37 +139,6 @@ public class PetAdSearchControllerTest {
             Set.of(blackAndWhiteLabradorAd.getId()),
             petSearchRequest4);
 
-    // scenario 5 - two animals fit to search request but one is already found
-    final PetAd blackAndWhiteLabradorNotFoundAd =
-        petAdBuilderWithDefaults()
-            .petType(PetType.DOG)
-            .colors(List.of("black", "white"))
-            .breed(labradorBreed)
-            .build();
-    final PetAd blackAndWhiteLabradorFoundAd =
-        petAdBuilderWithDefaults()
-            .petType(PetType.DOG)
-            .colors(List.of("black", "white"))
-            .breed(labradorBreed)
-            .petAdStatus(new PetAdStatus(true, FOUND_BY_APP))
-            .build();
-
-    final PetSearchRequest petSearchRequest5 =
-        PetSearchRequest.builder()
-            .longitude(27.417068481445312)
-            .latitude(53.885826945065915)
-            .radius(400)
-            .breed(labradorBreed)
-            .colors(List.of("black", "white"))
-            .petType(PetType.DOG)
-            .build();
-
-    final Arguments scenario5 =
-        Arguments.of(
-            List.of(blackAndWhiteLabradorNotFoundAd, blackAndWhiteLabradorFoundAd),
-            Set.of(blackAndWhiteLabradorNotFoundAd.getId()),
-            petSearchRequest5);
-
-    return Stream.of(scenario1, scenario2, scenario3, scenario4, scenario5);
+    return Stream.of(scenario1, scenario2, scenario3, scenario4);
   }
 }

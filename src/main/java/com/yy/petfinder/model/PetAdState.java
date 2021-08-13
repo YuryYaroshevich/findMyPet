@@ -6,7 +6,8 @@ import java.util.Arrays;
 
 public enum PetAdState {
   FOUND_BY_APP("found_by_app"),
-  FOUND_BY_USER("found_by_user");
+  FOUND_BY_USER("found_by_user"),
+  PET_AD_NOT_RELEVANT("not_relevant");
 
   private final String value;
 
@@ -26,5 +27,10 @@ public enum PetAdState {
         .findFirst()
         .orElseThrow(
             () -> new IllegalArgumentException("Unknown pet ad state: " + petAdStateValue));
+  }
+
+  @Override
+  public String toString() {
+    return value;
   }
 }

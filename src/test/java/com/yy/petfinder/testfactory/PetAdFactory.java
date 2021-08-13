@@ -1,7 +1,6 @@
 package com.yy.petfinder.testfactory;
 
 import com.yy.petfinder.model.PetAd;
-import com.yy.petfinder.model.PetAdStatus;
 import com.yy.petfinder.model.PetType;
 import com.yy.petfinder.model.SearchArea;
 import java.util.List;
@@ -38,7 +37,6 @@ public final class PetAdFactory {
         .breed(breed)
         .ownerId(ownerId)
         .photoUrls(photoUrls)
-        .colors(colors)
-        .petAdStatus(new PetAdStatus(false, null));
+        .colors(colors);
   }
 }
