@@ -81,10 +81,12 @@ public class PetAdService {
       final String id, final PetAdState petAdState, final String userId) {
     return petAdRepository
         .findByIdAndOwnerId(id, userId)
+        .switchIfEmpty(Mono.error(new PetAdNotFoundException(id)))
         .flatMap(
             petAd ->
                 petAdRepository
                     .deleteById(id)
+                    .thenReturn(petAd)
                     .map(
                         ignore ->
                             PetAdResolution.builder()

@@ -3,6 +3,7 @@ package com.yy.petfinder.rest;
 import static com.yy.petfinder.testfactory.PetAdFactory.petAdBuilderWithDefaults;
 import static com.yy.petfinder.testfactory.UserFactory.userBuilderWithDefaults;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 import com.yy.petfinder.model.*;
@@ -25,7 +26,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
-import reactor.test.StepVerifier;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -445,14 +445,14 @@ public class PetAdControllerTest {
     // when
     webTestClient
         .delete()
-        .uri("/pets/ad/" + petAd.getId() + "?state=" + removalState)
+        .uri("/pets/ad/" + petAd.getId() + "?state=" + removalState.value())
         .header(AUTHORIZATION, authHeaderValue)
         .exchange()
         .expectStatus()
         .isOk();
 
     // then
-    StepVerifier.create(petAdRepository.findById(petAd.getId())).verifyComplete();
+    assertNull(petAdRepository.findById(petAd.getId()).block());
     final PetAdResolution petAdResolution =
         petAdResolutionRepository.findById(petAd.getId()).block();
     assertEquals(petAd.getId(), petAdResolution.getId());
