@@ -16,6 +16,7 @@ import com.yy.petfinder.security.service.TokenService;
 import com.yy.petfinder.util.WebTestClientWrapper;
 import java.util.List;
 import java.util.Map;
+import org.bson.types.ObjectId;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -460,5 +461,29 @@ public class PetAdControllerTest {
     assertEquals(petAd.getBreed(), petAdResolution.getBreed());
     assertEquals(removalState, petAdResolution.getPetAdState());
     assertEquals(petAd.getSearchArea(), petAdResolution.getSearchArea());
+  }
+
+  @Test
+  public void testRemovePetAdReturnsNotFoundIfNoPetAd() {
+    // given
+    final String petAdId = ObjectId.get().toHexString();
+    final PetAdState removalState = PetAdState.FOUND_BY_APP;
+
+    // when
+    final Map<String, String> errorResp =
+        webTestClient
+            .delete()
+            .uri("/pets/ad/" + petAdId + "?state=" + removalState.value())
+            .header(AUTHORIZATION, authHeaderValue)
+            .exchange()
+            .expectStatus()
+            .isNotFound()
+            .expectBody(new ParameterizedTypeReference<Map<String, String>>() {})
+            .returnResult()
+            .getResponseBody();
+
+    // then
+    final String errorMsg = "PetAd with provided id not found: id=" + petAdId;
+    assertEquals(errorMsg, errorResp.get("message"));
   }
 }
