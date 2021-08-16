@@ -66,6 +66,7 @@ public class PetAdControllerTest {
             .photoUrls(petAd.getPhotoUrls())
             .colors(petAd.getColors())
             .breed(petAd.getBreed())
+            .createdAt(petAd.getCreatedAt())
             .build();
 
     petAdRepository.save(petAd).block();

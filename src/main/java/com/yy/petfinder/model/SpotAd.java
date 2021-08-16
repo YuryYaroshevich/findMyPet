@@ -1,5 +1,6 @@
 package com.yy.petfinder.model;
 
+import java.time.Instant;
 import java.util.List;
 import lombok.Builder;
 import lombok.NonNull;
@@ -24,4 +25,6 @@ public class SpotAd {
   private List<Double> point;
 
   private double radius;
+
+  @NonNull private Instant createdAt;
 }

@@ -21,6 +21,7 @@ import com.yy.petfinder.persistence.SpotAdRepository;
 import com.yy.petfinder.persistence.UserRepository;
 import com.yy.petfinder.rest.model.*;
 import com.yy.petfinder.util.WebTestClientWrapper;
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -206,6 +207,7 @@ public class SpotAdControllerTest {
             .radius(40000)
             .photoIds(List.of("photo1"))
             .petType(PetType.DOG)
+            .createdAt(Instant.now())
             .build();
     spotAdRepository.save(spotAd).block();
 
@@ -223,6 +225,8 @@ public class SpotAdControllerTest {
     assertEquals(spotAd.getPetType(), spotAdResponse.getPetType());
     assertEquals(spotAd.getRadius(), spotAdResponse.getRadius());
     assertEquals(spotAd.getPhotoIds(), spotAdResponse.getPhotoIds());
+    assertEquals(
+        spotAd.getCreatedAt().toEpochMilli(), spotAdResponse.getCreatedAt().toEpochMilli());
   }
 
   @Test

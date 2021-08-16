@@ -10,6 +10,8 @@ import com.yy.petfinder.rest.model.PetAdResponse;
 import com.yy.petfinder.rest.model.PetAdView;
 import com.yy.petfinder.rest.model.PetSearchRequest;
 import com.yy.petfinder.rest.model.SearchAreaView;
+import java.time.Clock;
+import java.time.Instant;
 import java.util.List;
 import org.bson.types.ObjectId;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -22,12 +24,15 @@ import reactor.core.publisher.Mono;
 public class PetAdService {
   private final PetAdRepository petAdRepository;
   private final PetAdResolutionRepository petAdResolutionRepository;
+  private final Clock clock;
 
   public PetAdService(
       final PetAdRepository petAdRepository,
-      final PetAdResolutionRepository petAdResolutionRepository) {
+      final PetAdResolutionRepository petAdResolutionRepository,
+      final Clock clock) {
     this.petAdRepository = petAdRepository;
     this.petAdResolutionRepository = petAdResolutionRepository;
+    this.clock = clock;
   }
 
   public Mono<PetAdResponse> createAd(final PetAdView petAdView, String userId) {
@@ -95,6 +100,7 @@ public class PetAdService {
                                 .petType(petAd.getPetType())
                                 .breed(petAd.getBreed())
                                 .searchArea(petAd.getSearchArea())
+                                .createdAt(Instant.now(clock))
                                 .build()))
         .flatMap(petAdResolution -> petAdResolutionRepository.save(petAdResolution));
   }
@@ -114,6 +120,7 @@ public class PetAdService {
         .petType(petAdView.getPetType())
         .breed(petAdView.getBreed())
         .searchArea(searchArea)
+        .createdAt(petAdView.getCreatedAt() == null ? Instant.now(clock) : petAdView.getCreatedAt())
         .build();
   }
 
@@ -127,6 +134,7 @@ public class PetAdService {
         .breed(petAd.getBreed())
         .searchArea(new SearchAreaView(petAd.getSearchArea().getCoordinatesList()))
         .ownerId(petAd.getOwnerId())
+        .createdAt(petAd.getCreatedAt())
         .build();
   }
 }

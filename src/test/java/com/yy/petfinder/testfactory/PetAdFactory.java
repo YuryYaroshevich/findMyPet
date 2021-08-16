@@ -3,6 +3,8 @@ package com.yy.petfinder.testfactory;
 import com.yy.petfinder.model.PetAd;
 import com.yy.petfinder.model.PetType;
 import com.yy.petfinder.model.SearchArea;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.UUID;
 import org.bson.types.ObjectId;
@@ -37,6 +39,7 @@ public final class PetAdFactory {
         .breed(breed)
         .ownerId(ownerId)
         .photoUrls(photoUrls)
-        .colors(colors);
+        .colors(colors)
+        .createdAt(Instant.now().truncatedTo(ChronoUnit.MILLIS));
   }
 }

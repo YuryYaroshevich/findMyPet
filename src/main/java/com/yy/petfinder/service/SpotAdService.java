@@ -5,6 +5,8 @@ import com.yy.petfinder.model.PetAd;
 import com.yy.petfinder.model.SpotAd;
 import com.yy.petfinder.persistence.SpotAdRepository;
 import com.yy.petfinder.rest.model.*;
+import java.time.Clock;
+import java.time.Instant;
 import java.util.List;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
@@ -16,14 +18,17 @@ public class SpotAdService {
   private final SpotAdRepository spotAdRepository;
   private final PetAdService petAdService;
   private final NotificationService notificationService;
+  private final Clock clock;
 
   public SpotAdService(
       final SpotAdRepository spotAdRepository,
       final PetAdService petAdService,
-      final NotificationService notificationService) {
+      final NotificationService notificationService,
+      final Clock clock) {
     this.spotAdRepository = spotAdRepository;
     this.petAdService = petAdService;
     this.notificationService = notificationService;
+    this.clock = clock;
   }
 
   public Mono<SpotAdView> createAd(final SpotAdView spotAdView) {
@@ -49,6 +54,7 @@ public class SpotAdService {
             .photoIds(spotAdView.getPhotoIds())
             .radius(spotAdView.getRadius())
             .point(List.of(spotAdView.getLongitude(), spotAdView.getLatitude()))
+            .createdAt(Instant.now(clock))
             .build();
     return spotAdRepository.save(spotAd).map(ignore -> spotAdView.toBuilder().id(spotAdId).build());
   }
@@ -77,6 +83,7 @@ public class SpotAdService {
         .longitude(spotAd.getPoint().get(0))
         .latitude(spotAd.getPoint().get(1))
         .radius(spotAd.getRadius())
+        .createdAt(spotAd.getCreatedAt())
         .build();
   }
 }
