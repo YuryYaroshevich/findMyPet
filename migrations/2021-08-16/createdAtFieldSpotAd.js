@@ -1,5 +1,4 @@
-var conn = new Mongo();
-var db = conn.getDB("pets");
+var db = db.getSiblingDB('petfinder')
 
 var cursor = db.spotAd.find();
 
