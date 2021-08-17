@@ -1,5 +1,6 @@
 package com.yy.petfinder.model;
 
+import java.time.Instant;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.Value;
@@ -20,4 +21,6 @@ public class PetAdResolution {
   @GeoSpatialIndexed(type = GeoSpatialIndexType.GEO_2DSPHERE)
   @NonNull
   private SearchArea searchArea;
+
+  @NonNull private Instant createdAt;
 }

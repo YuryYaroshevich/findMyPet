@@ -1,6 +1,7 @@
 package com.yy.petfinder.model;
 
 import com.yy.petfinder.rest.model.Messenger;
+import java.time.Instant;
 import java.util.List;
 import lombok.Builder;
 import lombok.NonNull;
@@ -27,6 +28,8 @@ public class User {
   private List<Messenger> messengers;
 
   private OAuth2Provider oAuth2Provider;
+
+  private Instant createdAt;
 
   public boolean isOAuth2Authenticated() {
     return getOAuth2Provider() != null;

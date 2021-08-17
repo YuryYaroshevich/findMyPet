@@ -1,6 +1,7 @@
 package com.yy.petfinder.rest.model;
 
 import com.yy.petfinder.model.PetType;
+import java.time.Instant;
 import java.util.List;
 import lombok.Builder;
 import lombok.NonNull;
@@ -19,4 +20,5 @@ public class SpotAdResponse implements Identifiable {
   private String description;
   private String phone;
   @NonNull private List<String> photoIds;
+  @NonNull private Instant createdAt;
 }

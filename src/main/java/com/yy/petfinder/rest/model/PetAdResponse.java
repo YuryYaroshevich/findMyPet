@@ -1,6 +1,7 @@
 package com.yy.petfinder.rest.model;
 
 import com.yy.petfinder.model.PetType;
+import java.time.Instant;
 import java.util.List;
 import lombok.Builder;
 import lombok.NonNull;
@@ -17,4 +18,5 @@ public class PetAdResponse implements Identifiable {
   @NonNull private List<String> photoUrls;
   @NonNull private SearchAreaView searchArea;
   @NonNull private String ownerId;
+  @NonNull private Instant createdAt;
 }

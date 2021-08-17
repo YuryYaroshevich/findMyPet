@@ -16,6 +16,8 @@ import com.yy.petfinder.rest.model.PasswordUpdateEmail;
 import com.yy.petfinder.rest.model.PasswordUpdateRequest;
 import com.yy.petfinder.rest.model.PrivateUserView;
 import com.yy.petfinder.rest.model.UserUpdate;
+import java.time.Clock;
+import java.time.Instant;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
@@ -31,17 +33,20 @@ public class UserService {
   private final UserRandomKeyRepository userRandomKeyRepository;
   private final PasswordEncoder passwordEncoder;
   private final PasswdUpdateEmailService passwdUpdateEmailService;
+  private final Clock clock;
 
   @Autowired
   public UserService(
       final UserRepository userRepository,
       final UserRandomKeyRepository userRandomKeyRepository,
       final PasswordEncoder passwordEncoder,
-      final PasswdUpdateEmailService passwdUpdateEmailService) {
+      final PasswdUpdateEmailService passwdUpdateEmailService,
+      final Clock clock) {
     this.userRepository = userRepository;
     this.userRandomKeyRepository = userRandomKeyRepository;
     this.passwordEncoder = passwordEncoder;
     this.passwdUpdateEmailService = passwdUpdateEmailService;
+    this.clock = clock;
   }
 
   public Mono<PrivateUserView> getUser(final String id) {
@@ -66,6 +71,7 @@ public class UserService {
             .phone(createUser.getPhone())
             .password(encodedPassword)
             .messengers(createUser.getMessengers())
+            .createdAt(Instant.now(clock))
             .build();
 
     final Mono<User> createdUser =
