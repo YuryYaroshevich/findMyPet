@@ -1,5 +1,7 @@
 package com.yy.petfinder.service;
 
+import static java.util.stream.Collectors.toList;
+
 import com.yy.petfinder.exception.InvalidSearchAreaException;
 import com.yy.petfinder.exception.PetAdNotFoundException;
 import com.yy.petfinder.model.*;
@@ -83,7 +85,7 @@ public class PetAdService {
   }
 
   public Mono<PetAdResolution> deletePetAd(
-    final String id, final PetAdResult petAdResult, final String userId) {
+      final String id, final PetAdResult petAdResult, final String userId) {
     return petAdRepository
         .findByIdAndOwnerId(id, userId)
         .switchIfEmpty(Mono.error(new PetAdNotFoundException(id)))
@@ -103,6 +105,14 @@ public class PetAdService {
                                 .createdAt(Instant.now(clock))
                                 .build()))
         .flatMap(petAdResolution -> petAdResolutionRepository.save(petAdResolution));
+  }
+
+  public Mono<Object> deletePetAds(final String userId) {
+    return petAdRepository
+        .findPetAdsByOwnerId(userId)
+        .collectList()
+        .map(petAds -> petAds.stream().map(PetAd::getId).collect(toList()))
+        .flatMap(petAdIds -> petAdRepository.removePetAds(petAdIds));
   }
 
   public Mono<List<PetAdResponse>> getAds(String userId) {

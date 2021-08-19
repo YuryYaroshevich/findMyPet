@@ -33,6 +33,7 @@ public class UserService {
   private final UserRandomKeyRepository userRandomKeyRepository;
   private final PasswordEncoder passwordEncoder;
   private final PasswdUpdateEmailService passwdUpdateEmailService;
+  private final PetAdService petAdService;
   private final Clock clock;
 
   @Autowired
@@ -41,11 +42,13 @@ public class UserService {
       final UserRandomKeyRepository userRandomKeyRepository,
       final PasswordEncoder passwordEncoder,
       final PasswdUpdateEmailService passwdUpdateEmailService,
+      final PetAdService petAdService,
       final Clock clock) {
     this.userRepository = userRepository;
     this.userRandomKeyRepository = userRandomKeyRepository;
     this.passwordEncoder = passwordEncoder;
     this.passwdUpdateEmailService = passwdUpdateEmailService;
+    this.petAdService = petAdService;
     this.clock = clock;
   }
 
@@ -167,6 +170,10 @@ public class UserService {
                       .build();
               return userRepository.findAndModify(userUpdate, passwordUpdateRequest.getUserId());
             });
+  }
+
+  public Mono<Void> deleteUser(String userId) {
+    return petAdService.deletePetAds(userId).flatMap(ignore -> userRepository.deleteById(userId));
   }
 
   private void errorIfOAuth2Authorized(final User user) {
