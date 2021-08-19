@@ -1,5 +1,6 @@
 package com.yy.petfinder.rest;
 
+import static com.yy.petfinder.model.PetAdResult.REMOVED_WITH_PROFILE;
 import static com.yy.petfinder.model.User.PASSWORD_PLACEHOLDER;
 import static com.yy.petfinder.rest.model.Messenger.TELEGRAM;
 import static com.yy.petfinder.rest.model.Messenger.VIBER;
@@ -12,11 +13,9 @@ import com.icegreen.greenmail.configuration.GreenMailConfiguration;
 import com.icegreen.greenmail.junit5.GreenMailExtension;
 import com.icegreen.greenmail.util.GreenMailUtil;
 import com.icegreen.greenmail.util.ServerSetupTest;
-import com.yy.petfinder.model.OAuth2Provider;
-import com.yy.petfinder.model.PetAd;
-import com.yy.petfinder.model.User;
-import com.yy.petfinder.model.UserRandomKey;
+import com.yy.petfinder.model.*;
 import com.yy.petfinder.persistence.PetAdRepository;
+import com.yy.petfinder.persistence.PetAdResolutionRepository;
 import com.yy.petfinder.persistence.UserRandomKeyRepository;
 import com.yy.petfinder.persistence.UserRepository;
 import com.yy.petfinder.rest.model.*;
@@ -55,6 +54,7 @@ public class UserControllerTest {
 
   @Autowired private UserRepository userRepository;
   @Autowired private PetAdRepository petAdRepository;
+  @Autowired private PetAdResolutionRepository petAdResolutionRepository;
   @Autowired private UserRandomKeyRepository userRandomKeyRepository;
   @Autowired private TokenService tokenService;
   @Autowired private PasswordEncoder passwordEncoder;
@@ -63,6 +63,7 @@ public class UserControllerTest {
   public void setup() {
     userRepository.deleteAll().block();
     petAdRepository.deleteAll().block();
+    petAdResolutionRepository.deleteAll().block();
     userRandomKeyRepository.deleteAll().block();
   }
 
@@ -529,6 +530,22 @@ public class UserControllerTest {
     assertNull(userRepository.findById(user.getId()).block());
     assertNull(petAdRepository.findById(petAd1.getId()).block());
     assertNull(petAdRepository.findById(petAd2.getId()).block());
+
+    final List<PetAdResolution> petAdResolutions =
+        petAdResolutionRepository.findAll().collectList().block();
+    assertEquals(2, petAdResolutions.size());
+    final PetAdResolution resolution1 =
+        petAdResolutions.stream()
+            .filter(resolution -> resolution.getId().equals(petAd1.getId()))
+            .findFirst()
+            .get();
+    assertEquals(REMOVED_WITH_PROFILE, resolution1.getPetAdResult());
+    final PetAdResolution resolution2 =
+        petAdResolutions.stream()
+            .filter(resolution -> resolution.getId().equals(petAd2.getId()))
+            .findFirst()
+            .get();
+    assertEquals(REMOVED_WITH_PROFILE, resolution2.getPetAdResult());
 
     webTestClient
         .get()
