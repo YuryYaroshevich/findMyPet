@@ -83,7 +83,7 @@ public class PetAdService {
   }
 
   public Mono<PetAdResolution> deletePetAd(
-      final String id, final PetAdState petAdState, final String userId) {
+    final String id, final PetAdResult petAdResult, final String userId) {
     return petAdRepository
         .findByIdAndOwnerId(id, userId)
         .switchIfEmpty(Mono.error(new PetAdNotFoundException(id)))
@@ -96,7 +96,7 @@ public class PetAdService {
                         ignore ->
                             PetAdResolution.builder()
                                 .id(id)
-                                .petAdState(petAdState)
+                                .petAdResult(petAdResult)
                                 .petType(petAd.getPetType())
                                 .breed(petAd.getBreed())
                                 .searchArea(petAd.getSearchArea())

@@ -442,7 +442,7 @@ public class PetAdControllerTest {
     // given
     final PetAd petAd = petAdBuilderWithDefaults().ownerId(userId).build();
     petAdRepository.save(petAd).block();
-    final PetAdState removalState = PetAdState.FOUND_BY_APP;
+    final PetAdResult removalState = PetAdResult.FOUND_BY_APP;
 
     // when
     webTestClient
@@ -460,7 +460,7 @@ public class PetAdControllerTest {
     assertEquals(petAd.getId(), petAdResolution.getId());
     assertEquals(petAd.getPetType(), petAdResolution.getPetType());
     assertEquals(petAd.getBreed(), petAdResolution.getBreed());
-    assertEquals(removalState, petAdResolution.getPetAdState());
+    assertEquals(removalState, petAdResolution.getPetAdResult());
     assertEquals(petAd.getSearchArea(), petAdResolution.getSearchArea());
   }
 
@@ -468,7 +468,7 @@ public class PetAdControllerTest {
   public void testRemovePetAdReturnsNotFoundIfNoPetAd() {
     // given
     final String petAdId = ObjectId.get().toHexString();
-    final PetAdState removalState = PetAdState.FOUND_BY_APP;
+    final PetAdResult removalState = PetAdResult.FOUND_BY_APP;
 
     // when
     final Map<String, String> errorResp =

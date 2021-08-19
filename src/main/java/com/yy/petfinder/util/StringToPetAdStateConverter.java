@@ -1,13 +1,13 @@
 package com.yy.petfinder.util;
 
-import com.yy.petfinder.model.PetAdState;
+import com.yy.petfinder.model.PetAdResult;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.stereotype.Component;
 
 @Component
-public class StringToPetAdStateConverter implements Converter<String, PetAdState> {
+public class StringToPetAdStateConverter implements Converter<String, PetAdResult> {
   @Override
-  public PetAdState convert(final String value) {
-    return PetAdState.of(value);
+  public PetAdResult convert(final String value) {
+    return PetAdResult.of(value);
   }
 }
