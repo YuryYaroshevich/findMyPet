@@ -3,10 +3,9 @@ package com.yy.petfinder.rest;
 import static com.yy.petfinder.model.User.PASSWORD_PLACEHOLDER;
 import static com.yy.petfinder.rest.model.Messenger.TELEGRAM;
 import static com.yy.petfinder.rest.model.Messenger.VIBER;
+import static com.yy.petfinder.testfactory.PetAdFactory.petAdBuilderWithDefaults;
 import static com.yy.petfinder.testfactory.UserFactory.userBuilderWithDefaults;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 import com.icegreen.greenmail.configuration.GreenMailConfiguration;
@@ -14,8 +13,10 @@ import com.icegreen.greenmail.junit5.GreenMailExtension;
 import com.icegreen.greenmail.util.GreenMailUtil;
 import com.icegreen.greenmail.util.ServerSetupTest;
 import com.yy.petfinder.model.OAuth2Provider;
+import com.yy.petfinder.model.PetAd;
 import com.yy.petfinder.model.User;
 import com.yy.petfinder.model.UserRandomKey;
+import com.yy.petfinder.persistence.PetAdRepository;
 import com.yy.petfinder.persistence.UserRandomKeyRepository;
 import com.yy.petfinder.persistence.UserRepository;
 import com.yy.petfinder.rest.model.*;
@@ -53,6 +54,7 @@ public class UserControllerTest {
   @Autowired private WebTestClient webTestClient;
 
   @Autowired private UserRepository userRepository;
+  @Autowired private PetAdRepository petAdRepository;
   @Autowired private UserRandomKeyRepository userRandomKeyRepository;
   @Autowired private TokenService tokenService;
   @Autowired private PasswordEncoder passwordEncoder;
@@ -60,6 +62,7 @@ public class UserControllerTest {
   @BeforeEach
   public void setup() {
     userRepository.deleteAll().block();
+    petAdRepository.deleteAll().block();
     userRandomKeyRepository.deleteAll().block();
   }
 
@@ -490,5 +493,49 @@ public class UserControllerTest {
     // then
     assertTrue(
         responseBody.get("message").contains("Password recovery request contains invalid token"));
+  }
+
+  @Test
+  public void testDeleteUserRemovesUserAndHerPetAds() {
+    // given
+    final User user = userBuilderWithDefaults().build();
+    userRepository.save(user).block();
+
+    final PetAd petAd1 = petAdBuilderWithDefaults().ownerId(user.getId()).build();
+    petAdRepository.save(petAd1).block();
+
+    final PetAd petAd2 = petAdBuilderWithDefaults().ownerId(user.getId()).build();
+    petAdRepository.save(petAd2).block();
+
+    // when
+    final String authHeaderValue = "Bearer " + tokenService.createToken(user.getId());
+    webTestClient
+        .get()
+        .uri("/users/private")
+        .header(AUTHORIZATION, authHeaderValue)
+        .exchange()
+        .expectStatus()
+        .isOk();
+
+    webTestClient
+        .delete()
+        .uri("/users")
+        .header(AUTHORIZATION, authHeaderValue)
+        .exchange()
+        .expectStatus()
+        .isOk();
+
+    // then
+    assertNull(userRepository.findById(user.getId()).block());
+    assertNull(petAdRepository.findById(petAd1.getId()).block());
+    assertNull(petAdRepository.findById(petAd2.getId()).block());
+
+    webTestClient
+        .get()
+        .uri("/users/private")
+        .header(AUTHORIZATION, authHeaderValue)
+        .exchange()
+        .expectStatus()
+        .isUnauthorized();
   }
 }

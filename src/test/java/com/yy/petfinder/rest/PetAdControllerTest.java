@@ -447,7 +447,7 @@ public class PetAdControllerTest {
     // when
     webTestClient
         .delete()
-        .uri("/pets/ad/" + petAd.getId() + "?state=" + removalState.value())
+        .uri("/pets/ad/" + petAd.getId() + "?result=" + removalState.value())
         .header(AUTHORIZATION, authHeaderValue)
         .exchange()
         .expectStatus()
@@ -474,7 +474,7 @@ public class PetAdControllerTest {
     final Map<String, String> errorResp =
         webTestClient
             .delete()
-            .uri("/pets/ad/" + petAdId + "?state=" + removalState.value())
+            .uri("/pets/ad/" + petAdId + "?result=" + removalState.value())
             .header(AUTHORIZATION, authHeaderValue)
             .exchange()
             .expectStatus()
