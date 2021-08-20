@@ -1,5 +1,8 @@
 package com.yy.petfinder.service;
 
+import static com.yy.petfinder.model.PetAdResult.REMOVED_WITH_PROFILE;
+import static java.util.stream.Collectors.toList;
+
 import com.yy.petfinder.exception.InvalidSearchAreaException;
 import com.yy.petfinder.exception.PetAdNotFoundException;
 import com.yy.petfinder.model.*;
@@ -83,7 +86,7 @@ public class PetAdService {
   }
 
   public Mono<PetAdResolution> deletePetAd(
-      final String id, final PetAdState petAdState, final String userId) {
+      final String id, final PetAdResult petAdResult, final String userId) {
     return petAdRepository
         .findByIdAndOwnerId(id, userId)
         .switchIfEmpty(Mono.error(new PetAdNotFoundException(id)))
@@ -92,21 +95,38 @@ public class PetAdService {
                 petAdRepository
                     .deleteById(id)
                     .thenReturn(petAd)
-                    .map(
-                        ignore ->
-                            PetAdResolution.builder()
-                                .id(id)
-                                .petAdState(petAdState)
-                                .petType(petAd.getPetType())
-                                .breed(petAd.getBreed())
-                                .searchArea(petAd.getSearchArea())
-                                .createdAt(Instant.now(clock))
-                                .build()))
+                    .map(ignore -> toPetAdResolution(petAd, petAdResult)))
         .flatMap(petAdResolution -> petAdResolutionRepository.save(petAdResolution));
   }
 
-  public Mono<List<PetAdResponse>> getAds(String userId) {
+  public Mono<Object> deletePetAds(final String userId) {
+    return petAdRepository
+        .findPetAdsByOwnerId(userId)
+        .collectList()
+        .map(
+            petAds ->
+                petAds.stream()
+                    .map(p -> toPetAdResolution(p, REMOVED_WITH_PROFILE))
+                    .collect(toList()))
+        .flatMapMany(petAdResolutions -> petAdResolutionRepository.saveAll(petAdResolutions))
+        .collectList()
+        .map(resolutions -> resolutions.stream().map(PetAdResolution::getId).collect(toList()))
+        .flatMap(petAdIds -> petAdRepository.removePetAds(petAdIds));
+  }
+
+  public Mono<List<PetAdResponse>> getAds(final String userId) {
     return petAdRepository.findPetAdsByOwnerId(userId).map(this::toPetAdResponse).collectList();
+  }
+
+  private PetAdResolution toPetAdResolution(final PetAd petAd, final PetAdResult result) {
+    return PetAdResolution.builder()
+        .id(petAd.getId())
+        .petAdResult(result)
+        .petType(petAd.getPetType())
+        .breed(petAd.getBreed())
+        .searchArea(petAd.getSearchArea())
+        .createdAt(Instant.now(clock))
+        .build();
   }
 
   private PetAd toPetAd(final String id, final PetAdView petAdView, String userId) {

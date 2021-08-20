@@ -3,6 +3,7 @@ package com.yy.petfinder.persistence;
 import com.yy.petfinder.model.PetAd;
 import com.yy.petfinder.rest.model.Paging;
 import com.yy.petfinder.rest.model.PetSearchRequest;
+import java.util.List;
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -77,5 +78,13 @@ public class PetAdRepositoryImpl implements PetAdRepositoryCustom {
 
     return mongoTemplate.findAndModify(
         new Query(criteria), update, new FindAndModifyOptions().returnNew(true), PetAd.class);
+  }
+
+  @Override
+  public Mono<Boolean> removePetAds(final List<String> petAdIds) {
+    final Criteria criteria = Criteria.where(ID_FIELD).in(petAdIds);
+    return mongoTemplate
+        .remove(new Query(criteria), "petAd")
+        .map(deleteResult -> deleteResult.getDeletedCount() == petAdIds.size());
   }
 }

@@ -14,7 +14,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document
 public class PetAdResolution {
   @Id @NonNull private String id;
-  @NonNull private PetAdState petAdState;
+  @NonNull private PetAdResult petAdResult;
   @NonNull private PetType petType;
   private String breed;
 

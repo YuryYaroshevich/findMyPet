@@ -3,7 +3,7 @@ package com.yy.petfinder.rest;
 import static com.yy.petfinder.util.PaginatedResponseHelper.createResponse;
 import static com.yy.petfinder.util.UserIdRetriever.userIdFromContext;
 
-import com.yy.petfinder.model.PetAdState;
+import com.yy.petfinder.model.PetAdResult;
 import com.yy.petfinder.rest.model.*;
 import com.yy.petfinder.service.PetAdService;
 import java.util.List;
@@ -43,9 +43,9 @@ public class PetAdController {
 
   @DeleteMapping("/pets/ad/{id}")
   public Mono<ResponseEntity> deletePetAd(
-      @PathVariable final String id, @RequestParam PetAdState state) {
+      @PathVariable final String id, @RequestParam PetAdResult result) {
     return userIdFromContext()
-        .flatMap(userId -> petAdService.deletePetAd(id, state, userId))
+        .flatMap(userId -> petAdService.deletePetAd(id, result, userId))
         .map(ResponseEntity::ok);
   }
 
